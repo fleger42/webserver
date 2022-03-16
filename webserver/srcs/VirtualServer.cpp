@@ -58,11 +58,11 @@ void VirtualServer::parse_ip(std::string str)
 		length = i;
 		while(str[i] && str[i] != ':')
 			i++;
-		_ip = &str[length];
-		_ip.resize(i - length);
+		_ip.push_back(&str[length]);
+		_ip[_ip.size()].resize(i - length);
 	}
 	if(str[i] == ':')
-		_port = &str[i + 1];
+		_port.push_back(&str[i + 1]);
 }
 
 void VirtualServer::parse_root(std::string str)

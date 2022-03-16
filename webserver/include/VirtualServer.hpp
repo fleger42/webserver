@@ -65,9 +65,9 @@ class VirtualServer
 		unsigned long get_body_size();
 	private:
 		std::string _root;
-		std::string _ip;
 		std::string _server_name;
-		std::string _port;
+		std::vector<std::string> _ip;
+		std::vector<std::string> _port;
 		std::vector<std::string> _index_list;
 		std::map<int, std::string> _error_page;
 		unsigned long _body_size;
