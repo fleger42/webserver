@@ -8,13 +8,13 @@ int main(int ac, char **av)
 		return (1);
 	}
 
+	Socket socket("8080", "0.0.0.0");
 	Server server;
-	Socket socket;
 	Conf conf(av[1]);
-	socket.create_socket(av[1]);
-	if (socket.find_and_bind(av[1]) != 0)
+	socket.create_socket();
+	if (socket.make_bind() != 0)
 		return (1);
-	if (socket.listen_socket(av[1], 3) < 0)
+	if (socket.listen_socket(3) < 0)
 		return (1);
 
 	int i = 1;
@@ -22,7 +22,7 @@ int main(int ac, char **av)
 	{
 		while (av[i])
 		{
-			server.server_accept(socket.getServerFd(av[i]));
+			server.server_accept(socket.getServerFd());
 			i++;
 		}
 		if (server.receive_msg() != 0)
@@ -33,6 +33,6 @@ int main(int ac, char **av)
 		i = 1;
 	}
 	std::cout << "Close server" << std::endl;
-	close(socket.getServerFd(av[1]));
+	close(socket.getServerFd());
 	return (0);
 }
