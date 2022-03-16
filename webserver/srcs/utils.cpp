@@ -214,3 +214,21 @@ char				**ft_split(char const *s, const char *delimiters)
 	tab[i] = NULL;
 	return (tab);
 }
+
+int ft_strlen(char *str)
+{
+	int i;
+	i = 0;
+	while (str[i])
+		i++;
+	return i;
+}
+
+int ft_strlen(const char *str)
+{
+	int i;
+	i = 0;
+	while (str[i])
+		i++;
+	return i;
+}
