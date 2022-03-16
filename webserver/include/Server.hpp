@@ -13,6 +13,7 @@ char				**ft_split(char const *s, const char *delimiters);
 int 				ft_strlen(char *str);
 int 				ft_strlen(const char *str);
 
+class Socket;
 class Server {
 
 		public:
