@@ -64,6 +64,7 @@ int walk_end_block(std::string const & str)
 			is_open = 1;
 		i++;
 	}
+	return (0);
 }
 /*
 Compte le nombre de fois qu'apparait le mot str dans file

@@ -45,9 +45,9 @@ class VirtualServer
 		void set_root(std::string value);
 		void set_location_list(std::vector<Location> value);
 		void set_body_size(unsigned long value);
-		void set_ip(std::string value);
+		void set_ip(std::vector<std::string> value);
 		void set_server_name(std::string value);
-		void set_port(std::string value);
+		void set_port(std::vector<std::string> value);
 		void set_error_page(std::map<int, std::string> value);
 		void set_index_list(std::vector<std::string> value);
 
@@ -56,9 +56,9 @@ class VirtualServer
 		bool get_post();
 		bool get_delete();
 		bool get_autoindex();
-		std::string get_port();
+		std::vector<std::string> get_port();
 		std::string get_root();
-		std::string get_ip();
+		std::vector<std::string> get_ip();
 		std::string get_server_name();
 		std::vector<Location> get_location_list();
 		std::vector<std::string> get_index_list();

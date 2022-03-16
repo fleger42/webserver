@@ -143,9 +143,13 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 		else if((length = double_tab[i].find("index")) != std::string::npos)
 			parse_index_list(double_tab[i]);
 	}
-	std::cout << "_IP = " << _ip << std::endl;
+	std::cout << "_IP = " << std::endl;
+	for(std::vector<std::string>::iterator it = _ip.begin(); it != _ip.end(); it++)
+		std::cout << *it << std::endl;
+	std::cout << "_INDEX_LIST = " << std::endl;
 	std::cout << "_ROOT = " << _root << std::endl;
-	std::cout << "_PORT = " << _port << std::endl;
+	for(std::vector<std::string>::iterator it = _port.begin(); it != _port.end(); it++)
+		std::cout << *it << std::endl;
 	std::cout << "_SERVER_NAME = " << _server_name << std::endl;
 	std::cout << "_GET = " << _get << std::endl;
 	std::cout << "_POST = " << _post << std::endl;
@@ -222,7 +226,7 @@ void VirtualServer::set_body_size(unsigned long value)
 	_body_size = value;
 }
 
-void VirtualServer::set_ip(std::string value)
+void VirtualServer::set_ip(std::vector<std::string> value)
 {
 	_ip = value;
 }
@@ -232,7 +236,7 @@ void VirtualServer::set_server_name(std::string value)
 	_server_name = value;
 }
 
-void VirtualServer::set_port(std::string value)
+void VirtualServer::set_port(std::vector<std::string> value)
 {
 	_port = value;
 }
@@ -272,7 +276,7 @@ bool VirtualServer::get_autoindex()
 	return(_autoindex);
 }
 
-std::string	VirtualServer::get_port()
+std::vector<std::string> VirtualServer::get_port()
 {
 	return(_port);
 }
@@ -282,7 +286,7 @@ std::string VirtualServer::get_root()
 	return(_root);
 }
 
-std::string VirtualServer::get_ip()
+std::vector<std::string> VirtualServer::get_ip()
 {
 	return(_ip);
 }
