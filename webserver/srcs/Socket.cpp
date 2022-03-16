@@ -1,4 +1,5 @@
 #include "../include/Socket.hpp"
+#include "errno.h"
 
 
 Socket::Socket()
@@ -57,7 +58,7 @@ void Socket::create_socket()
 
 int Socket::make_bind()
 {
-	if (bind(server_fd, (struct sockaddr*)&server_address, sizeof(server_fd)) < 0)
+	if (bind(server_fd, (struct sockaddr*)&server_address, sizeof(server_address)) < 0)
 	{
 		std::cerr << "Error with biding" << std::endl;
 		close(server_fd);

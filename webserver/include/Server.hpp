@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "header.hpp"
-
+class Socket;
 class Server {
 
 		public:
@@ -24,5 +24,5 @@ class Server {
 
 		int client;
 		char *msg_client;
-
+		std::vector<Socket> list_socket;
 };
