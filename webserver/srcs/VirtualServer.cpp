@@ -62,7 +62,11 @@ void VirtualServer::parse_ip(std::string str)
 		_ip[_ip.size()].resize(i - length);
 	}
 	if(str[i] == ':')
+	{
+		str[ft_strlen(str.c_str()) - 1] = '\0';
 		_port.push_back(&str[i + 1]);
+		
+	}
 }
 
 void VirtualServer::parse_root(std::string str)
@@ -143,7 +147,7 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 		else if((length = double_tab[i].find("index")) != std::string::npos)
 			parse_index_list(double_tab[i]);
 	}
-	std::cout << "_IP = " << std::endl;
+	/*std::cout << "_IP = " << std::endl;
 	for(std::vector<std::string>::iterator it = _ip.begin(); it != _ip.end(); it++)
 		std::cout << *it << std::endl;
 	std::cout << "_INDEX_LIST = " << std::endl;
@@ -161,14 +165,14 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 	std::cout << "_INDEX_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 		std::cout << *it << std::endl;
-	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
+	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;*/
 }
 
 void VirtualServer::parse_conf_file(std::string str)
 {
 	size_t found;
 	std::string new_str;
-	std::cout << "In virtual server" << std::endl;
+	//std::cout << "In virtual server" << std::endl;
 	//std::cout << std::endl << "Virtualserver [" << str << "]" << std::endl << std::endl;
 
 	std::vector<std::string> double_tab = string_to_double_tab(str);
@@ -246,62 +250,62 @@ void VirtualServer::set_error_page(std::map<int, std::string> value)
 	_error_page = value;
 }
 
-std::vector<std::string> VirtualServer::get_index_list()
+std::vector<std::string> VirtualServer::get_index_list() const
 {
 	return(_index_list);
 }
 
-std::map<int, std::string> VirtualServer::get_error_page()
+std::map<int, std::string> VirtualServer::get_error_page() const
 {
 	return(_error_page);
 }
 
-bool VirtualServer::get_get()
+bool VirtualServer::get_get() const
 {
 	return(_get);
 }
 
-bool VirtualServer::get_post()
+bool VirtualServer::get_post() const
 {
 	return(_post);
 }
 
-bool VirtualServer::get_delete()
+bool VirtualServer::get_delete() const
 {
 	return(_delete);
 }
 
-bool VirtualServer::get_autoindex()
+bool VirtualServer::get_autoindex() const
 {
 	return(_autoindex);
 }
 
-std::vector<std::string> VirtualServer::get_port()
+std::vector<std::string> VirtualServer::get_port() const
 {
 	return(_port);
 }
 
-std::string VirtualServer::get_root()
+std::string VirtualServer::get_root() const
 {
 	return(_root);
 }
 
-std::vector<std::string> VirtualServer::get_ip()
+std::vector<std::string> VirtualServer::get_ip() const
 {
 	return(_ip);
 }
 
-std::string VirtualServer::get_server_name()
+std::string VirtualServer::get_server_name() const
 {
 	return(_server_name);
 }
 
-std::vector<Location> VirtualServer::get_location_list()
+std::vector<Location> VirtualServer::get_location_list() const
 {
 	return(_location_list);
 }
 
-unsigned long VirtualServer::get_body_size()
+unsigned long VirtualServer::get_body_size() const
 {
 	return(_body_size);
 }

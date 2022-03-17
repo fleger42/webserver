@@ -20,6 +20,8 @@ static void			ft_get_next_str(char **next_str, unsigned int *next_str_len,
 size_t				ft_strlcpy(char *dst, char const *src, size_t size);
 char				**ft_clear_splitted(char **tab);
 char				**ft_split(char const *s, const char *delimiters);
+int ft_strlen(char *str);
+int ft_strlen(const char *str);
 class VirtualServer
 {
 	public:
@@ -51,18 +53,18 @@ class VirtualServer
 		void set_error_page(std::map<int, std::string> value);
 		void set_index_list(std::vector<std::string> value);
 
-		std::map<int, std::string> get_error_page();
-		bool get_get();
-		bool get_post();
-		bool get_delete();
-		bool get_autoindex();
-		std::vector<std::string> get_port();
-		std::string get_root();
-		std::vector<std::string> get_ip();
-		std::string get_server_name();
-		std::vector<Location> get_location_list();
-		std::vector<std::string> get_index_list();
-		unsigned long get_body_size();
+		std::map<int, std::string> get_error_page() const;
+		bool get_get() const;
+		bool get_post() const;
+		bool get_delete() const;
+		bool get_autoindex() const;
+		std::vector<std::string> get_port() const;
+		std::string get_root() const;
+		std::vector<std::string> get_ip() const;
+		std::string get_server_name() const;
+		std::vector<Location> get_location_list() const;
+		std::vector<std::string> get_index_list() const;
+		unsigned long get_body_size() const;
 	private:
 		std::string _root;
 		std::string _server_name;

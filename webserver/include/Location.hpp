@@ -42,15 +42,15 @@ class Location
 		void set_upload_dir(std::string value);
 		void set_body_size(unsigned long value);
 
-		bool get_get();
-		bool get_post();
-		bool get_delete();
-		bool get_autoindex();
-		std::string get_root();
-		std::string get_path();
-		std::string get_upload_dir();
-		std::vector<std::string> get_index_list();
-		unsigned long get_body_size();
+		bool get_get() const;
+		bool get_post() const;
+		bool get_delete() const;
+		bool get_autoindex() const;
+		std::string get_root() const;
+		std::string get_path() const;
+		std::string get_upload_dir() const;
+		std::vector<std::string> get_index_list() const;
+		unsigned long get_body_size() const;
 	private:
 		bool _get;
 		bool _post;

@@ -1,15 +1,16 @@
 #include "../include/Server.hpp"
 
-Server::Server()
+Server::Server() : client(0)
 {}
 
 Server::Server(Server const & other)
 {
 	this->client = other.client;
 	this->msg_client = other.msg_client;
+	this->info_serv = other.info_serv;
 }
 
-Server::Server(VirtualServer const & virtual_serv)
+Server::Server(VirtualServer const & virtual_serv) : client(0)
 {
 	this->info_serv = virtual_serv;
 }
@@ -21,7 +22,35 @@ Server &Server::operator=(Server const & other)
 {
 	this->client = other.client;
 	this->msg_client = other.msg_client;
+	this->info_serv = other.info_serv;
 	return (*this);
+}
+
+std::vector<Socket> Server::get_all_socket() const
+{
+	return (all_socket);
+}
+
+int Server::create_socket()
+{
+	std::vector<std::string> ip_list = info_serv.get_ip();
+	std::vector<std::string> port_list = info_serv.get_port();
+	std::vector<Socket> temp(port_list.size());
+
+	for(int i = 0; i < port_list.size(); i++)
+	{
+		std::cout << "Create new socket for server " << this->info_serv.get_server_name() << 
+		" with ip: " << ip_list[i] << std::endl;
+		temp[i].set_ip(ip_list[i]);
+		temp[i].set_port(port_list[i]);
+		temp[i].create_socket();
+		if (temp[i].make_bind() != 0)
+			return (1);
+		if (temp[i].listen_socket(3) < 0)
+			return (1);
+	}
+	all_socket = temp;
+	return (0);
 }
 
 int Server::getClient()
@@ -29,21 +58,24 @@ int Server::getClient()
 	return this->client;
 }
 
-int Server::server_accept(int socket_fd)
+int Server::server_accept()
 {
+	std::cout << "server " << info_serv.get_server_name() << " accept new connection." << std::endl;
 	struct sockaddr client_address;
-	socklen_t client_addr_lenght;
-	int new_client;
+	socklen_t client_addr_lenght = sizeof( (socklen_t *)&client_address);
 
-	if((new_client = accept(socket_fd, (struct sockaddr*)&client_address, (socklen_t*)&client_addr_lenght)) < 0)
+	if((this->client = accept(all_socket[0].getServerFd(), (struct sockaddr*)&client_address, (socklen_t*)&client_addr_lenght)) < 0)
 	{
 		std::cerr << "Error while accepting new client" << std::endl;
-		close(socket_fd);
 		return (1);
 	}
-	this->client = new_client;
 	std::cout << "New client connected on server: " << std::endl;
 	return (0);
+}
+
+void Server::set_virtual_server(VirtualServer const & value)
+{
+	info_serv = value;
 }
 
 int Server::receive_msg()
@@ -53,7 +85,7 @@ int Server::receive_msg()
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	std::cout << "Messaged received:\n" << buff << std::endl;
+	//std::cout << "Messaged received:\n" << buff << std::endl;
 	this->msg_client = buff;
 	return (0);
 }
@@ -65,17 +97,11 @@ int Server::send_msg()
 		std::cerr << "action not permited" << std::endl;
 	else if (ret == 1)
 	{
-		std::cout << "before action get" << std::endl;
 		std::string tmp = this->actionGet();
-		std::cout << "test tmp :" << tmp << std::endl;
 		std::string send_buff = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
-		std::cout << "test send_buff :" << send_buff << std::endl;
 		send_buff += std::to_string(tmp.size());
-		std::cout << "test send_buff :" << send_buff << std::endl;
 		send_buff += "\n\n";
-		std::cout << "test send_buff :" << send_buff << std::endl;
 		send_buff += tmp;
-		std::cout << "test send_buff :" << send_buff << std::endl;
 		std::cerr << send_buff << std::endl;
 		//char send_buff[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
@@ -127,7 +153,7 @@ std::string Server::actionGet()
 	}
 	buff << input.rdbuf();
 	file = buff.str();
-	std::cout << "Exit action get" << file << std::endl;
+	//std::cout << "Exit action get" << file << std::endl;
 	return (file);
 }
 
@@ -139,4 +165,10 @@ void Server::actionPost()
 void Server::actionDelete()
 {
 
+}
+
+void Server::close_all_fd()
+{
+	for(std::vector<Socket>::iterator it = all_socket.begin(); it != all_socket.end(); it++)
+		close(it->getServerFd());
 }

@@ -21,6 +21,16 @@ Socket::Socket(Socket const & other)
 	this->ip = other.ip;
 }
 
+void Socket::set_port(std::string port)
+{
+	this->port = port;
+}
+
+void Socket::set_ip(std::string ip)
+{
+	this->ip = ip;
+}
+
 Socket &Socket::operator=(Socket const & other)
 {
 	this->server_address = other.server_address;
@@ -46,7 +56,7 @@ void Socket::create_socket()
 	memset((char*)&tmp, 0, sizeof(tmp));
 	tmp.sin_family = AF_INET;
 	tmp.sin_addr.s_addr = htonl(INADDR_ANY);
-	tmp.sin_port = htons(std::atoi("8080"));
+	tmp.sin_port = htons(std::atoi(port.c_str()));
 
 	this->server_address = tmp;
 

@@ -13,13 +13,13 @@ class Socket
 		Socket(Socket const & other);
 		~Socket();
 		Socket &operator=(Socket const & other);
-
+		void set_port(std::string port);
+		void set_ip(std::string ip);
 		void create_socket();
 		int make_bind();
 		int listen_socket(int max_queue);
 		int getServerFd();
 		sockaddr_in getServerAddress();
-
 	private:
 		sockaddr_in server_address;
 		int server_fd;

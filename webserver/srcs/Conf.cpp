@@ -1,12 +1,12 @@
 #include "../include/Conf.hpp"
 
-Conf::Conf() : _list_server(), file_content()
+Conf::Conf() : _list_virtual_server(), file_content()
 {
 	//std::cout << "Class Conf default constructor" << std::endl;
 }
 
 
-Conf::Conf(std::string filename) : _list_server(), file_content()
+Conf::Conf(std::string filename) : _list_virtual_server(), file_content()
 {
 	//std::cout << "Class Conf default constructor" << std::endl;
 	parse_conf_file(filename);
@@ -31,24 +31,37 @@ Conf & Conf::operator=(Conf const & copy)
 	//std::cout << "Class Conf operator=" << std::endl;
 }
 
-std::vector<VirtualServer> Conf::get_list_server() const
+std::vector<VirtualServer> Conf::get_list_virtual_server() const
 {
-	return (_list_server);
+	return (_list_virtual_server);
 }
 
-void Conf::add_server(VirtualServer const & server)
+void Conf::add_virtual_server(VirtualServer const & server)
 {
-	_list_server.push_back(server);
+	_list_virtual_server.push_back(server);
 }
 
-void Conf::set_server(std::vector<VirtualServer> const & server_list)
+void Conf::set_virtual_server(std::vector<VirtualServer> const & server_list)
 {
-	_list_server = server_list;
+	_list_virtual_server = server_list;
 }
 
 std::string Conf::get_file_content() const
 {
 	return(file_content);
+}
+
+std::vector<Server> Conf::create_all_server()
+{
+	std::vector<Server> list_server(_list_virtual_server.size());
+	int i = 0;
+	for(std::vector<VirtualServer>::iterator it = _list_virtual_server.begin(); it != _list_virtual_server.end(); it++)
+	{
+		list_server[i].set_virtual_server(*it);
+		list_server[i].create_socket();
+		i++;
+	}
+	return(list_server);
 }
 
 void Conf::parse_conf_file(std::string filename)
@@ -68,7 +81,7 @@ void Conf::parse_conf_file(std::string filename)
 	this->file_content = content;
 	size_t found;
 	size_t server_nbr = count_appearance(content, "server");
-	_list_server.resize(server_nbr);
+	_list_virtual_server.resize(server_nbr);
 	for(size_t i = 0; i < server_nbr; i++)
 	{
 		found = content.find("server");
@@ -76,7 +89,7 @@ void Conf::parse_conf_file(std::string filename)
 			break;
 		new_str = content;
 		cutblock(new_str);
-		_list_server[i].parse_conf_file(new_str);
+		_list_virtual_server[i].parse_conf_file(new_str);
 		content = &content[walk_end_block(&content[found])];
 	}
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <errno.h>
 
 int main(int ac, char *av[])
 {
@@ -40,6 +41,7 @@ int main(int ac, char *av[])
 		if((new_client = accept(server_fd, (struct sockaddr*)&client_address, (socklen_t*)&client_addr_lenght)) < 0)
 		{
 			std::cerr << "Error while accepting new client" << std::endl;
+			
 			close(server_fd);
 			exit(1);
 		}

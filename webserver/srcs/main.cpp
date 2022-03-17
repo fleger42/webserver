@@ -8,31 +8,19 @@ int main(int ac, char **av)
 		return (1);
 	}
 
-	Socket socket("8080", "0.0.0.0");
-	Server server;
 	Conf conf(av[1]);
-	socket.create_socket();
-	if (socket.make_bind() != 0)
-		return (1);
-	if (socket.listen_socket(3) < 0)
-		return (1);
-
-	int i = 1;
+	std::vector<Server> all_server = conf.create_all_server();
 	while (42)
 	{
-		while (av[i])
+		for(std::vector<Server>::iterator it = all_server.begin(); it != all_server.end(); it++)
 		{
-			server.server_accept(socket.getServerFd());
-			i++;
+			it->server_accept();
+			if (it->receive_msg() != 0)
+				break;
+			if (it->send_msg() != 0)
+				return (1);
 		}
-		if (server.receive_msg() != 0)
-			break;
-		if (server.send_msg() != 0)
-			return (1);
-		close(server.getClient());
-		i = 1;
 	}
 	std::cout << "Close server" << std::endl;
-	close(socket.getServerFd());
 	return (0);
 }
