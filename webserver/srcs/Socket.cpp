@@ -50,7 +50,7 @@ sockaddr_in Socket::getServerAddress()
 	return this->server_address;
 }
 
-void Socket::create_socket()
+int Socket::create_socket()
 {
 	struct sockaddr_in tmp;
 	memset((char*)&tmp, 0, sizeof(tmp));
@@ -59,11 +59,14 @@ void Socket::create_socket()
 	tmp.sin_port = htons(std::atoi(port.c_str()));
 
 	this->server_address = tmp;
-
-	int ret = socket(AF_INET, SOCK_STREAM, 0);
-	this->server_fd = ret;
-	if (ret < 0)
+	int ret;
+	if((ret = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
 		std::cerr << "Error with socked creation" << std::endl;
+		return (1);
+	}
+	this->server_fd = ret;
+	return (0);
 }
 
 int Socket::make_bind()
@@ -82,6 +85,12 @@ int Socket::listen_socket(int max_queue)
 	if (listen((server_fd), max_queue) < 0)
 	{
 		std::cerr << "Error while listening" << std::endl;
+		close(server_fd);
+		return (1);
+	}
+	if (fcntl(server_fd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		std::cerr << "Error:fcntl" << std::endl;
 		close(server_fd);
 		return (1);
 	}

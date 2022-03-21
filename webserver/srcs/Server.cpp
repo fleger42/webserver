@@ -43,10 +43,11 @@ int Server::create_socket()
 		" with ip: " << ip_list[i] << std::endl;
 		temp[i].set_ip(ip_list[i]);
 		temp[i].set_port(port_list[i]);
-		temp[i].create_socket();
+		if(temp[i].create_socket() != 0)
+			return (1);
 		if (temp[i].make_bind() != 0)
 			return (1);
-		if (temp[i].listen_socket(3) < 0)
+		if (temp[i].listen_socket(30) < 0)
 			return (1);
 	}
 	all_socket = temp;
@@ -56,6 +57,11 @@ int Server::create_socket()
 int Server::getClient()
 {
 	return this->client;
+}
+
+std::string Server::get_server_name()
+{
+	return (info_serv.get_server_name());
 }
 
 int Server::server_accept()
@@ -69,7 +75,7 @@ int Server::server_accept()
 		std::cerr << "Error while accepting new client" << std::endl;
 		return (1);
 	}
-	std::cout << "New client connected on server: " << std::endl;
+	std::cout << "New client connect on server [" << get_server_name() << "]" << std::endl;
 	return (0);
 }
 
@@ -102,7 +108,7 @@ int Server::send_msg()
 		send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
 		send_buff += tmp;
-		std::cerr << send_buff << std::endl;
+		//std::cerr << send_buff << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;

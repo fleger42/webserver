@@ -1,0 +1,53 @@
+Start parsing of file: conf/little.conf
+Create new socket for server saucisse; with ip: 0.0.0.0:8080;
+fd value = 3
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+before if fd value = 3
+in if fd value = 3
+server saucisse; accept new connection.
+New client connect on server [saucisse;]
+BIP..
+Wait for connecting..
+before if fd value = 3
+in if fd value = 3
+server saucisse; accept new connection.
+New client connect on server [saucisse;]
+BIP..
+Wait for connecting..
+before if fd value = 3
+in if fd value = 3
+server saucisse; accept new connection.
+New client connect on server [saucisse;]
+BIP..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+Wait for connecting..
+before if fd value = 3
+in if fd value = 3
+server saucisse; accept new connection.
+New client connect on server [saucisse;]

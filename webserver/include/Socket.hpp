@@ -15,7 +15,7 @@ class Socket
 		Socket &operator=(Socket const & other);
 		void set_port(std::string port);
 		void set_ip(std::string ip);
-		void create_socket();
+		int create_socket();
 		int make_bind();
 		int listen_socket(int max_queue);
 		int getServerFd();

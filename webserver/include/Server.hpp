@@ -38,7 +38,7 @@ class Server {
 			int getClient();
 			void close_all_fd();
 			std::vector<Socket> get_all_socket() const;
-
+			std::string get_server_name();
 
 		private:
 			int client;
