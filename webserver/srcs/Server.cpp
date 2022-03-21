@@ -98,12 +98,11 @@ int Server::send_msg()
 	else if (ret == 1)
 	{
 		std::string tmp = this->actionGet();
-		std::string send_buff = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
+		std::string send_buff = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 		send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
 		send_buff += tmp;
 		std::cerr << send_buff << std::endl;
-		//char send_buff[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -153,7 +152,6 @@ std::string Server::actionGet()
 	}
 	buff << input.rdbuf();
 	file = buff.str();
-	//std::cout << "Exit action get" << file << std::endl;
 	return (file);
 }
 
