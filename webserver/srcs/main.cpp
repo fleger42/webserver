@@ -9,7 +9,7 @@ int main(int ac, char **av)
 	}
 
 	Conf conf(av[1]);
-	/*struct timeval select_timeout;
+	struct timeval select_timeout;
 	fd_set select_set_read_dump;
 	fd_set select_set_read_ready;
 	select_timeout.tv_sec = 1;
@@ -60,13 +60,12 @@ int main(int ac, char **av)
 						if (it_server->send_msg() != 0)
 							exit(1);
 						close(it_server->getClient());
-						usleep(200000);
 					}
 				}
 			}
 		}
 		status = 0;
-	}*/
+	}
 	std::cout << "Close server" << std::endl;
 	return (0);
 }

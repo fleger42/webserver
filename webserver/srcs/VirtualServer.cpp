@@ -59,7 +59,7 @@ void VirtualServer::parse_ip(std::string str)
 		while(str[i] && str[i] != ':')
 			i++;
 		_ip.push_back(&str[length]);
-		_ip[_ip.size()].resize(i - length);
+		_ip[_ip.size() - 1].resize(i - length);
 	}
 	if(str[i] == ':')
 	{
