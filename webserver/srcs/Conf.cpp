@@ -96,4 +96,5 @@ void Conf::parse_conf_file(std::string filename)
 		_list_virtual_server[i].parse_conf_file(new_str);
 		content = &content[walk_end_block(&content[found])];
 	}
+	std::cout << "TEST PARSING PATH V2:" << _list_virtual_server[0].get_location_list()[0].get_path() << std::endl;
 }

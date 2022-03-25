@@ -137,18 +137,29 @@ int Server::get_action()
 
 std::string Server::actionGet()
 {
-	/*if (this->info_serv.get_get() == 0)
+	if (this->info_serv.get_get() == 0)
 	{
 		std::cerr << "Not permited to GET" << std::endl;
 		return NULL;
-	}*/
+	}
 
+	std::cout << "TEST 1" << std::endl;
 	char **tmp;
 	char *tmp2;
 	tmp = ft_split(this->msg_client, " ");
 	tmp2 = tmp[1];
-	std::string file = "www/test.html";
-//	file += tmp2;
+	std::string file;
+	file += tmp2;
+	std::cout << "TEST 2" << std::endl;
+	if (this->verif_get_location(file) != 0)
+	{
+		std::cerr << "Not permited to GET" << std::endl;
+		return NULL;	
+	}
+	std::cout << "TEST 3" << std::endl;
+	file = this->get_location_path(file);
+	std::cout << "TEST 4" << std::endl;
+	std::cout << "FILE OPEN :" << file << std::endl;
 	std::ifstream input(file.c_str());
 	std::stringstream buff;
 	if (input.good() == 0)
@@ -175,4 +186,124 @@ void Server::close_all_fd()
 {
 	for(std::vector<Socket>::iterator it = all_socket.begin(); it != all_socket.end(); it++)
 		close(it->getServerFd());
+}
+
+int Server::verif_get_location(std::string file)
+{
+	int i = 0;
+	int tmp = 0;
+	std::string path_loca;
+	std::string path_tmp;
+	std::vector<Location> loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca.begin();
+	while (it != loca.end())
+	{
+		i = 0;
+		path_tmp = it->get_path();
+		while (file[i] && path_tmp[i] && file[i] == path_tmp[i])
+			i++;
+		if (i > tmp && i >= path_tmp.size())
+		{
+			tmp = i;
+			path_loca = path_tmp;
+		}
+		it++;
+	}
+	it = loca.begin();
+	while (it != loca.end())
+	{
+		if (path_loca == it->get_path())
+		{
+			if (it->get_get() == 1)
+				return 0;
+			else
+				return 1;
+		}
+	}
+	return 1;
+}
+
+std::string Server::get_location_path(std::string file)
+{
+	int i = 0;
+	int tmp = 0;
+	std::string path_loca;
+	std::string path_tmp;
+	std::string ret;
+	std::vector<Location> loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca.begin();
+	std::cout << "TEST PATH :" << it->get_path() << std::endl;
+	std::cout << "SUB TEST 1" << std::endl;
+	while (it != loca.end())
+	{
+		i = 0;
+		path_tmp = it->get_path();
+		while (file[i] && path_tmp[i] && file[i] == path_tmp[i])
+			i++;
+		std::cout << "path_tmp :" << path_tmp << std::endl;
+		std::cout << "path_tmp size :" << path_tmp.size() << std::endl;
+		std::cout << "i :" << i << std::endl;
+		std::cout << "tmp :" << tmp << std::endl;
+		if (i > tmp && i >= path_tmp.size())
+		{
+			tmp = i;
+			path_loca = path_tmp;
+		}
+		it++;
+	}
+	it = loca.begin();
+	std::cout << "SUB TEST 2" << std::endl;
+	while (it != loca.end())
+	{
+		if (path_loca == it->get_path())
+		{
+			path_tmp = it->get_root();
+			std::cout << "SUB TEST 3" << std::endl;
+			if (!path_tmp.empty())
+			{
+				ret = path_tmp;
+				if (path_loca.size() - file.size() >= 0)
+				{
+					ret += path_loca;
+					if (ret[ret.size() - 1] != '/')
+						ret += '/';
+					ret += it->get_index_list().front();
+					return ret;
+				}
+				ret += file;
+				return ret;
+			}
+			path_tmp = this->info_serv.get_root();
+			std::cout << "SUB TEST 4" << std::endl;
+			if (!path_tmp.empty())
+			{
+				ret = path_tmp;
+				std::cout << "path loca :" << path_loca << std::endl;
+				std::cout << "ret (root) :" << ret << std::endl;
+				std::cout << "file :" << file << std::endl;
+				if (path_loca.size() - file.size() >= 0)
+				{
+					ret += path_loca;
+					if (ret[ret.size() - 1] != '/')
+						ret += '/';
+					ret += it->get_index_list().front();
+					return ret;
+				}
+				ret += file;
+				return ret;
+			}
+			std::cout << "SUB TEST 5" << std::endl;
+			if (path_loca.size() - file.size() >= 0)
+			{
+				ret += path_loca;
+				if (ret[ret.size() - 1] != '/')
+					ret += '/';
+				ret += it->get_index_list().front();
+				return ret;
+			}
+			ret += file;
+			return ret;
+		}
+	}
+	return ret;
 }

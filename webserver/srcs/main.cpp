@@ -36,7 +36,7 @@ int main(int ac, char **av)
 			FD_ZERO(&select_set_read_ready);
 			select_set_read_ready = select_set_read_dump;
 
-			std::cout << "Wait for connecting.." << std::endl;
+			//std::cout << "Wait for connecting.." << std::endl;
 			usleep(200000);
 			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 			{

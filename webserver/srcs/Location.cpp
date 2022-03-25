@@ -72,8 +72,9 @@ void Location::parse_index_list(std::string str)
 
 void Location::parse_path(std::string str)
 {
-	int length = str.find("location");
-	_path = &str[length + strlen("location") + 1];
+	/*int length = str.find("location");
+	_path = &str[length + strlen("location") + 1];*/
+	_path = "petit test";
 }
 
 void Location::parse_upload_dir(std::string str)
@@ -103,8 +104,8 @@ void Location::parse_double_tab(std::vector<std::string> double_tab)
 		else if((length = double_tab[i].find("upload_dir")) != std::string::npos)
 			parse_upload_dir(double_tab[i]);
 	}
-	/*std::cout << "_PATH = " << _path << std::endl;
-	std::cout << "_ROOT = " << _root << std::endl;
+	std::cout << "_PATH = " << _path << std::endl;
+	/*std::cout << "_ROOT = " << _root << std::endl;
 	std::cout << "_GET = " << _get << std::endl;
 	std::cout << "_POST = " << _post << std::endl;
 	std::cout << "_DELETE = " << _delete << std::endl;

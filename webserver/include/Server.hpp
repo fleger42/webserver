@@ -39,6 +39,8 @@ class Server {
 			void close_all_fd();
 			std::vector<Socket> get_all_socket() const;
 			std::string get_server_name();
+			int verif_get_location(std::string file);
+			std::string get_location_path(std::string file);
 
 		private:
 			int client;
