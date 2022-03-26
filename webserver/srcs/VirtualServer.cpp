@@ -1,7 +1,7 @@
 #include "../include/VirtualServer.hpp"
 
 VirtualServer::VirtualServer() : _root(), _ip(), _server_name(), _port(), _error_page(),_body_size(0), 
-								_autoindex(0), _get(0), _post(0), _delete(0), _location_list(std::vector<Location>())
+								_autoindex(0), _get(0), _post(0), _delete(0), _location_list()
 {
 	//std::cout << "Class VirtualServer default constructor" << std::endl;
 }
@@ -14,6 +14,7 @@ VirtualServer::VirtualServer(VirtualServer const & copy)
 
 VirtualServer::~VirtualServer()
 {
+	delete _location_list;
 	//std::cout << "Class VirtualServer destructor" << std::endl;
 }
 
@@ -72,13 +73,21 @@ void VirtualServer::parse_ip(std::string str)
 void VirtualServer::parse_root(std::string str)
 {
 	int length = str.find("root");
-	_root = &str[length + strlen("root") + 1];;
+	_root = &str[length + strlen("root") + 1];
+	int i = 0; 
+	while(_root[i] != ';')
+		i++;
+	_root.resize(i);
 }
 
 void VirtualServer::parse_server_name(std::string str)
 {
 	int length = str.find("server_name");
 	_server_name = &str[length + strlen("server_name") + 1];
+	int i = 0; 
+	while(_server_name[i] != ';')
+		i++;
+	_server_name.resize(i);
 }
 
 void VirtualServer::parse_autoindex(std::string str)
@@ -100,6 +109,10 @@ void VirtualServer::parse_error_page(std::string str)
 	std::string temp = &str[length + strlen("error_page") + 1];
 	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
 		length++;
+	int i = 0; 
+	while(temp[i] != ';')
+		i++;
+	temp.resize(i);
 	_error_page.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));
 }
 
@@ -118,6 +131,13 @@ void VirtualServer::parse_index_list(std::string str)
 		i++;
 	}
 	free(ret);
+	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
+	{
+		i = 0; 
+		while((*it)[i] != ';')
+			i++;
+		it->resize(i);
+	}
 }
 
 void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
@@ -147,14 +167,40 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 		else if((length = double_tab[i].find("index")) != std::string::npos)
 			parse_index_list(double_tab[i]);
 	}
-	/*std::cout << "_IP = " << std::endl;
+}
+
+void VirtualServer::parse_conf_file(std::string str)
+{
+	size_t found;
+	std::string new_str;
+
+	std::vector<std::string> double_tab = string_to_double_tab(str);
+	parse_double_tab(double_tab);
+	size_t location_nbr = count_appearance(str, "location");
+	_location_list = new std::vector<Location>(location_nbr);
+	for(size_t i = 0; i < location_nbr; i++)
+	{
+		found = str.find("location");
+		if(found == std::string::npos)
+			break;
+		new_str = &str[found];
+		cutblock(new_str);
+		(*_location_list)[i].parse_conf_file(new_str);
+		str = &str[walk_end_block(&str[found])];
+	}
+}
+
+void VirtualServer::ft_print_content(void)
+{
+	std::cout << "--Content of VirtualServer--" << std::endl;
+	std::cout << "_SERVER_NAME = " << _server_name << std::endl;
+	std::cout << "_IP = " << std::endl;
 	for(std::vector<std::string>::iterator it = _ip.begin(); it != _ip.end(); it++)
 		std::cout << *it << std::endl;
-	std::cout << "_INDEX_LIST = " << std::endl;
-	std::cout << "_ROOT = " << _root << std::endl;
+	std::cout << "_PORT = " << std::endl;
 	for(std::vector<std::string>::iterator it = _port.begin(); it != _port.end(); it++)
 		std::cout << *it << std::endl;
-	std::cout << "_SERVER_NAME = " << _server_name << std::endl;
+	std::cout << "_ROOT = " << _root << std::endl;
 	std::cout << "_GET = " << _get << std::endl;
 	std::cout << "_POST = " << _post << std::endl;
 	std::cout << "_DELETE = " << _delete << std::endl;
@@ -165,31 +211,12 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 	std::cout << "_INDEX_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 		std::cout << *it << std::endl;
-	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;*/
+	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
+	for(std::vector<Location>::iterator it = _location_list->begin(); it != _location_list->end(); it++)
+		it->ft_print_content();
+
 }
 
-void VirtualServer::parse_conf_file(std::string str)
-{
-	size_t found;
-	std::string new_str;
-	//std::cout << "In virtual server" << std::endl;
-	//std::cout << std::endl << "Virtualserver [" << str << "]" << std::endl << std::endl;
-
-	std::vector<std::string> double_tab = string_to_double_tab(str);
-	parse_double_tab(double_tab);
-	size_t location_nbr = count_appearance(str, "location");
-	_location_list.resize(location_nbr);
-	for(size_t i = 0; i < location_nbr; i++)
-	{
-		found = str.find("location");
-		if(found == std::string::npos)
-			break;
-		new_str = &str[found];
-		cutblock(new_str);
-		_location_list[i].parse_conf_file(new_str);
-		str = &str[walk_end_block(&str[found])];
-	}
-}
 void VirtualServer::set_index_list(std::vector<std::string> value)
 {
 	_index_list = value;
@@ -220,7 +247,7 @@ void VirtualServer::set_root(std::string value)
 	_root = value;
 }
 
-void VirtualServer::set_location_list(std::vector<Location> value)
+void VirtualServer::set_location_list(std::vector<Location> * value)
 {
 	_location_list = value;
 }
@@ -300,7 +327,7 @@ std::string VirtualServer::get_server_name() const
 	return(_server_name);
 }
 
-std::vector<Location> VirtualServer::get_location_list() const
+std::vector<Location> * VirtualServer::get_location_list()
 {
 	return(_location_list);
 }

@@ -194,9 +194,9 @@ int Server::verif_get_location(std::string file)
 	int tmp = 0;
 	std::string path_loca;
 	std::string path_tmp;
-	std::vector<Location> loca = this->info_serv.get_location_list();
-	std::vector<Location>::iterator it = loca.begin();
-	while (it != loca.end())
+	std::vector<Location> *loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca->begin();
+	while (it != loca->end())
 	{
 		i = 0;
 		path_tmp = it->get_path();
@@ -209,8 +209,8 @@ int Server::verif_get_location(std::string file)
 		}
 		it++;
 	}
-	it = loca.begin();
-	while (it != loca.end())
+	it = loca->begin();
+	while (it != loca->end())
 	{
 		if (path_loca == it->get_path())
 		{
@@ -230,11 +230,11 @@ std::string Server::get_location_path(std::string file)
 	std::string path_loca;
 	std::string path_tmp;
 	std::string ret;
-	std::vector<Location> loca = this->info_serv.get_location_list();
-	std::vector<Location>::iterator it = loca.begin();
+	std::vector<Location> *loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca->begin();
 	std::cout << "TEST PATH :" << it->get_path() << std::endl;
 	std::cout << "SUB TEST 1" << std::endl;
-	while (it != loca.end())
+	while (it != loca->end())
 	{
 		i = 0;
 		path_tmp = it->get_path();
@@ -251,9 +251,9 @@ std::string Server::get_location_path(std::string file)
 		}
 		it++;
 	}
-	it = loca.begin();
+	it = loca->begin();
 	std::cout << "SUB TEST 2" << std::endl;
-	while (it != loca.end())
+	while (it != loca->end())
 	{
 		if (path_loca == it->get_path())
 		{

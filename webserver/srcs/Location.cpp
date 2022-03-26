@@ -14,6 +14,7 @@ Location::Location(Location const & copy)
 
 Location::~Location()
 {
+
 	//std::cout << "Class Location destructor" << std::endl;
 }
 
@@ -38,7 +39,11 @@ void Location::parse_methods(std::string str)
 void Location::parse_root(std::string str)
 {
 	int length = str.find("root");
-	_root = &str[length + strlen("root") + 1];;
+	_root = &str[length + strlen("root") + 1];
+	int i = 0; 
+	while(_root[i] != ';')
+		i++;
+	_root.resize(i);
 }
 
 void Location::parse_autoindex(std::string str)
@@ -68,19 +73,33 @@ void Location::parse_index_list(std::string str)
 		i++;
 	}
 	free(ret);
+	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
+	{
+		i = 0; 
+		while((*it)[i] != ';')
+			i++;
+		it->resize(i);
+	}
 }
 
 void Location::parse_path(std::string str)
 {
-	/*int length = str.find("location");
-	_path = &str[length + strlen("location") + 1];*/
-	_path = "petit test";
+	int length = str.find("location");
+	_path = &str[length + strlen("location") + 1];
+		int i = 0; 
+	while(_path[i] != ' ')
+		i++;
+	_path.resize(i);
 }
 
 void Location::parse_upload_dir(std::string str)
 {
 	int length = str.find("upload_dir");
 	_upload_dir = &str[length + strlen("upload_dir") + 1];
+	int i = 0; 
+	while(_upload_dir[i] != ';')
+		i++;
+	_upload_dir.resize(i);
 }
 
 void Location::parse_double_tab(std::vector<std::string> double_tab)
@@ -88,7 +107,6 @@ void Location::parse_double_tab(std::vector<std::string> double_tab)
 	int length = 0;
 	for(int i = 0; i < double_tab.size(); i++)
 	{
-		//std::cout << "here:"<<  double_tab[i] << std::endl;
 		if((length = double_tab[i].find("location")) != std::string::npos)
 			parse_path(double_tab[i]);
 		else if((length = double_tab[i].find("root")) != std::string::npos)
@@ -104,8 +122,19 @@ void Location::parse_double_tab(std::vector<std::string> double_tab)
 		else if((length = double_tab[i].find("upload_dir")) != std::string::npos)
 			parse_upload_dir(double_tab[i]);
 	}
+}
+
+void Location::parse_conf_file(std::string str)
+{
+	std::vector<std::string> double_tab = string_to_double_tab(str);
+	parse_double_tab(double_tab);
+}
+
+void Location::ft_print_content(void)
+{
+	std::cout << "--Content of Location--" << std::endl;
 	std::cout << "_PATH = " << _path << std::endl;
-	/*std::cout << "_ROOT = " << _root << std::endl;
+	std::cout << "_ROOT = " << _root << std::endl;
 	std::cout << "_GET = " << _get << std::endl;
 	std::cout << "_POST = " << _post << std::endl;
 	std::cout << "_DELETE = " << _delete << std::endl;
@@ -114,16 +143,7 @@ void Location::parse_double_tab(std::vector<std::string> double_tab)
 	std::cout << "_INDEX_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 		std::cout << *it << std::endl;
-	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;*/
-
-}
-
-void Location::parse_conf_file(std::string str)
-{
-	//std::cout << std::endl << "parse location with [" << str << "]" << std::endl << std::endl;
-	//std::cout << "In location" << std::endl;
-	std::vector<std::string> double_tab = string_to_double_tab(str);
-	parse_double_tab(double_tab);
+	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
 }
 
 void Location::set_get(bool value)

@@ -20,6 +20,7 @@ Conf::Conf(Conf const & copy)
 
 Conf::~Conf()
 {
+	delete _list_virtual_server;
 	//std::cout << "Class Conf destructor" << std::endl;
 }
 
@@ -31,17 +32,17 @@ Conf & Conf::operator=(Conf const & copy)
 	//std::cout << "Class Conf operator=" << std::endl;
 }
 
-std::vector<VirtualServer> Conf::get_list_virtual_server() const
+std::vector<VirtualServer> * Conf::get_list_virtual_server() const
 {
 	return (_list_virtual_server);
 }
 
 void Conf::add_virtual_server(VirtualServer const & server)
 {
-	_list_virtual_server.push_back(server);
+	_list_virtual_server->push_back(server);
 }
 
-void Conf::set_virtual_server(std::vector<VirtualServer> const & server_list)
+void Conf::set_virtual_server(std::vector<VirtualServer> * server_list)
 {
 	_list_virtual_server = server_list;
 }
@@ -53,9 +54,9 @@ std::string Conf::get_file_content() const
 
 std::vector<Server> Conf::create_all_server()
 {
-	std::vector<Server> list_server(_list_virtual_server.size());
+	std::vector<Server> list_server(_list_virtual_server->size());
 	int i = 0;
-	for(std::vector<VirtualServer>::iterator it = _list_virtual_server.begin(); it != _list_virtual_server.end(); it++)
+	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
 		list_server[i].set_virtual_server(*it);
 		if(list_server[i].create_socket())
@@ -85,16 +86,24 @@ void Conf::parse_conf_file(std::string filename)
 	this->file_content = content;
 	size_t found;
 	size_t server_nbr = count_appearance(content, "server");
-	_list_virtual_server.resize(server_nbr);
-	for(size_t i = 0; i < server_nbr; i++)
+	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);
+	std::vector<Location> * temp;
+	for(int i = 0; i < server_nbr; i++)
 	{
 		found = content.find("server");
 		if(found == std::string::npos)
 			break;
 		new_str = content;
 		cutblock(new_str);
-		_list_virtual_server[i].parse_conf_file(new_str);
+		(*_list_virtual_server)[i].parse_conf_file(new_str);
+		temp = (*_list_virtual_server)[i].get_location_list();
 		content = &content[walk_end_block(&content[found])];
 	}
-	std::cout << "TEST PARSING PATH V2:" << _list_virtual_server[0].get_location_list()[0].get_path() << std::endl;
+}
+
+void Conf::ft_print_content(void)
+{
+	std::cout << "--Content of conf file--" << std::endl;
+	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
+		it->ft_print_content();
 }

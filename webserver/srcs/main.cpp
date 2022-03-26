@@ -9,6 +9,7 @@ int main(int ac, char **av)
 	}
 
 	Conf conf(av[1]);
+	conf.ft_print_content();
 	struct timeval select_timeout;
 	fd_set select_set_read_dump;
 	fd_set select_set_read_ready;

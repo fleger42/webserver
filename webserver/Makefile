@@ -2,7 +2,7 @@ NAME = webserv
 
 CC = clang++
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 HEADER = -I include/
 

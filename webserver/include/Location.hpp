@@ -22,6 +22,8 @@ class Location
 		~Location();
 		Location & operator=(Location const & copy);
 
+		void ft_print_content(void);
+
 		void parse_conf_file(std::string str);
 		void parse_methods(std::string str);
 		void parse_root(std::string str);
