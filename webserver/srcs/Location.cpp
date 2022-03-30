@@ -90,6 +90,8 @@ void Location::parse_path(std::string str)
 	while(_path[i] != ' ')
 		i++;
 	_path.resize(i);
+	if(_path.back() != '/')
+		_path.push_back('/');
 }
 
 void Location::parse_upload_dir(std::string str)
