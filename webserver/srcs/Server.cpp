@@ -91,7 +91,7 @@ int Server::receive_msg()
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	std::cout << "Messaged received:\n" << buff << std::endl;
+	std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
 	this->msg_client = buff;
 	return (0);
 }

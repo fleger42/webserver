@@ -1,11 +1,11 @@
 <?php
 
-var_dump($_POST);
-echo $_POST['submit'];
-echo $_POST['firstname'];
-echo $_POST['lastname'];
 
-if (isset($_POST['submit'])) {
+if (isset($_GET['submit'])) {
+    var_dump($_GET);
+    echo $_GET['submit'];
+    echo $_GET['firstname'];
+    echo $_GET['lastname'];
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
     echo '<h3>Form POST Method</h3>';
