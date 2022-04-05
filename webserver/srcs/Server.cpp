@@ -108,12 +108,12 @@ int Server::send_msg()
 		send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
 		send_buff += tmp;
-		//std::cerr << send_buff << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			return (1);
 		}
+		std::cout << "MESSAGE SEND" << std::endl;
 	}
 	else if (ret == 2)
 		this->actionPost();
@@ -137,12 +137,6 @@ int Server::get_action()
 
 std::string Server::actionGet()
 {
-	if (this->info_serv.get_get() == 0)
-	{
-		std::cerr << "Not permited to GET" << std::endl;
-		return NULL;
-	}
-
 	std::cout << "TEST 1" << std::endl;
 	char **tmp;
 	char *tmp2;
@@ -162,6 +156,7 @@ std::string Server::actionGet()
 	std::cout << "FILE OPEN :" << file << std::endl;
 	std::ifstream input(file.c_str());
 	std::stringstream buff;
+	std::cout << "TEST 5" << std::endl;
 	if (input.good() == 0)
 	{
 		std::cerr << "Fail to open file" << std::endl;
@@ -169,6 +164,7 @@ std::string Server::actionGet()
 	}
 	buff << input.rdbuf();
 	file = buff.str();
+	std::cout << "TEST 6" << std::endl;
 	return (file);
 }
 
@@ -219,8 +215,9 @@ int Server::verif_get_location(std::string file)
 			else
 				return 1;
 		}
+		it++;
 	}
-	return 1;
+	return 0;
 }
 
 std::string Server::get_location_path(std::string file)
@@ -232,7 +229,6 @@ std::string Server::get_location_path(std::string file)
 	std::string ret;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
-	std::cout << "TEST PATH :" << it->get_path() << std::endl;
 	std::cout << "SUB TEST 1" << std::endl;
 	while (it != loca->end())
 	{
@@ -240,10 +236,6 @@ std::string Server::get_location_path(std::string file)
 		path_tmp = it->get_path();
 		while (file[i] && path_tmp[i] && file[i] == path_tmp[i])
 			i++;
-		std::cout << "path_tmp :" << path_tmp << std::endl;
-		std::cout << "path_tmp size :" << path_tmp.size() << std::endl;
-		std::cout << "i :" << i << std::endl;
-		std::cout << "tmp :" << tmp << std::endl;
 		if (i > tmp && i >= path_tmp.size())
 		{
 			tmp = i;
@@ -304,6 +296,9 @@ std::string Server::get_location_path(std::string file)
 			ret += file;
 			return ret;
 		}
+		it++;
 	}
+	ret+= this->info_serv.get_root();
+	ret += file;
 	return ret;
 }
