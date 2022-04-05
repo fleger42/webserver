@@ -110,12 +110,12 @@ int Server::send_msg()
 		send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
 		send_buff += tmp;
-		//std::cerr << send_buff << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			return (1);
 		}
+		std::cout << "MESSAGE SEND" << std::endl;
 	}
 	else if (ret == 2)
 		this->actionPost();
@@ -160,6 +160,7 @@ std::string Server::actionGet()
 	//file = this->get_location_path(file);
 	std::ifstream input(file); // HARDCODE
 	std::stringstream buff;
+	std::cout << "TEST 5" << std::endl;
 	if (input.good() == 0)
 	{
 		std::cerr << "Fail to open file" << std::endl;
@@ -258,8 +259,9 @@ int Server::verif_get_location(std::string file)
 			else
 				return 1;
 		}
+		it++;
 	}
-	return 1;
+	return 0;
 }
 
 std::string Server::get_location_path(std::string file)
@@ -330,6 +332,9 @@ std::string Server::get_location_path(std::string file)
 			ret += file;
 			return ret;
 		}
+		it++;
 	}
+	ret+= this->info_serv.get_root();
+	ret += file;
 	return ret;
 }
