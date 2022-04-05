@@ -91,7 +91,7 @@ int Server::receive_msg()
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	std::cout << "Messaged received:\n" << buff << std::endl;
+	std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
 	this->msg_client = buff;
 	return (0);
 }
@@ -104,6 +104,8 @@ int Server::send_msg()
 	else if (ret == 1)
 	{
 		std::string tmp = this->actionGet();
+		if(tmp.empty())
+			return (0);
 		std::string send_buff = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
 		send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
@@ -137,45 +139,87 @@ int Server::get_action()
 
 std::string Server::actionGet()
 {
-	std::cout << "TEST 1" << std::endl;
+	if (this->info_serv.get_get() == 0)
+	{
+		std::cerr << "Not permited to GET" << std::endl;
+		return "";
+	}
 	char **tmp;
 	char *tmp2;
 	tmp = ft_split(this->msg_client, " ");
 	tmp2 = tmp[1];
 	std::string file;
 	file += tmp2;
-	std::cout << "TEST 2" << std::endl;
 	if (this->verif_get_location(file) != 0)
 	{
 		std::cerr << "Not permited to GET" << std::endl;
-		return NULL;	
+		return "";	
 	}
-	std::cout << "TEST 3" << std::endl;
-	file = this->get_location_path(file);
-	std::cout << "TEST 4" << std::endl;
-	std::cout << "FILE OPEN :" << file << std::endl;
-	std::ifstream input(file.c_str());
+	file = this->info_serv.get_root() + file;
+	std::cout << "FILE =" << file << std::endl;
+	//file = this->get_location_path(file);
+	std::ifstream input(file); // HARDCODE
 	std::stringstream buff;
 	std::cout << "TEST 5" << std::endl;
 	if (input.good() == 0)
 	{
 		std::cerr << "Fail to open file" << std::endl;
-		return NULL;
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
+		return "";
 	}
 	buff << input.rdbuf();
 	file = buff.str();
-	std::cout << "TEST 6" << std::endl;
+	for(int i = 0; tmp[i]; i++)
+		free(tmp[i]);
+	free(tmp);
 	return (file);
 }
 
 void Server::actionPost()
 {
-
+	std::cout << "POSTTTTTTTT" << std::endl;
+	if (this->info_serv.get_post() == 0)
+	{
+		std::cerr << "Not permited to POST" << std::endl;
+		return ;
+	}
+	char **tmp;
+	char *tmp2;
+	tmp = ft_split(this->msg_client, " ");
+	for(int i = 0; tmp[i]; i++)
+		std::cout << tmp[i] << std::endl;
+	tmp2 = tmp[1];
+	std::string file;
+	file += tmp2;
+	file = this->info_serv.get_root() + file;
+	std::cout << "FILE =" << file << std::endl;
+	//file = this->get_location_path(file);
+	std::ifstream input(file); // HARDCODE
+	std::stringstream buff;
+	if (input.good() == 0)
+	{
+		std::cerr << "Fail to open file" << std::endl;
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
+		return ;
+	}
+	buff << input.rdbuf();
+	file = buff.str();
+	for(int i = 0; tmp[i]; i++)
+		free(tmp[i]);
+	free(tmp);
 }
 
 void Server::actionDelete()
 {
-
+	if (this->info_serv.get_delete() == 0)
+	{
+		std::cerr << "Not permited to DELETE" << std::endl;
+		return ;
+	}
 }
 
 void Server::close_all_fd()
@@ -229,7 +273,6 @@ std::string Server::get_location_path(std::string file)
 	std::string ret;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
-	std::cout << "SUB TEST 1" << std::endl;
 	while (it != loca->end())
 	{
 		i = 0;
@@ -244,13 +287,11 @@ std::string Server::get_location_path(std::string file)
 		it++;
 	}
 	it = loca->begin();
-	std::cout << "SUB TEST 2" << std::endl;
 	while (it != loca->end())
 	{
 		if (path_loca == it->get_path())
 		{
 			path_tmp = it->get_root();
-			std::cout << "SUB TEST 3" << std::endl;
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
@@ -266,13 +307,9 @@ std::string Server::get_location_path(std::string file)
 				return ret;
 			}
 			path_tmp = this->info_serv.get_root();
-			std::cout << "SUB TEST 4" << std::endl;
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
-				std::cout << "path loca :" << path_loca << std::endl;
-				std::cout << "ret (root) :" << ret << std::endl;
-				std::cout << "file :" << file << std::endl;
 				if (path_loca.size() - file.size() >= 0)
 				{
 					ret += path_loca;
@@ -284,7 +321,6 @@ std::string Server::get_location_path(std::string file)
 				ret += file;
 				return ret;
 			}
-			std::cout << "SUB TEST 5" << std::endl;
 			if (path_loca.size() - file.size() >= 0)
 			{
 				ret += path_loca;
