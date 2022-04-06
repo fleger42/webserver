@@ -139,30 +139,41 @@ int Server::get_action()
 
 std::string Server::actionGet()
 {
-	if (this->info_serv.get_get() == 0)
-	{
-		std::cerr << "Not permited to GET" << std::endl;
-		return "";
-	}
 	char **tmp;
 	char *tmp2;
+	int i = 0;
 	tmp = ft_split(this->msg_client, " ");
 	tmp2 = tmp[1];
 	std::string file;
+	std::string file_tmp;
 	file += tmp2;
-	if (this->verif_get_location(file) != 0)
+	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
 	{
 		std::cerr << "Not permited to GET" << std::endl;
 		return "";	
 	}
-	file = this->info_serv.get_root() + file;
-	std::cout << "FILE =" << file << std::endl;
-	//file = this->get_location_path(file);
-	std::ifstream input(file); // HARDCODE
+	//file = this->info_serv.get_root() + file;
+	file_tmp = this->get_location_path(file, i);
+	std::ifstream input(file_tmp); // HARDCODE
 	std::stringstream buff;
-	std::cout << "TEST 5" << std::endl;
 	if (input.good() == 0)
 	{
+		while (file_tmp != "error")
+		{
+			i++;
+			input.close();
+			file_tmp = this->get_location_path(file, i);
+			input.open(file_tmp);
+			if (input.good() == 1)
+			{
+				buff << input.rdbuf();
+				file = buff.str();
+				for(int i = 0; tmp[i]; i++)
+					free(tmp[i]);
+				free(tmp);
+				return (file_tmp);
+			}
+		}
 		std::cerr << "Fail to open file" << std::endl;
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
@@ -264,7 +275,7 @@ int Server::verif_get_location(std::string file)
 	return 0;
 }
 
-std::string Server::get_location_path(std::string file)
+std::string Server::get_location_path(std::string file, int index)
 {
 	int i = 0;
 	int tmp = 0;
@@ -273,6 +284,8 @@ std::string Server::get_location_path(std::string file)
 	std::string ret;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
+	if (file[file.size() - 1] != '/')
+		file += '/';
 	while (it != loca->end())
 	{
 		i = 0;
@@ -300,7 +313,9 @@ std::string Server::get_location_path(std::string file)
 					ret += path_loca;
 					if (ret[ret.size() - 1] != '/')
 						ret += '/';
-					ret += it->get_index_list().front();
+					if (index >= it->get_index_list().size())
+						return "error";
+					ret += it->get_index_list()[index];
 					return ret;
 				}
 				ret += file;
@@ -315,7 +330,9 @@ std::string Server::get_location_path(std::string file)
 					ret += path_loca;
 					if (ret[ret.size() - 1] != '/')
 						ret += '/';
-					ret += it->get_index_list().front();
+					if (index >= it->get_index_list().size())
+						return "error";
+					ret += it->get_index_list()[index];
 					return ret;
 				}
 				ret += file;
@@ -326,7 +343,9 @@ std::string Server::get_location_path(std::string file)
 				ret += path_loca;
 				if (ret[ret.size() - 1] != '/')
 					ret += '/';
-				ret += it->get_index_list().front();
+				if (index >= it->get_index_list().size())
+						return "error";
+				ret += it->get_index_list()[index];
 				return ret;
 			}
 			ret += file;
@@ -334,7 +353,5 @@ std::string Server::get_location_path(std::string file)
 		}
 		it++;
 	}
-	ret+= this->info_serv.get_root();
-	ret += file;
-	return ret;
+	return "error";
 }
