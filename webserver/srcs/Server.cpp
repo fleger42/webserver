@@ -11,6 +11,8 @@ Server::Server(Server const & other)
 	this->client = other.client;
 	this->msg_client = other.msg_client;
 	this->info_serv = other.info_serv;
+	this->all_socket = other.all_socket;
+	this->cgi_exec = other.cgi_exec;
 }
 
 Server::Server(VirtualServer const & virtual_serv) : client(0)
@@ -26,7 +28,14 @@ Server &Server::operator=(Server const & other)
 	this->client = other.client;
 	this->msg_client = other.msg_client;
 	this->info_serv = other.info_serv;
+	this->all_socket = other.all_socket;
+	this->cgi_exec = other.cgi_exec;
 	return (*this);
+}
+
+void Server::set_cgi(Cgi cgi_exec)
+{
+	this->cgi_exec = cgi_exec;
 }
 
 std::vector<Socket> Server::get_all_socket() const
@@ -42,8 +51,8 @@ int Server::create_socket()
 
 	for(int i = 0; i < port_list.size(); i++)
 	{
-		std::cout << "Create new socket for server " << this->info_serv.get_server_name() << 
-		" with ip: " << ip_list[i] << std::endl;
+		//std::cout << "Create new socket for server " << this->info_serv.get_server_name() << 
+		//" with ip: " << ip_list[i] << std::endl;
 		temp[i].set_ip(ip_list[i]);
 		temp[i].set_port(port_list[i]);
 		if(temp[i].create_socket() != 0)
@@ -74,7 +83,7 @@ std::string Server::get_server_name()
 
 int Server::server_accept()
 {
-	std::cout << "server " << info_serv.get_server_name() << " accept new connection." << std::endl;
+	//std::cout << "server " << info_serv.get_server_name() << " accept new connection." << std::endl;
 	struct sockaddr client_address;
 	socklen_t client_addr_lenght = sizeof( (socklen_t *)&client_address);
 
@@ -94,12 +103,12 @@ void Server::set_virtual_server(VirtualServer const & value)
 
 int Server::receive_msg()
 {
-	char buff[1000];
+	char buff[10000];
 	int n;
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
+	//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
 	this->msg_client = buff;
 	return (0);
 }
@@ -122,8 +131,7 @@ int Server::send_msg()
 		{
 			std::cerr << "error: send()" <<std::endl;
 			return (1);
-		}
-		std::cout << "MESSAGE SEND" << std::endl;
+		};
 	}
 	else if (ret == 2)
 		this->actionPost();
@@ -161,17 +169,16 @@ std::string Server::actionGet()
 		return "";	
 	}
 	file_tmp = this->get_location_path(file, i);
-<<<<<<< HEAD
-	//file_tmp = this->info_serv.get_root() + file_tmp;
-	std::cout << "file_tmp = " << file_tmp <<  std::endl;
-=======
-	std::cout << "FILE_TMP =" << file_tmp << std::endl;
->>>>>>> 3769ae38793e6f9cf4529c9c6771f83c6a8e0136
 	std::ifstream input(file_tmp); // HARDCODE
 	struct stat path_stat;
 	stat(file_tmp.c_str(), &path_stat);
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
+	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
+	if(file_tmp.find(".php") != std::string::npos)
+	{
+		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
+	}
 	if (input.good() == 0 || o == 0)
 	{
 		while (file_tmp != "error")
@@ -204,40 +211,63 @@ std::string Server::actionGet()
 	return (file);
 }
 
-void Server::actionPost()
+std::string Server::actionPost()
 {
-	std::cout << "POSTTTTTTTT" << std::endl;
-	if (this->info_serv.get_post() == 0)
-	{
-		std::cerr << "Not permited to POST" << std::endl;
-		return ;
-	}
+	//std::cout << "POSTTTTTTTT" << std::endl;
 	char **tmp;
 	char *tmp2;
+	int i = -1;
 	tmp = ft_split(this->msg_client, " ");
-	for(int i = 0; tmp[i]; i++)
-		std::cout << tmp[i] << std::endl;
 	tmp2 = tmp[1];
 	std::string file;
+	std::string file_tmp;
 	file += tmp2;
-	file = this->info_serv.get_root() + file;
-	std::cout << "FILE =" << file << std::endl;
-	//file = this->get_location_path(file);
-	std::ifstream input(file); // HARDCODE
-	std::stringstream buff;
-	if (input.good() == 0)
+	//FAUT FAIRE l'EQUIVALENT POUR POST
+	/*if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
 	{
-		std::cerr << "Fail to open file ["  << file << "]" << std::endl;
+		std::cerr << "Not permited to GET" << std::endl;
+		return "";	
+	}*/
+	//FAUT FAIRE l'EQUIVALENT POUR POST
+	file_tmp = this->get_location_path(file, i);
+	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
+	std::ifstream input(file_tmp); // HARDCODE
+	struct stat path_stat;
+	stat(file_tmp.c_str(), &path_stat);
+	int o = S_ISREG(path_stat.st_mode);
+	std::stringstream buff;
+	if(file_tmp.find(".php") != std::string::npos)
+		//cgi_exec.execute_cgi(tmp, file_tmp, );
+	if (input.good() == 0 || o == 0)
+	{
+		while (file_tmp != "error")
+		{
+			i++;
+			input.close();
+			file_tmp = this->get_location_path(file, i);
+			input.open(file_tmp);
+			if (input.good() == 1)
+			{
+				buff << input.rdbuf();
+				file = buff.str();
+				for(int i = 0; tmp[i]; i++)
+					free(tmp[i]);
+				free(tmp);
+				return (file_tmp);
+			}
+		}
+		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
-		return ;
+		return "";
 	}
 	buff << input.rdbuf();
 	file = buff.str();
 	for(int i = 0; tmp[i]; i++)
 		free(tmp[i]);
 	free(tmp);
+	return (file);
 }
 
 void Server::actionDelete()

@@ -34,7 +34,7 @@ void routine(std::vector<Server> & all_server)
 				max_fd = it_socket->getServerFd();
 		}
 	}
-	signal(signal_nbr, ft_signal_handler);
+	//signal(signal_nbr, ft_signal_handler);
 	while (g_ctrl_c_called == 0)
 	{
 		while(status == 0 && g_ctrl_c_called == 0)
@@ -86,7 +86,9 @@ int main(int ac, char **av, char **envp)
 		return (1);
 	}
 	Conf conf(av[1]);
-	std::vector<Server> all_server = conf.create_all_server();
+	Cgi cgi_exec(envp);
+	conf.ft_print_content();
+	std::vector<Server> all_server = conf.create_all_server(cgi_exec);
 	routine(all_server);
 	std::cout << "Close server" << std::endl;
 	return (0);

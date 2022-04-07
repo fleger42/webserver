@@ -1,15 +1,15 @@
 #include "../include/Cgi.hpp"
 
-Cgi::Cgi() : _cgi_path(), _wait_pid(), _arg(), _envp()
+Cgi::Cgi() : _envp(NULL)
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
 }
 
 
-Cgi::Cgi(char **envp) : _cgi_path(), _wait_pid(), _arg(), _envp()
+Cgi::Cgi(char **envp) : _envp(envp)
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
-	parse_Cgi_file(filename);
+
 }
 
 Cgi::Cgi(Cgi const & copy)
@@ -25,21 +25,55 @@ Cgi::~Cgi()
 
 Cgi & Cgi::operator=(Cgi const & copy)
 {
-	if(this != &copy)
+	if(this == &copy)
 		*this = copy;
 	return(*this);
 	//std::cout << "Class Cgi operator=" << std::endl;
 }
-
-void Cgi::execute_cgi()
+//./cgi_test/get-method.php?firstname=florian&lastname=Leger&submit=Envoyer 
+char ** get_arg(std::string uri)
 {
-    int pid;
+	std::string path;
+
+	int length = uri.find_first_of('?');
+	path = uri;
+	path.resize(length);
+	std::cout << "PATH= : [" << path << "]" << std::endl;
+}
+
+char ** get_arg(std::string uri, char **request)
+{
+	int nbr_tab = 0;
+	while(request[nbr_tab])
+		nbr_tab++;
+}
+
+void Cgi::execute_cgi(std::string uri, std::string cgi_path) //GET
+{
+	std::cout << "Execute cgi for GET: " << uri << std::endl;
+	std::string path;
+
+	int length = uri.find_first_of('?');
+	path = uri;
+	path.resize(length);
+	_execute_cgi(path, get_arg(uri), cgi_path);
+}
+
+void Cgi::execute_cgi(char **request, std::string uri, std::string cgi_path) //POST
+{
+	std::cout << "Execute cgi for POST: " << uri << std::endl;
+	_execute_cgi(uri, get_arg(uri, request), cgi_path);
+}
+
+void Cgi::_execute_cgi(std::string uri, char **arg, std::string cgi_path)
+{
+	int pid;
 
     int wait_pid;
     pid = fork();
     if (pid == 0)
 	{
-        if (execve(_cgi_path.c_str(), _arg, _envp) < 0)
+        if (execve(uri.c_str(), arg, _envp) < 0)
 	    {
             std::cerr << "Error, execve" << std::endl;
             exit(1);

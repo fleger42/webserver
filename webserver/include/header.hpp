@@ -17,12 +17,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fstream>
+#include <signal.h>
 #include "Conf.hpp"
 #include "VirtualServer.hpp"
 #include "Location.hpp"
 #include "Server.hpp"
-#include <signal.h>
 #include "Socket.hpp"
+#include "Cgi.hpp"
 void mutefo(char *str, char c);
 void mutefo(std::string & str, char c);
 void	ft_signal_handler(int signal);

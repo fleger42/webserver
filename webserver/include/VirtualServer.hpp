@@ -39,7 +39,9 @@ class VirtualServer
 		void parse_bodysize(std::string str);
 		void parse_error_page(std::string str);
 		void parse_index_list(std::string str);
-
+		void parse_cgi(std::string str);
+	
+		void set_cgi_list(std::vector<std::string> value);
 		void set_get(bool value);
 		void set_post(bool value);
 		void set_delete(bool value);
@@ -53,6 +55,7 @@ class VirtualServer
 		void set_error_page(std::map<int, std::string> value);
 		void set_index_list(std::vector<std::string> value);
 
+		std::vector<std::string> get_cgi_list() const;
 		std::map<int, std::string> get_error_page() const;
 		bool get_get() const;
 		bool get_post() const;
@@ -72,6 +75,7 @@ class VirtualServer
 		std::vector<std::string> _ip;
 		std::vector<std::string> _port;
 		std::vector<std::string> _index_list;
+		std::vector<std::string> _cgi_list;
 		std::map<int, std::string> _error_page;
 		unsigned long _body_size;
 		bool _autoindex;

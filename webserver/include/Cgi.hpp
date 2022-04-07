@@ -16,16 +16,16 @@ const std::string _redirect_status= "REDIRECT_STATUS";
 class Cgi
 {
 	public:
+		Cgi();
 		Cgi(char **envp);
 		Cgi(Cgi const & copy);
 		~Cgi();
 		Cgi & operator=(Cgi const & copy);
-		void execute_cgi();
+		void execute_cgi(char **request, std::string uri, std::string cgi_path);
+		void execute_cgi(std::string uri, std::string cgi_path);
 	private:
-		Cgi();
-		std::string _cgi_path;
-		int _wait_pid;
-		char **_arg;
 		char **_envp;
+		std::string cgi_path;
+		void _execute_cgi(std::string uri, char **arg, std::string cgi_path);
 };
 #endif
