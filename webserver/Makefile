@@ -2,11 +2,11 @@ NAME = webserv
 
 CC = clang++
 
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror
 
 HEADER = -I include/
 
-SRCS = main.cpp Conf.cpp Location.cpp VirtualServer.cpp utils.cpp Server.cpp Socket.cpp
+SRCS = main.cpp Conf.cpp Location.cpp VirtualServer.cpp utils.cpp Server.cpp Socket.cpp Cgi.cpp
 
 SRC = $(addprefix srcs/, $(SRCS))
 

@@ -1,5 +1,18 @@
 #include "../include/header.hpp"
 
+int signal_nbr = SIGINT;
+int g_ctrl_c_called;
+
+void	ft_signal_handler(int signal)
+{
+	if (signal == SIGINT)
+	{
+			write(STDERR_FILENO, "\b\b  ", 4);
+			write(STDERR_FILENO, "\n", 1);
+			g_ctrl_c_called = 1;
+	}
+}
+
 void routine(std::vector<Server> & all_server)
 {
 	struct timeval select_timeout;
@@ -21,21 +34,26 @@ void routine(std::vector<Server> & all_server)
 				max_fd = it_socket->getServerFd();
 		}
 	}
-
-	while (42)
+	signal(signal_nbr, ft_signal_handler);
+	while (g_ctrl_c_called == 0)
 	{
-		while(status == 0)
+		while(status == 0 && g_ctrl_c_called == 0)
 		{
 			FD_ZERO(&select_set_read_ready);
 			select_set_read_ready = select_set_read_dump;
 			usleep(200000);
 			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 			{
+				if(g_ctrl_c_called == 1)
+				{
+					std::cerr << "Closing webserver..." << std::endl;
+					exit(0);
+				}
 				std::cerr << "Error: select()" << std::endl;
 				exit(1);
 			}
 		}
-		if(status > 0)
+		if(status > 0 && g_ctrl_c_called == 0)
 		{
 			for(std::vector<Server>::iterator it_server = all_server.begin(); it_server != all_server.end(); it_server++)
 			{
@@ -59,14 +77,14 @@ void routine(std::vector<Server> & all_server)
 	}
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **envp)
 {
+	g_ctrl_c_called = 0;
 	if(ac != 2)
 	{
 		std::cerr << "usage: ./server [PORT]" << std::endl;
 		return (1);
 	}
-
 	Conf conf(av[1]);
 	std::vector<Server> all_server = conf.create_all_server();
 	routine(all_server);

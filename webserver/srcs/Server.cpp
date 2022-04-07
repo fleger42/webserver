@@ -152,8 +152,9 @@ std::string Server::actionGet()
 		std::cerr << "Not permited to GET" << std::endl;
 		return "";	
 	}
-	//file = this->info_serv.get_root() + file;
 	file_tmp = this->get_location_path(file, i);
+	//file_tmp = this->info_serv.get_root() + file_tmp;
+	std::cout << "file_tmp = " << file_tmp <<  std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
 	std::stringstream buff;
 	if (input.good() == 0)
@@ -174,7 +175,7 @@ std::string Server::actionGet()
 				return (file_tmp);
 			}
 		}
-		std::cerr << "Fail to open file" << std::endl;
+		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
@@ -211,7 +212,7 @@ void Server::actionPost()
 	std::stringstream buff;
 	if (input.good() == 0)
 	{
-		std::cerr << "Fail to open file" << std::endl;
+		std::cerr << "Fail to open file ["  << file << "]" << std::endl;
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);

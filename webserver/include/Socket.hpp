@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef SOCKET_HPP
+#define SOCKET_HPP
 #include <iostream>
 #include <vector>
 #include "header.hpp"
@@ -26,3 +26,4 @@ class Socket
 		std::string port;
 		std::string ip;
 };
+#endif

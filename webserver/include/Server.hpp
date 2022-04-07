@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef SERVER_HPP
+#define SERVER_HPP
 #include <iostream>
 #include <vector>
 #include "header.hpp"
@@ -49,3 +49,4 @@ class Server {
 			VirtualServer info_serv;
 
 };
+#endif

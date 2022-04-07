@@ -2,33 +2,30 @@
 #define CGI_HPP
 #include <iostream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+const std::string _content_length = "CONTENT_LENGTH";
+const std::string _content_type = "CONTENT_TYPE";
+const std::string _path_info= "PATH_INFO";
+const std::string _query_string = "QUERY_STRING";
+const std::string _server_protocol = "SERVER_PROTOCOL";
+const std::string _request_method = "REQUEST_METHOD";
+const std::string _script_filename = "SCRIPT_FILENAME";
+const std::string _redirect_status= "REDIRECT_STATUS";
 
 class Cgi
 {
 	public:
-		Cgi();
-		Cgi(std::string filename);
+		Cgi(char **envp);
 		Cgi(Cgi const & copy);
 		~Cgi();
 		Cgi & operator=(Cgi const & copy);
+		void execute_cgi();
 	private:
-        const std::string _auth_type;
-        const std::string _content_length;
-        const std::string _content_type;
-        const std::string _gateway_interface;
-        const std::string _path_info;
-        const std::string _path_translated;
-        const std::string _query_string;
-        const std::string _remote_addr;
-        const std::string _remote_ident;
-        const std::string _remote_user;
-        const std::string _request_method;
-        const std::string _request_uri;
-        const std::string _script_filename;
-        const std::string _server_name;
-        const std::string _server_port;
-        const std::string _server_protocol;
-        const std::string _server_software;
-        const std::string _redirect_status;
+		Cgi();
+		std::string _cgi_path;
+		int _wait_pid;
+		char **_arg;
+		char **_envp;
 };
 #endif
