@@ -1,4 +1,7 @@
 #include "../include/Server.hpp"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 Server::Server() : client(0)
 {}
@@ -57,6 +60,11 @@ int Server::create_socket()
 int Server::getClient()
 {
 	return this->client;
+}
+
+VirtualServer Server::get_info_serv()
+{
+	return this->info_serv;
 }
 
 std::string Server::get_server_name()
@@ -141,7 +149,7 @@ std::string Server::actionGet()
 {
 	char **tmp;
 	char *tmp2;
-	int i = 0;
+	int i = -1;
 	tmp = ft_split(this->msg_client, " ");
 	tmp2 = tmp[1];
 	std::string file;
@@ -153,11 +161,18 @@ std::string Server::actionGet()
 		return "";	
 	}
 	file_tmp = this->get_location_path(file, i);
+<<<<<<< HEAD
 	//file_tmp = this->info_serv.get_root() + file_tmp;
 	std::cout << "file_tmp = " << file_tmp <<  std::endl;
+=======
+	std::cout << "FILE_TMP =" << file_tmp << std::endl;
+>>>>>>> 3769ae38793e6f9cf4529c9c6771f83c6a8e0136
 	std::ifstream input(file_tmp); // HARDCODE
+	struct stat path_stat;
+	stat(file_tmp.c_str(), &path_stat);
+	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
-	if (input.good() == 0)
+	if (input.good() == 0 || o == 0)
 	{
 		while (file_tmp != "error")
 		{
@@ -282,16 +297,17 @@ std::string Server::get_location_path(std::string file, int index)
 	int tmp = 0;
 	std::string path_loca;
 	std::string path_tmp;
+	std::string file_tmp = file;
 	std::string ret;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
-	if (file[file.size() - 1] != '/')
-		file += '/';
+	if (file_tmp[file_tmp.size() - 1] != '/')
+		file_tmp += '/';
 	while (it != loca->end())
 	{
 		i = 0;
 		path_tmp = it->get_path();
-		while (file[i] && path_tmp[i] && file[i] == path_tmp[i])
+		while (file_tmp[i] && path_tmp[i] && file_tmp[i] == path_tmp[i])
 			i++;
 		if (i > tmp && i >= path_tmp.size())
 		{
@@ -309,14 +325,10 @@ std::string Server::get_location_path(std::string file, int index)
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
-				if (path_loca.size() - file.size() >= 0)
+				if (path_loca.size() - file.size() >= 0 && index != -1)
 				{
 					ret += path_loca;
-					if (ret[ret.size() - 1] != '/')
-						ret += '/';
-					if (index >= it->get_index_list().size())
-						return "error";
-					ret += it->get_index_list()[index];
+					ret = this->add_index(ret, index, it);
 					return ret;
 				}
 				ret += file;
@@ -326,33 +338,56 @@ std::string Server::get_location_path(std::string file, int index)
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
-				if (path_loca.size() - file.size() >= 0)
+				if (path_loca.size() - file.size() >= 0 && index != -1)
 				{
 					ret += path_loca;
-					if (ret[ret.size() - 1] != '/')
-						ret += '/';
-					if (index >= it->get_index_list().size())
-						return "error";
-					ret += it->get_index_list()[index];
+					ret = this->add_index(ret, index, it);
 					return ret;
 				}
 				ret += file;
 				return ret;
 			}
-			if (path_loca.size() - file.size() >= 0)
+			if (path_loca.size() - file.size() >= 0 && index != -1)
 			{
-				ret += path_loca;
-				if (ret[ret.size() - 1] != '/')
-					ret += '/';
-				if (index >= it->get_index_list().size())
-						return "error";
-				ret += it->get_index_list()[index];
+				ret = path_loca;
+				ret = this->add_index(ret, index, it);
 				return ret;
 			}
 			ret += file;
 			return ret;
 		}
 		it++;
+	}
+	ret += this->info_serv.get_root();
+	ret += file;
+	return ret;
+}
+
+std::string Server::add_index(std::string ret, int index, std::vector<Location>::iterator it)
+{
+	if (it->get_index_list().empty() == 0)
+	{
+		if (index >= it->get_index_list().size())
+			index -= it->get_index_list().size();
+		else
+		{
+			if (ret[ret.size() - 1] != '/')
+				ret += '/';
+			ret += it->get_index_list()[index];
+			return ret;
+		}
+	}
+	if (this->info_serv.get_index_list().empty() == 0)
+	{
+		if (index >= this->info_serv.get_index_list().size())
+			return "error";
+		else
+		{
+			if (ret[ret.size() - 1] != '/')
+				ret += '/';
+			ret += this->info_serv.get_index_list()[index];
+			return ret;
+		}
 	}
 	return "error";
 }

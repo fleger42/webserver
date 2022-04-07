@@ -30,6 +30,7 @@ VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 		this->_error_page = copy._error_page;
 		this->_body_size = copy._body_size;
 		this->_autoindex = copy._autoindex;
+		this->_index_list = copy._index_list;
 		this->_get = copy._get;
 		this->_post = copy._post;
 		this->_delete = copy._delete;
