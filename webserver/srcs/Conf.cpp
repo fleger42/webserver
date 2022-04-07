@@ -59,7 +59,6 @@ std::vector<Server> Conf::create_all_server()
 	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
 		list_server[i].set_virtual_server(*it);
-		std::cout << "EMPTY DE TEST " << list_server[i].get_info_serv().get_index_list().empty() << std::endl;
 		if(list_server[i].create_socket())
 		{
 			std::cerr << "Error with socket creation." << std::endl;

@@ -172,11 +172,9 @@ std::string Server::actionGet()
 	{
 		while (file_tmp != "error")
 		{
-			std::cout << "IN THE WHILE"<< std::endl;
 			i++;
 			input.close();
 			file_tmp = this->get_location_path(file, i);
-			std::cout << "FILE_TMPS =" << file_tmp << std::endl;
 			input.open(file_tmp);
 			if (input.good() == 1)
 			{
@@ -199,7 +197,6 @@ std::string Server::actionGet()
 	for(int i = 0; tmp[i]; i++)
 		free(tmp[i]);
 	free(tmp);
-	std::cout << "GOOD TO GO" << std::endl;
 	return (file);
 }
 
@@ -359,7 +356,7 @@ std::string Server::get_location_path(std::string file, int index)
 	}
 	ret += this->info_serv.get_root();
 	ret += file;
-	return "error";
+	return ret;
 }
 
 std::string Server::add_index(std::string ret, int index, std::vector<Location>::iterator it)
@@ -376,9 +373,6 @@ std::string Server::add_index(std::string ret, int index, std::vector<Location>:
 			return ret;
 		}
 	}
-	std::cout << "EMPTY ? =" << this->info_serv.get_index_list().empty() << std::endl;
-	std::cout << "INDEX =" << index << std::endl;
-	std::cout << "SIZE =" << this->info_serv.get_index_list().size() << std::endl;;
 	if (this->info_serv.get_index_list().empty() == 0)
 	{
 		if (index >= this->info_serv.get_index_list().size())
