@@ -1,9 +1,11 @@
 #pragma once
 
 #include <iostream>
+#include <istream>
 #include <vector>
 #include "header.hpp"
 #include <errno.h>
+#include <fstream>
 #include "VirtualServer.hpp"
 
 class VirtualServer;
@@ -41,6 +43,8 @@ class Server {
 			std::string get_server_name();
 			int verif_get_location(std::string file);
 			std::string get_location_path(std::string file, int index);
+			VirtualServer get_info_serv();
+			std::string add_index(std::string ret, int index, std::vector<Location>::iterator it);
 
 		private:
 			int client;
