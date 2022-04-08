@@ -32,29 +32,34 @@ class Server {
 			int server_accept();
 			int receive_msg();
 			int send_msg();
-			int get_action();
 			int create_socket();
 			std::string actionGet();
 			std::string actionPost();
+			int get_action();
 			void actionDelete();
-			void set_virtual_server(VirtualServer const & value);
-			int getClient();
 			void close_all_fd();
+			int verif_get_location(std::string file);
+			int	check_cgi(std::string uri);
+			std::string add_index(std::string ret, int index, std::vector<Location>::iterator it);
+			
+			void set_virtual_server(VirtualServer const & value);
+			void set_cgi(std::vector<Cgi> cgi_exec);
+			
+			int getClient();
 			std::vector<Socket> get_all_socket() const;
 			std::string get_server_name();
-			int verif_get_location(std::string file);
 			std::string get_location_path(std::string file, int index);
-			Location get_request_location(std::string request);
 			VirtualServer get_info_serv();
-			void set_cgi(Cgi cgi_exec);
-			std::string add_index(std::string ret, int index, std::vector<Location>::iterator it);
-
+			Location get_request_location(std::string request);
+			std::string get_cgi_path();
+			std::vector<Cgi> get_cgi_exec();
+		
 		private:
 			int client;
 			char *msg_client;
 			std::vector<Socket> all_socket;
 			VirtualServer info_serv;
-			Cgi cgi_exec;
+			std::vector<Cgi> cgi_exec;
 
 };
 #endif

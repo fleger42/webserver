@@ -33,9 +33,10 @@ Server &Server::operator=(Server const & other)
 	return (*this);
 }
 
-void Server::set_cgi(Cgi cgi_exec)
+void Server::set_cgi(std::vector<Cgi> param)
 {
-	this->cgi_exec = cgi_exec;
+	this->cgi_exec = param;
+	std::cout << "IN SET CGI " << param[0].get_target() << std::endl;
 }
 
 std::vector<Socket> Server::get_all_socket() const
@@ -153,6 +154,26 @@ int Server::get_action()
 	return (-1);
 }
 
+/*
+	GET THE PATH OF THE CORRECT CGI TO USE
+*/
+std::string Server::get_cgi_path()
+{
+
+}
+
+/*
+	FIND IF YOU NEED OR NOT TO USE CGI
+*/
+int	Server::check_cgi(std::string uri) 
+{
+	for(std::vector<Cgi>::iterator it = cgi_exec.begin(); it != cgi_exec.end(); it++)
+	{
+		std::cout << "target = " << it->get_target() << std::endl;	
+		std::cout << "launcher = " << it->get_cgi_launcher() << std::endl;	
+	}
+}
+
 std::string Server::actionGet()
 {
 	char **tmp;
@@ -174,11 +195,9 @@ std::string Server::actionGet()
 	stat(file_tmp.c_str(), &path_stat);
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
-	std::cout << "FILE_TMP =" << file_tmp << std::endl;
-	if(file_tmp.find(".php") != std::string::npos)
-	{
+	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
+	if(check_cgi(file_tmp))
 		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
-	}
 	if (input.good() == 0 || o == 0)
 	{
 		while (file_tmp != "error")
@@ -186,7 +205,6 @@ std::string Server::actionGet()
 			i++;
 			input.close();
 			file_tmp = this->get_location_path(file, i);
-			std::cout << "FILE_TMP =" << file_tmp << std::endl;
 			input.open(file_tmp);
 			if (input.good() == 1)
 			{
@@ -195,7 +213,6 @@ std::string Server::actionGet()
 				for(int i = 0; tmp[i]; i++)
 					free(tmp[i]);
 				free(tmp);
-				std::cout << "FILE_TMP (SEND) =" << file_tmp << std::endl;
 				return (file_tmp);
 			}
 		}
@@ -359,6 +376,11 @@ int Server::verif_get_location(std::string file)
 		it++;
 	}
 	return 0;
+}
+
+std::vector<Cgi> Server::get_cgi_exec()
+{
+	return (cgi_exec);
 }
 
 std::string Server::get_location_path(std::string file, int index)

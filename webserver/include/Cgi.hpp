@@ -12,20 +12,29 @@ const std::string _server_protocol = "SERVER_PROTOCOL";
 const std::string _request_method = "REQUEST_METHOD";
 const std::string _script_filename = "SCRIPT_FILENAME";
 const std::string _redirect_status= "REDIRECT_STATUS";
-
+char				**ft_split(char const *s, const char *delimiters);
 class Cgi
 {
 	public:
 		Cgi();
-		Cgi(char **envp);
+		Cgi(char **envp, std::string cgi_conf);
 		Cgi(Cgi const & copy);
 		~Cgi();
 		Cgi & operator=(Cgi const & copy);
+		void set_cgi_launcher(std::string value);
+		void set_target(std::string value);
+		std::string get_target();
+		std::string get_cgi_launcher();
+		char ** build_arg_and_envp(std::string uri);
+		char ** build_arg_and_envp(std::string uri, char **request);
 		void execute_cgi(char **request, std::string uri, std::string cgi_path);
 		void execute_cgi(std::string uri, std::string cgi_path);
+		void setup(char **envp, std::string cgi_conf);
 	private:
 		char **_envp;
-		std::string cgi_path;
 		void _execute_cgi(std::string uri, char **arg, std::string cgi_path);
+		std::string _cgi_path;
+		std::string _target;
+		std::string _cgi_launcher;
 };
 #endif

@@ -86,8 +86,7 @@ int main(int ac, char **av, char **envp)
 		return (1);
 	}
 	Conf conf(av[1]);
-	Cgi cgi_exec(envp);
-	std::vector<Server> all_server = conf.create_all_server(cgi_exec);
+	std::vector<Server> all_server = conf.create_all_server(envp);
 	routine(all_server);
 	std::cout << "Close server" << std::endl;
 	return (0);

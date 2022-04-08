@@ -52,17 +52,31 @@ std::string Conf::get_file_content() const
 	return(file_content);
 }
 
-std::vector<Server> Conf::create_all_server(Cgi & cgi_exec)
+std::vector<Server> Conf::create_all_server(char **envp)
 {
 	std::vector<Server> list_server(_list_virtual_server->size());
 	int i = 0;
+	int j;
+	std::vector<Cgi> cgi_list;
+	std::vector<std::string> list;
 	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
 		list_server[i].set_virtual_server(*it);
-		list_server[i].set_cgi(cgi_exec);
+		cgi_list.clear();
+		cgi_list.resize(it->get_cgi_list().size());
+		j = 0;
+		list = it->get_cgi_list();
+		for(std::vector<std::string>::iterator it2 = list.begin();  it2 != list.end(); it2++)
+		{
+			cgi_list[j].setup(envp, *it2);
+			std::cout << "test here" << cgi_list[j].get_target() << std::endl;
+			j++;
+		}
+		list_server[i].set_cgi(cgi_list);
+		std::cout << "target = " << list_server[i].get_cgi_exec()[0].get_target() << std::endl;	
 		if(list_server[i].create_socket())
 		{
-			std::cerr << "Error with socket creation." << std::endl;
+			std::cerr << "Er  ror with socket creation." << std::endl;
 			exit(1);
 		}
 		i++;

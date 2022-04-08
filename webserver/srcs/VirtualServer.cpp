@@ -106,9 +106,13 @@ void VirtualServer::parse_bodysize(std::string str)
 
 void VirtualServer::parse_cgi(std::string str)
 {
-	int length = str.find(" cgi ");
+	int length = str.find("cgi");
 	std::string temp = &str[length + strlen("cgi") + 1];
 	_cgi_list.push_back(temp);
+	int i = 0; 
+	while(temp[i] != ';')
+		i++;
+	temp.resize(i);
 }
 
 void VirtualServer::parse_error_page(std::string str)

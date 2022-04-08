@@ -6,10 +6,10 @@ Cgi::Cgi() : _envp(NULL)
 }
 
 
-Cgi::Cgi(char **envp) : _envp(envp)
+Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(envp)
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
-
+	setup(envp, cgi_conf);
 }
 
 Cgi::Cgi(Cgi const & copy)
@@ -30,8 +30,8 @@ Cgi & Cgi::operator=(Cgi const & copy)
 	return(*this);
 	//std::cout << "Class Cgi operator=" << std::endl;
 }
-//./cgi_test/get-method.php?firstname=florian&lastname=Leger&submit=Envoyer 
-char ** get_arg(std::string uri)
+
+char ** Cgi::build_arg_and_envp(std::string uri)
 {
 	std::string path;
 
@@ -41,14 +41,14 @@ char ** get_arg(std::string uri)
 	std::cout << "PATH= : [" << path << "]" << std::endl;
 }
 
-char ** get_arg(std::string uri, char **request)
+char ** Cgi::build_arg_and_envp(std::string uri, char **request)
 {
 	int nbr_tab = 0;
 	while(request[nbr_tab])
 		nbr_tab++;
 }
 
-void Cgi::execute_cgi(std::string uri, std::string cgi_path) //GET
+void Cgi::execute_cgi(std::string uri, std::string _cgi_path) //GET
 {
 	std::cout << "Execute cgi for GET: " << uri << std::endl;
 	std::string path;
@@ -56,16 +56,21 @@ void Cgi::execute_cgi(std::string uri, std::string cgi_path) //GET
 	int length = uri.find_first_of('?');
 	path = uri;
 	path.resize(length);
-	_execute_cgi(path, get_arg(uri), cgi_path);
+	_execute_cgi(path, build_arg_and_envp(uri), _cgi_path);
 }
 
-void Cgi::execute_cgi(char **request, std::string uri, std::string cgi_path) //POST
+void Cgi::execute_cgi(char **request, std::string uri, std::string _cgi_path) //POST
 {
 	std::cout << "Execute cgi for POST: " << uri << std::endl;
-	_execute_cgi(uri, get_arg(uri, request), cgi_path);
+	std::string path;
+
+	int length = uri.find_first_of('?');
+	path = uri;
+	path.resize(length);
+	_execute_cgi(path, build_arg_and_envp(uri, request), _cgi_path);
 }
 
-void Cgi::_execute_cgi(std::string uri, char **arg, std::string cgi_path)
+void Cgi::_execute_cgi(std::string uri, char **arg, std::string _cgi_path)
 {
 	int pid;
 
@@ -73,7 +78,7 @@ void Cgi::_execute_cgi(std::string uri, char **arg, std::string cgi_path)
     pid = fork();
     if (pid == 0)
 	{
-        if (execve(uri.c_str(), arg, _envp) < 0)
+        if (execve(_cgi_launcher.c_str(), arg, _envp) < 0)
 	    {
             std::cerr << "Error, execve" << std::endl;
             exit(1);
@@ -83,4 +88,36 @@ void Cgi::_execute_cgi(std::string uri, char **arg, std::string cgi_path)
 		std::cerr << "Error, pid = -1" << std::endl;
 	else
 		waitpid(pid, &wait_pid, 0);
+}
+
+void Cgi::setup(char **envp, std::string cgi_conf)
+{
+	std::cout << "IN CGI CLASS : PARSE " << cgi_conf << std::endl;
+	_envp = envp;
+	char **tmp = ft_split(cgi_conf.c_str(), " ");
+	_target = tmp[0];
+	_cgi_launcher = tmp[1];
+	for(int i = 0; tmp[i]; i++)
+		free(tmp[i]);
+	free(tmp);
+}
+
+void Cgi::set_cgi_launcher(std::string value)
+{
+	_cgi_launcher = value;
+}
+
+void Cgi::set_target(std::string value)
+{
+	_target = value;
+}
+
+std::string Cgi::get_target()
+{
+	return (_target);
+}
+
+std::string Cgi::get_cgi_launcher()
+{
+	return (_cgi_launcher);
 }

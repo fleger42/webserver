@@ -30,7 +30,7 @@ class Conf
 		void add_virtual_server(VirtualServer const & server);
 		void parse_conf_file(std::string filename);
 		std::string get_file_content() const;
-		std::vector<Server> create_all_server(Cgi & cgi_exec);
+		std::vector<Server> create_all_server(char **envp);
 		void ft_print_content(void);
 	private:
 		std::vector<VirtualServer> * _list_virtual_server;
