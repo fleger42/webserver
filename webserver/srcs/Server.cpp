@@ -251,6 +251,43 @@ void Server::close_all_fd()
 		close(it->getServerFd());
 }
 
+Location &Server::get_request_location(std::string request)
+{
+	int i = 0;
+	int tmp = 0;
+	Location ret;
+	std::string path_loca;
+	std::string path_tmp;
+	std::vector<Location> *loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca->begin();
+	while (it != loca->end())
+	{
+		i = 0;
+		path_tmp = it->get_path();
+		while (request[i] && path_tmp[i] && request[i] == path_tmp[i])
+			i++;
+		if (i > tmp && i >= path_tmp.size())
+		{
+			tmp = i;
+			path_loca = path_tmp;
+		}
+		it++;
+	}
+	it = loca->begin();
+	i = 0;
+	while (it != loca->end())
+	{
+		if (path_loca == it->get_path())
+		{
+			ret = loca->at(i);
+			return (ret);
+		}
+		it++;
+		i++;
+	}
+	return (ret);
+}
+
 int Server::verif_get_location(std::string file)
 {
 	int i = 0;
