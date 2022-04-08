@@ -204,11 +204,11 @@ std::string Server::actionGet()
 		return "";
 	}
 	buff << input.rdbuf();
-	file = buff.str();
+	file_tmp = buff.str();
 	for(int i = 0; tmp[i]; i++)
 		free(tmp[i]);
 	free(tmp);
-	return (file);
+	return (file_tmp);
 }
 
 std::string Server::actionPost()
@@ -285,7 +285,7 @@ void Server::close_all_fd()
 		close(it->getServerFd());
 }
 
-Location &Server::get_request_location(std::string request)
+Location Server::get_request_location(std::string request)
 {
 	int i = 0;
 	int tmp = 0;
