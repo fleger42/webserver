@@ -174,7 +174,7 @@ std::string Server::actionGet()
 	stat(file_tmp.c_str(), &path_stat);
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
-	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
+	std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	if(file_tmp.find(".php") != std::string::npos)
 	{
 		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
@@ -186,14 +186,16 @@ std::string Server::actionGet()
 			i++;
 			input.close();
 			file_tmp = this->get_location_path(file, i);
+			std::cout << "FILE_TMP =" << file_tmp << std::endl;
 			input.open(file_tmp);
 			if (input.good() == 1)
 			{
 				buff << input.rdbuf();
-				file = buff.str();
+				file_tmp = buff.str();
 				for(int i = 0; tmp[i]; i++)
 					free(tmp[i]);
 				free(tmp);
+				std::cout << "FILE_TMP (SEND) =" << file_tmp << std::endl;
 				return (file_tmp);
 			}
 		}
@@ -208,6 +210,7 @@ std::string Server::actionGet()
 	for(int i = 0; tmp[i]; i++)
 		free(tmp[i]);
 	free(tmp);
+	std::cout << "FILE_TMP (SEND) =" << file_tmp << std::endl;
 	return (file_tmp);
 }
 
@@ -425,7 +428,13 @@ std::string Server::get_location_path(std::string file, int index)
 		}
 		it++;
 	}
-	ret += this->info_serv.get_root();
+	if (index != -1)
+	{
+		ret = this->info_serv.get_root();
+		ret = this->add_index(ret, index, it);
+		return ret;
+	}
+	ret = this->info_serv.get_root();
 	ret += file;
 	return ret;
 }
