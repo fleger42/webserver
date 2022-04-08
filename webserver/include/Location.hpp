@@ -33,7 +33,9 @@ class Location
 		void parse_double_tab(std::vector<std::string> double_tab);
 		void parse_path(std::string str);
 		void parse_upload_dir(std::string str);
+		void parse_cgi_list(std::string str);
 
+		void set_cgi_list(std::vector<std::string> value);
 		void set_get(bool value);
 		void set_post(bool value);
 		void set_delete(bool value);
@@ -44,6 +46,7 @@ class Location
 		void set_upload_dir(std::string value);
 		void set_body_size(unsigned long value);
 
+		std::vector<std::string> get_cgi_list() const;
 		bool get_get() const;
 		bool get_post() const;
 		bool get_delete() const;
@@ -62,6 +65,7 @@ class Location
 		std::string _path;
 		std::vector<std::string> _index_list;
 		std::string _upload_dir;
+		std::vector<std::string> _cgi_list;
 		unsigned long _body_size;
 };
 #endif

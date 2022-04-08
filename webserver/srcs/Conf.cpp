@@ -52,13 +52,14 @@ std::string Conf::get_file_content() const
 	return(file_content);
 }
 
-std::vector<Server> Conf::create_all_server()
+std::vector<Server> Conf::create_all_server(Cgi & cgi_exec)
 {
 	std::vector<Server> list_server(_list_virtual_server->size());
 	int i = 0;
 	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
 		list_server[i].set_virtual_server(*it);
+		list_server[i].set_cgi(cgi_exec);
 		if(list_server[i].create_socket())
 		{
 			std::cerr << "Error with socket creation." << std::endl;

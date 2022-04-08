@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef SERVER_HPP
+#define SERVER_HPP
 #include <iostream>
 #include <istream>
 #include <vector>
@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <fstream>
 #include "VirtualServer.hpp"
+#include "Cgi.hpp"
 
 class VirtualServer;
 std::vector<std::string> string_to_double_tab(std::string str);
@@ -34,7 +35,7 @@ class Server {
 			int get_action();
 			int create_socket();
 			std::string actionGet();
-			void actionPost();
+			std::string actionPost();
 			void actionDelete();
 			void set_virtual_server(VirtualServer const & value);
 			int getClient();
@@ -45,6 +46,7 @@ class Server {
 			std::string get_location_path(std::string file, int index);
 			Location &get_request_location(std::string request);
 			VirtualServer get_info_serv();
+			void set_cgi(Cgi cgi_exec);
 			std::string add_index(std::string ret, int index, std::vector<Location>::iterator it);
 
 		private:
@@ -52,5 +54,7 @@ class Server {
 			char *msg_client;
 			std::vector<Socket> all_socket;
 			VirtualServer info_serv;
+			Cgi cgi_exec;
 
 };
+#endif

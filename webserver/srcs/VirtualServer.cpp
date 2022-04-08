@@ -104,6 +104,13 @@ void VirtualServer::parse_bodysize(std::string str)
 	_body_size = atoi(temp.c_str());
 }
 
+void VirtualServer::parse_cgi(std::string str)
+{
+	int length = str.find(" cgi ");
+	std::string temp = &str[length + strlen("cgi") + 1];
+	_cgi_list.push_back(temp);
+}
+
 void VirtualServer::parse_error_page(std::string str)
 {
 	int length = str.find("error_page");
@@ -146,26 +153,28 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 	int length = 0;
 	for(int i = 0; i < double_tab.size(); i++)
 	{
-		if((length = double_tab[i].find("location")) != std::string::npos)
+		if((length = double_tab[i].find(" location ")) != std::string::npos || (length = double_tab[i].find("\tlocation ")) != std::string::npos)
 		{
 			while((length = double_tab[i].find("}")) == std::string::npos)
 				i++;
 		}
-		else if((length = double_tab[i].find("listen")) != std::string::npos)
+		else if((length = double_tab[i].find(" cgi ")) != std::string::npos || (length = double_tab[i].find("\tcgi ")) != std::string::npos)
+			parse_cgi(double_tab[i]);
+		else if((length = double_tab[i].find(" listen ")) != std::string::npos || (length = double_tab[i].find("\tlisten ")) != std::string::npos)
 			parse_ip(double_tab[i]);
-		else if((length = double_tab[i].find("root")) != std::string::npos)
+		else if((length = double_tab[i].find(" root ")) != std::string::npos || (length = double_tab[i].find("\troot ")) != std::string::npos)
 			parse_root(double_tab[i]);
-		else if((length = double_tab[i].find("server_name")) != std::string::npos)
+		else if((length = double_tab[i].find(" server_name ")) != std::string::npos || (length = double_tab[i].find("\tserver_name ")) != std::string::npos)
 			parse_server_name(double_tab[i]);
-		else if((length = double_tab[i].find("methods")) != std::string::npos)
+		else if((length = double_tab[i].find(" methods ")) != std::string::npos || (length = double_tab[i].find("\tmethods ")) != std::string::npos)
 			parse_methods(double_tab[i]);
-		else if((length = double_tab[i].find("autoindex")) != std::string::npos)
+		else if((length = double_tab[i].find(" autoindex ")) != std::string::npos || (length = double_tab[i].find("\tautoindex ")) != std::string::npos)
 			parse_autoindex(double_tab[i]);
-		else if((length = double_tab[i].find("error_page")) != std::string::npos)
+		else if((length = double_tab[i].find(" error_page ")) != std::string::npos || (length = double_tab[i].find("\terror_page ")) != std::string::npos)
 			parse_error_page(double_tab[i]);
-		else if((length = double_tab[i].find("client_max_body_size")) != std::string::npos)
+		else if((length = double_tab[i].find(" client_max_body_size ")) != std::string::npos || (length = double_tab[i].find("\tclient_max_body_size ")) != std::string::npos)
 			parse_bodysize(double_tab[i]);
-		else if((length = double_tab[i].find("index")) != std::string::npos)
+		else if((length = double_tab[i].find(" index ")) != std::string::npos || (length = double_tab[i].find("\tindex ")) != std::string::npos)
 			parse_index_list(double_tab[i]);
 	}
 }
@@ -212,10 +221,12 @@ void VirtualServer::ft_print_content(void)
 	std::cout << "_INDEX_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 		std::cout << *it << std::endl;
+	std::cout << "_CGI_LIST = " << std::endl;
+	for(std::vector<std::string>::iterator it = _cgi_list.begin(); it != _cgi_list.end(); it++)
+		std::cout << *it << std::endl;
 	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
 	for(std::vector<Location>::iterator it = _location_list->begin(); it != _location_list->end(); it++)
 		it->ft_print_content();
-
 }
 
 void VirtualServer::set_index_list(std::vector<std::string> value)
@@ -276,6 +287,16 @@ void VirtualServer::set_port(std::vector<std::string> value)
 void VirtualServer::set_error_page(std::map<int, std::string> value)
 {
 	_error_page = value;
+}
+
+void VirtualServer::set_cgi_list(std::vector<std::string> value)
+{
+	_cgi_list = value;
+}
+
+std::vector<std::string> VirtualServer::get_cgi_list() const
+{
+	return (_cgi_list);
 }
 
 std::vector<std::string> VirtualServer::get_index_list() const
