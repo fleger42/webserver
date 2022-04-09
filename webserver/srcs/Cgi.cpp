@@ -27,6 +27,10 @@ Cgi & Cgi::operator=(Cgi const & copy)
 {
 	if(this == &copy)
 		*this = copy;
+	_envp = copy._envp;
+	_cgi_launcher = copy._cgi_launcher;
+	_target = copy._target;
+	_cgi_path = copy._cgi_path;
 	return(*this);
 	//std::cout << "Class Cgi operator=" << std::endl;
 }

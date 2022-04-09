@@ -67,16 +67,11 @@ std::vector<Server> Conf::create_all_server(char **envp)
 		j = 0;
 		list = it->get_cgi_list();
 		for(std::vector<std::string>::iterator it2 = list.begin();  it2 != list.end(); it2++)
-		{
-			cgi_list[j].setup(envp, *it2);
-			std::cout << "test here" << cgi_list[j].get_target() << std::endl;
-			j++;
-		}
+			cgi_list[j++].setup(envp, *it2);
 		list_server[i].set_cgi(cgi_list);
-		std::cout << "target = " << list_server[i].get_cgi_exec()[0].get_target() << std::endl;	
 		if(list_server[i].create_socket())
 		{
-			std::cerr << "Er  ror with socket creation." << std::endl;
+			std::cerr << "Error with socket creation." << std::endl;
 			exit(1);
 		}
 		i++;

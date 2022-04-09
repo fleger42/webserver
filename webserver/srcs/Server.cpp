@@ -33,10 +33,9 @@ Server &Server::operator=(Server const & other)
 	return (*this);
 }
 
-void Server::set_cgi(std::vector<Cgi> param)
+void Server::set_cgi(std::vector<Cgi> & param)
 {
 	this->cgi_exec = param;
-	std::cout << "IN SET CGI " << param[0].get_target() << std::endl;
 }
 
 std::vector<Socket> Server::get_all_socket() const
@@ -167,11 +166,27 @@ std::string Server::get_cgi_path()
 */
 int	Server::check_cgi(std::string uri) 
 {
+	std::string extension;
+	int count = 0;
+	std::string::iterator it = uri.begin();
+	it++;
+	while(it != uri.end() && *it != '.')
+		it++;
+	for(; it != uri.end() && *it != '?'; it++)
+		extension.push_back(*it);
+	std::cout << extension << std::endl;
 	for(std::vector<Cgi>::iterator it = cgi_exec.begin(); it != cgi_exec.end(); it++)
 	{
-		std::cout << "target = " << it->get_target() << std::endl;	
-		std::cout << "launcher = " << it->get_cgi_launcher() << std::endl;	
+		std::cout << "extension= " << extension << std::endl;
+		std::cout << "it= " << it->get_target() << std::endl;
+		if(extension.compare(it->get_target()) == 0)
+			return (1);
 	}
+	if(extension.compare(".php") == 0)
+		return (-1);
+	if(extension.compare(".cgi") == 0)
+		return (-1);
+	return (0);
 }
 
 std::string Server::actionGet()
@@ -196,39 +211,48 @@ std::string Server::actionGet()
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
 	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
-	if(check_cgi(file_tmp))
-		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
-	if (input.good() == 0 || o == 0)
+	if(check_cgi(file_tmp) == 1)
 	{
-		while (file_tmp != "error")
+		
+		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
+	}
+	else if(check_cgi(file_tmp) == - 1)
+		return "error";
+	else
+	{
+
+		if (input.good() == 0 || o == 0)
 		{
-			i++;
-			input.close();
-			file_tmp = this->get_location_path(file, i);
-			input.open(file_tmp);
-			if (input.good() == 1)
+			while (file_tmp != "error")
 			{
-				buff << input.rdbuf();
-				file_tmp = buff.str();
-				for(int i = 0; tmp[i]; i++)
-					free(tmp[i]);
-				free(tmp);
-				return (file_tmp);
+				i++;
+				input.close();
+				file_tmp = this->get_location_path(file, i);
+				input.open(file_tmp);
+				if (input.good() == 1)
+				{
+					buff << input.rdbuf();
+					file_tmp = buff.str();
+					for(int i = 0; tmp[i]; i++)
+						free(tmp[i]);
+					free(tmp);
+					return (file_tmp);
+				}
 			}
+			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+			for(int i = 0; tmp[i]; i++)
+				free(tmp[i]);
+			free(tmp);
+			return "";
 		}
-		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+		buff << input.rdbuf();
+		file_tmp = buff.str();
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
-		return "";
+		return (file_tmp);
 	}
-	buff << input.rdbuf();
-	file_tmp = buff.str();
-	for(int i = 0; tmp[i]; i++)
-		free(tmp[i]);
-	free(tmp);
-	std::cout << "FILE_TMP (SEND) =" << file_tmp << std::endl;
-	return (file_tmp);
+	return "error";
 }
 
 std::string Server::actionPost()

@@ -41,7 +41,7 @@ void routine(std::vector<Server> & all_server)
 		{
 			FD_ZERO(&select_set_read_ready);
 			select_set_read_ready = select_set_read_dump;
-			usleep(200000);
+			usleep(2000);
 			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 			{
 				if(g_ctrl_c_called == 1)
