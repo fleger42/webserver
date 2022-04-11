@@ -54,7 +54,7 @@ void Cgi::build_arg_and_envp(std::string uri) //GET
 	std::string test = uri;
 	std::cout << "middle, uri = " << uri << std::endl;
 	_cgi_path = uri;
-	std::cout << "after, uri = " << uri << std::endl;
+	std::cout << "after" << std::endl;
 	_cgi_path.resize(length);
 	std::string arg_string = &uri[length];
 	std::cout << "arg_string= : [" << arg_string << "]" << std::endl;
