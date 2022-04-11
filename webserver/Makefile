@@ -1,8 +1,8 @@
 NAME = webserv
 
-CC = clang++
+CXX = clang++
 
-CFLAGS = -Wall -Wextra -Werror
+CXXFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 HEADER = -I include/
 
@@ -17,12 +17,12 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	@echo "\n"
 	@echo "\033[0;32mCompiling webserv..."
-	@$(CC) $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ)
+	@$(CXX) $(CXXFLAGS) $(HEADER) -o $(NAME) $(OBJ)
 	@echo "\n\033[0mDone !"
 
 %.o: %.c
 	@printf "\033[0;33mGenerating webserv objects... %-33.33s\r" $@
-	@${CC} ${CFLAGS} $(HEADER) -c $< -o $@
+	@${CXX} ${CXXFLAGS} $(HEADER) -c $< -o $@
 
 clean:
 	@echo "\nRemoving binaries..."

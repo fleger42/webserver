@@ -1,30 +1,5 @@
 #include "../include/header.hpp"
-/*
-Avance dans str jusqu'à trouver le char c puis met un \0 après
-*/
-void mutefo(char *str, char c)
-{
-	int i = 0;
-	while(str[i])
-	{
-		if(str[i] == 'c')
-			str[i + 1] = '\0';
-		i++;
-	}
-}
-/*
-Avance dans str jusqu'à trouver le char c puis met un \0 après
-*/
-void mutefo(std::string & str, char c)
-{
-	int i = 0;
-	while(str[i])
-	{
-		if(str[i] == 'c')
-			str[i + 1] = '\0';
-		i++;
-	}
-}
+
 /*
 Isole un bloc du fichier de configuration en mettant un \0 après le } de fermeture
 */
@@ -91,7 +66,6 @@ std::vector<std::string> string_to_double_tab(std::string str)
 	int i = 0;
 	int nbr = 0;
 	int line_lenght = 0;
-	int z = 0;
 	std::vector<std::string> double_tab;
 	while(str[i])
 	{

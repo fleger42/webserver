@@ -25,14 +25,15 @@ class Cgi
 		void set_target(std::string value);
 		std::string get_target();
 		std::string get_cgi_launcher();
-		char ** build_arg_and_envp(std::string uri);
-		char ** build_arg_and_envp(std::string uri, char **request);
-		void execute_cgi(char **request, std::string uri, std::string cgi_path);
-		void execute_cgi(std::string uri, std::string cgi_path);
+		void execute_cgi(char **request, std::string uri);
+		void execute_cgi(std::string uri);
 		void setup(char **envp, std::string cgi_conf);
 	private:
+		void build_arg_and_envp(std::string uri);
+		void build_arg_and_envp(std::string uri, char **request);
 		char **_envp;
-		void _execute_cgi(std::string uri, char **arg, std::string cgi_path);
+		char **_argv;
+		void _execute_cgi();
 		std::string _cgi_path;
 		std::string _target;
 		std::string _cgi_launcher;

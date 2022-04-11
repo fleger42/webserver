@@ -112,7 +112,7 @@ void Location::parse_cgi_list(std::string str)
 
 void Location::parse_double_tab(std::vector<std::string> double_tab)
 {
-	for(int i = 0; i < double_tab.size(); i++)
+	for(size_t i = 0; i < double_tab.size(); i++)
 	{
 		if(double_tab[i].find(" location ") != std::string::npos || (double_tab[i].find("\tlocation ") != std::string::npos))
 			parse_path(double_tab[i]);

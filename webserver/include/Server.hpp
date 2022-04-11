@@ -11,8 +11,6 @@
 
 class VirtualServer;
 std::vector<std::string> string_to_double_tab(std::string str);
-static unsigned int	ft_get_nb_strs(char const *s, const char *delimiters);
-static void			ft_get_next_str(char **next_str, unsigned int *next_str_len, const char *delimiters);
 size_t				ft_strlcpy(char *dst, char const *src, size_t size);
 char				**ft_clear_splitted(char **tab);
 char				**ft_split(char const *s, const char *delimiters);
@@ -40,7 +38,7 @@ class Server {
 			void close_all_fd();
 			int verif_get_location(std::string file);
 			int	check_cgi(std::string uri);
-			std::string add_index(std::string ret, int index, std::vector<Location>::iterator it);
+			std::string add_index(std::string ret, size_t index, std::vector<Location>::iterator it);
 			
 			void set_virtual_server(VirtualServer const & value);
 			void set_cgi(std::vector<Cgi> & cgi_exec);

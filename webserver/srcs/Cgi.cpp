@@ -1,12 +1,12 @@
 #include "../include/Cgi.hpp"
 
-Cgi::Cgi() : _envp(NULL)
+Cgi::Cgi() : _envp(NULL), _argv(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
 }
 
 
-Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(envp)
+Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(envp) ,_argv(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
 	setup(envp, cgi_conf);
@@ -14,7 +14,11 @@ Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(envp)
 
 Cgi::Cgi(Cgi const & copy)
 {
-	*this = copy;
+	_envp = copy._envp;
+	_argv = copy._argv;
+	_cgi_launcher = copy._cgi_launcher;
+	_target = copy._target;
+	_cgi_path = copy._cgi_path;
 	//std::cout << "Class Cgi copy constructor" << std::endl;
 }
 
@@ -35,24 +39,29 @@ Cgi & Cgi::operator=(Cgi const & copy)
 	//std::cout << "Class Cgi operator=" << std::endl;
 }
 
-char ** Cgi::build_arg_and_envp(std::string uri)
-{
-	std::string path;
 
-	int length = uri.find_first_of('?');
-	path = uri;
-	path.resize(length);
-	std::cout << "PATH= : [" << path << "]" << std::endl;
-}
-
-char ** Cgi::build_arg_and_envp(std::string uri, char **request)
+void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 {
 	int nbr_tab = 0;
 	while(request[nbr_tab])
 		nbr_tab++;
+	(void)uri;
+}
+void Cgi::build_arg_and_envp(std::string uri) //GET
+{
+	int length = uri.find_first_of('?');
+	std::cout << "before, uri = " << uri << std::endl;
+	std::string test = uri;
+	std::cout << "middle, uri = " << uri << std::endl;
+	_cgi_path = uri;
+	std::cout << "after, uri = " << uri << std::endl;
+	_cgi_path.resize(length);
+	std::string arg_string = &uri[length];
+	std::cout << "arg_string= : [" << arg_string << "]" << std::endl;
+	std::cout << "_cgi_path= : [" << _cgi_path << "]" << std::endl;
 }
 
-void Cgi::execute_cgi(std::string uri, std::string _cgi_path) //GET
+void Cgi::execute_cgi(std::string uri) //GET
 {
 	std::cout << "Execute cgi for GET: " << uri << std::endl;
 	std::string path;
@@ -60,10 +69,11 @@ void Cgi::execute_cgi(std::string uri, std::string _cgi_path) //GET
 	int length = uri.find_first_of('?');
 	path = uri;
 	path.resize(length);
-	_execute_cgi(path, build_arg_and_envp(uri), _cgi_path);
+	build_arg_and_envp(uri);
+	_execute_cgi();
 }
 
-void Cgi::execute_cgi(char **request, std::string uri, std::string _cgi_path) //POST
+void Cgi::execute_cgi(char **request, std::string uri) //POST
 {
 	std::cout << "Execute cgi for POST: " << uri << std::endl;
 	std::string path;
@@ -71,18 +81,28 @@ void Cgi::execute_cgi(char **request, std::string uri, std::string _cgi_path) //
 	int length = uri.find_first_of('?');
 	path = uri;
 	path.resize(length);
-	_execute_cgi(path, build_arg_and_envp(uri, request), _cgi_path);
+	build_arg_and_envp(uri, request);
+	_execute_cgi();
 }
 
-void Cgi::_execute_cgi(std::string uri, char **arg, std::string _cgi_path)
+void Cgi::_execute_cgi()
 {
 	int pid;
 
     int wait_pid;
     pid = fork();
+	std::cout << "launcher = " << _cgi_launcher << std::endl;
+
+	std::cout << "_argv = " << _argv << std::endl;
+	for(int i = 0; _argv[i]; i++)
+		std::cout << _argv[i] << std::endl;
+
+	std::cout << std::endl << "_envp = " << _envp << std::endl;
+	for(int i = 0; _envp[i]; i++)
+		std::cout << _envp[i] << std::endl << std::endl;
     if (pid == 0)
 	{
-        if (execve(_cgi_launcher.c_str(), arg, _envp) < 0)
+        if (execve(_cgi_launcher.c_str(), _argv, _envp) < 0)
 	    {
             std::cerr << "Error, execve" << std::endl;
             exit(1);

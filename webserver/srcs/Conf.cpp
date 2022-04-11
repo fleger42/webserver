@@ -98,7 +98,7 @@ void Conf::parse_conf_file(std::string filename)
 	size_t server_nbr = count_appearance(content, "server");
 	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);
 	std::vector<Location> * temp;
-	for(int i = 0; i < server_nbr; i++)
+	for(size_t i = 0; i < server_nbr; i++)
 	{
 		found = content.find("server");
 		if(found == std::string::npos)

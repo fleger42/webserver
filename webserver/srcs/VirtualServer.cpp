@@ -1,6 +1,6 @@
 #include "../include/VirtualServer.hpp"
 
-VirtualServer::VirtualServer() : _root(), _ip(), _server_name(), _port(), _error_page(),_body_size(0), 
+VirtualServer::VirtualServer() : _root(), _server_name(), _ip(), _port(), _index_list(), _cgi_list(), _error_page(),_body_size(0), 
 								_autoindex(0), _get(0), _post(0), _delete(0), _location_list()
 {
 	//std::cout << "Class VirtualServer default constructor" << std::endl;
@@ -154,8 +154,8 @@ void VirtualServer::parse_index_list(std::string str)
 
 void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 {
-	int length = 0;
-	for(int i = 0; i < double_tab.size(); i++)
+	size_t length = 0;
+	for(size_t i = 0; i < double_tab.size(); i++)
 	{
 		if((length = double_tab[i].find(" location ")) != std::string::npos || (length = double_tab[i].find("\tlocation ")) != std::string::npos)
 		{

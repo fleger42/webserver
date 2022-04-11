@@ -24,7 +24,5 @@
 #include "Server.hpp"
 #include "Socket.hpp"
 #include "Cgi.hpp"
-void mutefo(char *str, char c);
-void mutefo(std::string & str, char c);
 void	ft_signal_handler(int signal);
 #endif

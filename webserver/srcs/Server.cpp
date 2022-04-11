@@ -49,7 +49,7 @@ int Server::create_socket()
 	std::vector<std::string> port_list = info_serv.get_port();
 	std::vector<Socket> temp(port_list.size());
 
-	for(int i = 0; i < port_list.size(); i++)
+	for(size_t i = 0; i < port_list.size(); i++)
 	{
 		//std::cout << "Create new socket for server " << this->info_serv.get_server_name() << 
 		//" with ip: " << ip_list[i] << std::endl;
@@ -154,39 +154,33 @@ int Server::get_action()
 }
 
 /*
-	GET THE PATH OF THE CORRECT CGI TO USE
-*/
-std::string Server::get_cgi_path()
-{
-
-}
-
-/*
 	FIND IF YOU NEED OR NOT TO USE CGI
+	Return -1 if you dont need cgi.
+	If you need cgi return the index of it or -2 for error
 */
 int	Server::check_cgi(std::string uri) 
 {
 	std::string extension;
-	int count = 0;
+	std::string final_conf_target;
+	int index = 0;
 	std::string::iterator it = uri.begin();
 	it++;
 	while(it != uri.end() && *it != '.')
 		it++;
 	for(; it != uri.end() && *it != '?'; it++)
 		extension.push_back(*it);
-	std::cout << extension << std::endl;
 	for(std::vector<Cgi>::iterator it = cgi_exec.begin(); it != cgi_exec.end(); it++)
 	{
-		std::cout << "extension= " << extension << std::endl;
-		std::cout << "it= " << it->get_target() << std::endl;
-		if(extension.compare(it->get_target()) == 0)
-			return (1);
+		final_conf_target = &it->get_target()[1];
+		index++;
+		if(extension.compare(final_conf_target) == 0)
+			return (index);
 	}
 	if(extension.compare(".php") == 0)
-		return (-1);
+		return (-2);
 	if(extension.compare(".cgi") == 0)
-		return (-1);
-	return (0);
+		return (-2);
+	return (-1);
 }
 
 std::string Server::actionGet()
@@ -211,13 +205,11 @@ std::string Server::actionGet()
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
 	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
-	if(check_cgi(file_tmp) == 1)
-	{
-		
-		//cgi_exec.execute_cgi(file_tmp, this->get_info_serv().get);
-	}
-	else if(check_cgi(file_tmp) == - 1)
+	int ret_check_cgi = check_cgi(file_tmp);
+	if(ret_check_cgi == -2)
 		return "error";
+	else if(ret_check_cgi != - 1)
+		cgi_exec[ret_check_cgi].execute_cgi(file_tmp);
 	else
 	{
 
@@ -331,8 +323,8 @@ void Server::close_all_fd()
 
 Location Server::get_request_location(std::string request)
 {
-	int i = 0;
-	int tmp = 0;
+	size_t i = 0;
+	size_t tmp = 0;
 	Location ret;
 	std::string path_loca;
 	std::string path_tmp;
@@ -368,8 +360,8 @@ Location Server::get_request_location(std::string request)
 
 int Server::verif_get_location(std::string file)
 {
-	int i = 0;
-	int tmp = 0;
+	size_t i = 0;
+	size_t tmp = 0;
 	std::string path_loca;
 	std::string path_tmp;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
@@ -409,8 +401,8 @@ std::vector<Cgi> Server::get_cgi_exec()
 
 std::string Server::get_location_path(std::string file, int index)
 {
-	int i = 0;
-	int tmp = 0;
+	size_t i = 0;
+	size_t tmp = 0;
 	std::string path_loca;
 	std::string path_tmp;
 	std::string file_tmp = file;
@@ -485,7 +477,7 @@ std::string Server::get_location_path(std::string file, int index)
 	return ret;
 }
 
-std::string Server::add_index(std::string ret, int index, std::vector<Location>::iterator it)
+std::string Server::add_index(std::string ret, size_t index, std::vector<Location>::iterator it)
 {
 	if (it->get_index_list().empty() == 0)
 	{
