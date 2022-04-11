@@ -31,12 +31,12 @@ Cgi & Cgi::operator=(Cgi const & copy)
 {
 	if(this == &copy)
 		*this = copy;
-	_envp = copy._envp;
 	_cgi_launcher = copy._cgi_launcher;
+	_argv = copy._argv;
+	_envp = copy._envp;
 	_target = copy._target;
 	_cgi_path = copy._cgi_path;
 	return(*this);
-	//std::cout << "Class Cgi operator=" << std::endl;
 }
 
 
@@ -50,11 +50,7 @@ void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 void Cgi::build_arg_and_envp(std::string uri) //GET
 {
 	int length = uri.find_first_of('?');
-	std::cout << "before, uri = " << uri << std::endl;
-	std::string test = uri;
-	std::cout << "middle, uri = " << uri << std::endl;
 	_cgi_path = uri;
-	std::cout << "after" << std::endl;
 	_cgi_path.resize(length);
 	std::string arg_string = &uri[length];
 	std::cout << "arg_string= : [" << arg_string << "]" << std::endl;
@@ -90,16 +86,18 @@ void Cgi::_execute_cgi()
 	int pid;
 
     int wait_pid;
-    pid = fork();
 	std::cout << "launcher = " << _cgi_launcher << std::endl;
 
-	std::cout << "_argv = " << _argv << std::endl;
-	for(int i = 0; _argv[i]; i++)
-		std::cout << _argv[i] << std::endl;
+	std::cout << "_argv = " << std::endl;
+	if(_argv)
+		for(int i = 0; _argv[i]; i++)
+			std::cout << _argv[i] << std::endl;
 
-	std::cout << std::endl << "_envp = " << _envp << std::endl;
-	for(int i = 0; _envp[i]; i++)
-		std::cout << _envp[i] << std::endl << std::endl;
+	/*std::cout << std::endl << "_envp = " << std::endl;
+	if(_envp)
+		for(int i = 0; _envp[i]; i++)
+			std::cout << _envp[i] << std::endl << std::endl;*/
+    pid = fork();
     if (pid == 0)
 	{
         if (execve(_cgi_launcher.c_str(), _argv, _envp) < 0)

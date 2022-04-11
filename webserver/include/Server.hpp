@@ -41,7 +41,7 @@ class Server {
 			std::string add_index(std::string ret, size_t index, std::vector<Location>::iterator it);
 			
 			void set_virtual_server(VirtualServer const & value);
-			void set_cgi(std::vector<Cgi> & cgi_exec);
+			void set_cgi(std::vector<Cgi> cgi_exec);
 			
 			int getClient();
 			std::vector<Socket> get_all_socket() const;

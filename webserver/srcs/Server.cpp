@@ -33,7 +33,7 @@ Server &Server::operator=(Server const & other)
 	return (*this);
 }
 
-void Server::set_cgi(std::vector<Cgi> & param)
+void Server::set_cgi(std::vector<Cgi> param)
 {
 	this->cgi_exec = param;
 }
@@ -172,9 +172,9 @@ int	Server::check_cgi(std::string uri)
 	for(std::vector<Cgi>::iterator it = cgi_exec.begin(); it != cgi_exec.end(); it++)
 	{
 		final_conf_target = &it->get_target()[1];
-		index++;
 		if(extension.compare(final_conf_target) == 0)
 			return (index);
+		index++;
 	}
 	if(extension.compare(".php") == 0)
 		return (-2);
@@ -207,9 +207,19 @@ std::string Server::actionGet()
 	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
+	{
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
 		return "error";
+	}
 	else if(ret_check_cgi != - 1)
+	{
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
 		cgi_exec[ret_check_cgi].execute_cgi(file_tmp);
+	}
 	else
 	{
 
