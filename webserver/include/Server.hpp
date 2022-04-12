@@ -33,8 +33,8 @@ class Server {
 			int create_socket();
 			std::string actionGet();
 			std::string actionPost();
+			std::string actionDelete();
 			int get_action();
-			void actionDelete();
 			void close_all_fd();
 			int verif_get_location(std::string file);
 			int	check_cgi(std::string uri);
