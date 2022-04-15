@@ -1,11 +1,7 @@
 <?php
-
-echo getenv('REQUEST_METHOD');
-echo $_GET['REQUEST_METHOD'];
-
-if(isset($_GET['last_name'])) {
+if(isset($_POST['last_name'])) {
     echo "WORK";
-    echo $_GET['last_name'];
+    echo $_POST['last_name'];
 }
 else
     echo "\nnot present";

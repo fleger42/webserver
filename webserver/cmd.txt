@@ -1,1 +1,0 @@
-last_name=nabit GATEWAY_INTERFACE=CGI/1.1 PATH_INFO=/tmp/webserver/webserver/cgi_test/test_simple.php REQUEST_METHOD=POST SCRIPT_FILENAME=/tmp/webserver/webserver/cgi_test/test_simple.php SERVER_PROTOCOL=HTTP/1.1 REDIRECT_STATUS=200 QUERY_STRING="last_name=flori" CONTENT_TYPE=application/x-www-form-urlencoded ./php-cgi

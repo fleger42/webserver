@@ -1,0 +1,1 @@
+ echo "submit=oui&lastname=leger&firstname=florian" | GATEWAY_INTERFACE=CGI/1.1 PATH_INFO=/tmp/webserver/webserver/cgi_test/get-method.php REQUEST_METHOD=POST SCRIPT_FILENAME=/tmp/webserver/webserver/cgi_test/get-method.php SERVER_PROTOCOL=HTTP/1.1 REDIRECT_STATUS=200 CONTENT_LENGTH=49 CONTENT_TYPE=application/x-www-form-urlencoded ./php-cgi

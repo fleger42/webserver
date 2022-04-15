@@ -24,5 +24,6 @@
 #include "Server.hpp"
 #include "Socket.hpp"
 #include "Cgi.hpp"
+#include <stdlib.h> 
 void	ft_signal_handler(int signal);
 #endif

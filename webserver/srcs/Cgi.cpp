@@ -38,7 +38,15 @@ Cgi & Cgi::operator=(Cgi const & copy)
 	_cgi_path = copy._cgi_path;
 	return(*this);
 }
-
+/*
+_content_length
+PATH_INFO
+REQUEST_METHOD
+SCRIPT_FILENAME
+SERVER_PROTOCOL
+REDIRECT_STATUS
+CONTENT_TYPE
+*/ 
 
 void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 {
@@ -47,14 +55,46 @@ void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 		nbr_tab++;
 	(void)uri;
 }
+/*
+PATH_INFO
+REQUEST_METHOD
+SCRIPT_FILENAME
+SERVER_PROTOCOL
+REDIRECT_STATUS
+QUERY_STRING
+CONTENT_TYPE
+*/ 
 void Cgi::build_arg_and_envp(std::string uri) //GET
 {
+	// BUILD ARG //
 	int length = uri.find_first_of('?');
 	_cgi_path = uri;
 	_cgi_path.resize(length);
-	std::string arg_string = &uri[length];
-	std::cout << "arg_string= : [" << arg_string << "]" << std::endl;
-	std::cout << "_cgi_path= : [" << _cgi_path << "]" << std::endl;
+	std::string arg_string = &uri[length + 1];
+	_argv = (char**)malloc(sizeof(char**) * 3);
+	_argv[0] = strdup(_cgi_launcher.c_str());
+	_argv[1] = strdup(_cgi_path.c_str());
+	_argv[2] = NULL;
+
+	// BUILD ENVP //
+
+	int count = 0;
+	while(_envp[count])
+		count++;
+	count += 8;
+	char buf[500];
+	std::string current_path = getcwd(buf, 500);
+	if(_cgi_path.front() == '.')
+		_cgi_path.erase(0,1);
+	_envp = add_line_doubletab(_envp, (_content_length + "=" + std::to_string(arg_string.size())).c_str());
+	_envp = add_line_doubletab(_envp, (_content_type + "=application/x-www-form-urlencoded").c_str());
+	_envp = add_line_doubletab(_envp, (_path_info + "=" + current_path + _cgi_path).c_str());
+	_envp = add_line_doubletab(_envp, (_query_string + "=" + arg_string).c_str());
+	_envp = add_line_doubletab(_envp, (_server_protocol + "=HTTP/1.1 ").c_str());
+	_envp = add_line_doubletab(_envp, (_request_method + "=GET").c_str());
+	_envp = add_line_doubletab(_envp, (_script_filename + "=" + current_path + _cgi_path).c_str());
+	_envp = add_line_doubletab(_envp, (_redirect_status + "=200").c_str());
+	_envp = add_line_doubletab(_envp, (_gateway_interface + "=CGI/1.1").c_str());
 }
 
 void Cgi::execute_cgi(std::string uri) //GET
@@ -92,11 +132,11 @@ void Cgi::_execute_cgi()
 	if(_argv)
 		for(int i = 0; _argv[i]; i++)
 			std::cout << _argv[i] << std::endl;
-
-	/*std::cout << std::endl << "_envp = " << std::endl;
+	std::cout << std::endl << "_envp = " << std::endl;
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
-			std::cout << _envp[i] << std::endl << std::endl;*/
+			std::cout << _envp[i] << std::endl << std::endl;
+	std::cout << "START CGI EXECUTION" << std::endl << std::endl;
     pid = fork();
     if (pid == 0)
 	{
@@ -110,6 +150,7 @@ void Cgi::_execute_cgi()
 		std::cerr << "Error, pid = -1" << std::endl;
 	else
 		waitpid(pid, &wait_pid, 0);
+	std::cout << std::endl << std::endl << "END CGI EXECUTION" << std::endl;
 }
 
 void Cgi::setup(char **envp, std::string cgi_conf)
@@ -119,6 +160,10 @@ void Cgi::setup(char **envp, std::string cgi_conf)
 	char **tmp = ft_split(cgi_conf.c_str(), " ");
 	_target = tmp[0];
 	_cgi_launcher = tmp[1];
+	int i = 0; 
+	while(_cgi_launcher[i] != ';')
+		i++;
+	_cgi_launcher.resize(i);
 	for(int i = 0; tmp[i]; i++)
 		free(tmp[i]);
 	free(tmp);

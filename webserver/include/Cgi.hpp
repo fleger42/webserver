@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
 const std::string _content_length = "CONTENT_LENGTH";
 const std::string _content_type = "CONTENT_TYPE";
 const std::string _path_info= "PATH_INFO";
@@ -12,6 +13,8 @@ const std::string _server_protocol = "SERVER_PROTOCOL";
 const std::string _request_method = "REQUEST_METHOD";
 const std::string _script_filename = "SCRIPT_FILENAME";
 const std::string _redirect_status= "REDIRECT_STATUS";
+const std::string _gateway_interface= "GATEWAY_INTERFACE";
+char** add_line_doubletab(char **dtab, const char * newline);
 char				**ft_split(char const *s, const char *delimiters);
 class Cgi
 {

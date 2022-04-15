@@ -1,6 +1,28 @@
 #include "../include/header.hpp"
 
 /*
+Ajoute une ligne à un char **
+*/
+char ** add_line_doubletab(char **dtab, const char * newline)
+{
+	char ** ret;
+	int count = 0;
+	if(!dtab)
+		return NULL;
+	while(dtab[count])
+		count++;
+	ret = (char**)malloc(sizeof(char**) * (count + 2));
+	count = 0;
+	while(dtab[count])
+	{
+		ret[count] = dtab[count];
+		count++;
+	}
+	ret[count] = strdup(newline);
+	ret[count + 1] = NULL;
+	return (ret);
+}
+/*
 Isole un bloc du fichier de configuration en mettant un \0 après le } de fermeture
 */
 void cutblock(std::string & str)
