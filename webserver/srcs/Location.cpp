@@ -20,8 +20,19 @@ Location::~Location()
 
 Location & Location::operator=(Location const & copy)
 {
-	if(this == &copy)
-		*this = copy;
+	if (this != &copy)
+	{
+		this->_autoindex = copy._autoindex;
+		this->_body_size = copy._body_size;
+		this->_cgi_list = copy._cgi_list;
+		this->_delete = copy._delete;
+		this->_get = copy._get;
+		this->_index_list = copy._index_list;
+		this->_path = copy._path;
+		this->_post = copy._post;
+		this->_root = copy._root;
+		this->_upload_dir = copy._upload_dir;
+	}
 	return(*this);
 	//std::cout << "Class Location operator=" << std::endl;
 }

@@ -316,13 +316,45 @@ std::string Server::actionPost()
 	return (file);
 }
 
-void Server::actionDelete()
+std::string Server::actionDelete()
 {
-	if (this->info_serv.get_delete() == 0)
+	char **tmp;
+	char *tmp2;
+	int i;
+	std::string file;
+	std::string file_tmp;
+	Location loca;
+
+	tmp = ft_split(this->msg_client, " ");
+	tmp2 = tmp[1];
+	file += tmp2;
+	loca = this->get_request_location(file); 
+	if (loca.get_path().empty() == 0)
 	{
-		std::cerr << "Not permited to DELETE" << std::endl;
-		return ;
+		if (loca.get_delete() == 0 && this->info_serv.get_delete() == 0)
+		{
+			std::cerr << "Not permited to DELETE" << std::endl;
+			return "";
+		}
 	}
+	else
+	{
+		if (this->info_serv.get_delete() == 0)
+		{
+			std::cerr << "Not permited to DELETE" << std::endl;
+			return "";
+		}
+	}
+	std::cout << "GO DELETE" << std::endl;
+	file_tmp = loca.get_root();
+	if (file_tmp.empty() == 1)
+		file_tmp = this->info_serv.get_root();
+	file_tmp += file;
+	std::cout << "file to remove = " << file_tmp << std::endl;
+	i = std::remove(file_tmp.c_str());
+	if (i == 0)
+		return "success";
+	return "error";
 }
 
 void Server::close_all_fd()
@@ -338,13 +370,16 @@ Location Server::get_request_location(std::string request)
 	Location ret;
 	std::string path_loca;
 	std::string path_tmp;
+	std::string request_tmp = request;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
+	if (request_tmp[request_tmp.size() - 1] != '/')
+		request_tmp += '/';
 	while (it != loca->end())
 	{
 		i = 0;
 		path_tmp = it->get_path();
-		while (request[i] && path_tmp[i] && request[i] == path_tmp[i])
+		while (request_tmp[i] && path_tmp[i] && request_tmp[i] == path_tmp[i])
 			i++;
 		if (i > tmp && i >= path_tmp.size())
 		{
@@ -359,8 +394,7 @@ Location Server::get_request_location(std::string request)
 	{
 		if (path_loca == it->get_path())
 		{
-			ret = loca->at(i);
-			return (ret);
+			return (*it);
 		}
 		it++;
 		i++;
@@ -374,13 +408,16 @@ int Server::verif_get_location(std::string file)
 	size_t tmp = 0;
 	std::string path_loca;
 	std::string path_tmp;
+	std::string file_tmp = file;
 	std::vector<Location> *loca = this->info_serv.get_location_list();
 	std::vector<Location>::iterator it = loca->begin();
+	if (file_tmp[file_tmp.size() - 1] != '/')
+		file_tmp += '/';
 	while (it != loca->end())
 	{
 		i = 0;
 		path_tmp = it->get_path();
-		while (file[i] && path_tmp[i] && file[i] == path_tmp[i])
+		while (file_tmp[i] && path_tmp[i] && file_tmp[i] == path_tmp[i])
 			i++;
 		if (i > tmp && i >= path_tmp.size())
 		{
