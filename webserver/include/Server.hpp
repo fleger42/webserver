@@ -36,6 +36,7 @@ class Server {
 			std::string actionDelete();
 			int get_action();
 			void close_all_fd();
+			int verif_post_location(std::string file);
 			int verif_get_location(std::string file);
 			int	check_cgi(std::string uri);
 			std::string add_index(std::string ret, size_t index, std::vector<Location>::iterator it);

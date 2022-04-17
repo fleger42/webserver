@@ -8,18 +8,26 @@ char ** add_line_doubletab(char **dtab, const char * newline)
 	char ** ret;
 	int count = 0;
 	if(!dtab)
-		return NULL;
+	{
+		ret = (char**)malloc(sizeof(char*) * 2);
+		ret[0] = strdup(newline);
+		ret[1] = NULL;
+		return ret;
+	}
 	while(dtab[count])
 		count++;
-	ret = (char**)malloc(sizeof(char**) * (count + 2));
+	ret = (char**)malloc(sizeof(char*) * (count + 2));
 	count = 0;
 	while(dtab[count])
 	{
-		ret[count] = dtab[count];
+		ret[count] = strdup(dtab[count]);
 		count++;
 	}
 	ret[count] = strdup(newline);
 	ret[count + 1] = NULL;
+	for(int i = 0; dtab[i]; i++)
+		free(dtab[i]);
+	free(dtab);
 	return (ret);
 }
 /*
