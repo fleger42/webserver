@@ -200,6 +200,7 @@ std::string Server::actionGet()
 		std::cerr << "Not permited to GET" << std::endl;
 		return "";	
 	}
+	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);
 	int o = -1;
 	struct stat info;
@@ -219,7 +220,7 @@ std::string Server::actionGet()
     	std::cout << "This is not a directory" << std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
 	std::stringstream buff;
-	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
+	std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
 	{
@@ -273,7 +274,6 @@ std::string Server::actionGet()
 
 std::string Server::actionPost()
 {
-	//std::cout << "POSTTTTTTTT" << std::endl;
 	char **tmp;
 	char *tmp2;
 	int i = -1;
@@ -282,52 +282,66 @@ std::string Server::actionPost()
 	std::string file;
 	std::string file_tmp;
 	file += tmp2;
-	//FAUT FAIRE l'EQUIVALENT POUR POST
-	/*if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
+	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
-		std::cerr << "Not permited to GET" << std::endl;
+		std::cerr << "Not permited to POST" << std::endl;
 		return "";	
-	}*/
-	//FAUT FAIRE l'EQUIVALENT POUR POST
+	}
 	file_tmp = this->get_location_path(file, i);
-	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
 	struct stat path_stat;
 	stat(file_tmp.c_str(), &path_stat);
 	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
-	if(file_tmp.find(".php") != std::string::npos)
-		//cgi_exec.execute_cgi(tmp, file_tmp, );
-	if (input.good() == 0 || o == 0)
+	int ret_check_cgi = check_cgi(file_tmp);
+	if(ret_check_cgi == -2)
 	{
-		while (file_tmp != "error")
-		{
-			i++;
-			input.close();
-			file_tmp = this->get_location_path(file, i);
-			input.open(file_tmp);
-			if (input.good() == 1)
-			{
-				buff << input.rdbuf();
-				file = buff.str();
-				for(int i = 0; tmp[i]; i++)
-					free(tmp[i]);
-				free(tmp);
-				return (file_tmp);
-			}
-		}
-		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
-		return "";
+		return "error";
 	}
-	buff << input.rdbuf();
-	file = buff.str();
-	for(int i = 0; tmp[i]; i++)
-		free(tmp[i]);
-	free(tmp);
-	return (file);
+	else if(ret_check_cgi != - 1)
+	{
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
+		cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp);
+	}
+	else
+	{
+		if (input.good() == 0 || o == 0)
+		{
+			while (file_tmp != "error")
+			{
+				i++;
+				input.close();
+				file_tmp = this->get_location_path(file, i);
+				input.open(file_tmp);
+				if (input.good() == 1)
+				{
+					buff << input.rdbuf();
+					file_tmp = buff.str();
+					for(int i = 0; tmp[i]; i++)
+						free(tmp[i]);
+					free(tmp);
+					return (file_tmp);
+				}
+			}
+			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+			for(int i = 0; tmp[i]; i++)
+				free(tmp[i]);
+			free(tmp);
+			return "";
+		}
+		buff << input.rdbuf();
+		file_tmp = buff.str();
+		for(int i = 0; tmp[i]; i++)
+			free(tmp[i]);
+		free(tmp);
+		return (file_tmp);
+	}
+	return "error";
 }
 
 std::string Server::actionDelete()
@@ -444,6 +458,45 @@ int Server::verif_get_location(std::string file)
 		if (path_loca == it->get_path())
 		{
 			if (it->get_get() == 1)
+				return 0;
+			else
+				return 1;
+		}
+		it++;
+	}
+	return 0;
+}
+
+int Server::verif_post_location(std::string file)
+{
+	size_t i = 0;
+	size_t tmp = 0;
+	std::string path_loca;
+	std::string path_tmp;
+	std::string file_tmp = file;
+	std::vector<Location> *loca = this->info_serv.get_location_list();
+	std::vector<Location>::iterator it = loca->begin();
+	if (file_tmp[file_tmp.size() - 1] != '/')
+		file_tmp += '/';
+	while (it != loca->end())
+	{
+		i = 0;
+		path_tmp = it->get_path();
+		while (file_tmp[i] && path_tmp[i] && file_tmp[i] == path_tmp[i])
+			i++;
+		if (i > tmp && i >= path_tmp.size())
+		{
+			tmp = i;
+			path_loca = path_tmp;
+		}
+		it++;
+	}
+	it = loca->begin();
+	while (it != loca->end())
+	{
+		if (path_loca == it->get_path())
+		{
+			if (it->get_post() == 1)
 				return 0;
 			else
 				return 1;

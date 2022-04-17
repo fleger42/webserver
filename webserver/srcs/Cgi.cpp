@@ -1,14 +1,16 @@
 #include "../include/Cgi.hpp"
 
-Cgi::Cgi() : _envp(NULL), _argv(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
+Cgi::Cgi() : _envp(NULL), _argv(NULL), _envp_save(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
 }
 
 
-Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(envp) ,_argv(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
+Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(NULL), _argv(NULL), _envp_save(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
 	//std::cout << "Class Cgi default constructor" << std::endl;
+	for(int i = 0; envp[i]; i++)
+		this->_envp = add_line_doubletab(this->_envp, envp[i]);
 	setup(envp, cgi_conf);
 }
 
@@ -19,6 +21,7 @@ Cgi::Cgi(Cgi const & copy)
 	_cgi_launcher = copy._cgi_launcher;
 	_target = copy._target;
 	_cgi_path = copy._cgi_path;
+	_envp_save = copy._envp_save;
 	//std::cout << "Class Cgi copy constructor" << std::endl;
 }
 
@@ -50,10 +53,35 @@ CONTENT_TYPE
 
 void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 {
-	int nbr_tab = 0;
-	while(request[nbr_tab])
-		nbr_tab++;
 	(void)uri;
+	std::cout << "sup" << std::endl;
+	for(int i = 0; _envp[i]; i++)
+		std::cout << "sup" <<_envp[i] << std::endl;
+	std::string arg_string;
+	_argv = (char**)malloc(sizeof(char**) * 3);
+	_argv[0] = strdup(_cgi_launcher.c_str());
+	_argv[1] = strdup(_cgi_path.c_str());
+	_argv[2] = NULL;
+
+	// BUILD ENVP //
+
+	int count = 0;
+	while(_envp[count])
+		count++;
+	count += 8;
+	char buf[500];
+	std::string current_path = getcwd(buf, 500);
+	if(_cgi_path.front() == '.')
+		_cgi_path.erase(0,1);
+	_envp = add_line_doubletab(_envp, (_content_length + "=" + std::to_string(arg_string.size())).c_str());
+	_envp = add_line_doubletab(_envp, (_content_type + "=application/x-www-form-urlencoded").c_str());
+	_envp = add_line_doubletab(_envp, (_path_info + "=" + current_path + _cgi_path).c_str());
+	_envp = add_line_doubletab(_envp, (_server_protocol + "=HTTP/1.1 ").c_str());
+	_envp = add_line_doubletab(_envp, (_request_method + "=POST").c_str());
+	_envp = add_line_doubletab(_envp, (_script_filename + "=" + current_path + _cgi_path).c_str());
+	_envp = add_line_doubletab(_envp, (_redirect_status + "=200").c_str());
+	_envp = add_line_doubletab(_envp, (_gateway_interface + "=CGI/1.1").c_str());
+	(void)request;
 }
 /*
 PATH_INFO
@@ -100,11 +128,6 @@ void Cgi::build_arg_and_envp(std::string uri) //GET
 void Cgi::execute_cgi(std::string uri) //GET
 {
 	std::cout << "Execute cgi for GET: " << uri << std::endl;
-	std::string path;
-
-	int length = uri.find_first_of('?');
-	path = uri;
-	path.resize(length);
 	build_arg_and_envp(uri);
 	_execute_cgi();
 }
@@ -112,13 +135,34 @@ void Cgi::execute_cgi(std::string uri) //GET
 void Cgi::execute_cgi(char **request, std::string uri) //POST
 {
 	std::cout << "Execute cgi for POST: " << uri << std::endl;
-	std::string path;
-
-	int length = uri.find_first_of('?');
-	path = uri;
-	path.resize(length);
 	build_arg_and_envp(uri, request);
 	_execute_cgi();
+}
+
+void Cgi::free_cgi()
+{
+	if(_envp)
+	{
+		for(int i = 0; _envp[i]; i++)
+			free(_envp[i]);
+		free(_envp);
+	}
+	_envp = NULL;
+	if(_argv)
+	{
+		for(int i = 0; _argv[i]; i++)
+			free(_argv[i]);
+		free(_argv);
+	}
+	_argv = NULL;
+}
+
+void Cgi::reset_envp()
+{
+	free_cgi();
+	if(_envp_save)
+		for(int i = 0; _envp_save[i]; i++)
+			this->_envp = add_line_doubletab(this->_envp, _envp_save[i]);
 }
 
 void Cgi::_execute_cgi()
@@ -150,13 +194,16 @@ void Cgi::_execute_cgi()
 		std::cerr << "Error, pid = -1" << std::endl;
 	else
 		waitpid(pid, &wait_pid, 0);
+	reset_envp();
 	std::cout << std::endl << std::endl << "END CGI EXECUTION" << std::endl;
 }
 
 void Cgi::setup(char **envp, std::string cgi_conf)
 {
+	_envp_save = envp;
 	std::cout << "IN CGI CLASS : PARSE " << cgi_conf << std::endl;
-	_envp = envp;
+	for(int i = 0; envp[i]; i++)
+		this->_envp = add_line_doubletab(this->_envp, envp[i]);
 	char **tmp = ft_split(cgi_conf.c_str(), " ");
 	_target = tmp[0];
 	_cgi_launcher = tmp[1];

@@ -26,16 +26,19 @@ class Cgi
 		Cgi & operator=(Cgi const & copy);
 		void set_cgi_launcher(std::string value);
 		void set_target(std::string value);
+		void free_cgi();
 		std::string get_target();
 		std::string get_cgi_launcher();
 		void execute_cgi(char **request, std::string uri);
 		void execute_cgi(std::string uri);
 		void setup(char **envp, std::string cgi_conf);
+		void reset_envp();
 	private:
 		void build_arg_and_envp(std::string uri);
 		void build_arg_and_envp(std::string uri, char **request);
 		char **_envp;
 		char **_argv;
+		char **_envp_save;
 		void _execute_cgi();
 		std::string _cgi_path;
 		std::string _target;
