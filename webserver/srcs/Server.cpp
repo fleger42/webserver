@@ -2,6 +2,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 Server::Server() : client(0)
 {}
@@ -199,10 +201,23 @@ std::string Server::actionGet()
 		return "";	
 	}
 	file_tmp = this->get_location_path(file, i);
+	int o = -1;
+	struct stat info;
+
+	if( stat(file_tmp.c_str(), &info ) != 0)
+	{
+    	std::cout << "This don't exists" << std::endl;
+		return "error 404";
+	}
+	else if( info.st_mode & S_IFDIR )  // S_ISDIR() doesn't exist on my windows 
+	{
+		o = 0;
+  		std::cout << "This is a directory" << std::endl;
+	}
+	
+	else
+    	std::cout << "This is not a directory" << std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
-	struct stat path_stat;
-	stat(file_tmp.c_str(), &path_stat);
-	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
 	//std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	int ret_check_cgi = check_cgi(file_tmp);
@@ -222,8 +237,7 @@ std::string Server::actionGet()
 	}
 	else
 	{
-
-		if (input.good() == 0 || o == 0)
+		if (o == 0)
 		{
 			while (file_tmp != "error")
 			{
@@ -345,12 +359,10 @@ std::string Server::actionDelete()
 			return "";
 		}
 	}
-	std::cout << "GO DELETE" << std::endl;
 	file_tmp = loca.get_root();
 	if (file_tmp.empty() == 1)
 		file_tmp = this->info_serv.get_root();
 	file_tmp += file;
-	std::cout << "file to remove = " << file_tmp << std::endl;
 	i = std::remove(file_tmp.c_str());
 	if (i == 0)
 		return "success";
