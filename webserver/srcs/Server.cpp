@@ -215,7 +215,13 @@ std::string Server::actionGet()
 	int o = -1;
 	struct stat info;
 
-	if( stat(file_tmp.c_str(), &info ) != 0)
+	std::string file_tmp_without_arg = file_tmp;
+	int temp_size = 0; 
+	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
+		temp_size++;
+	file_tmp_without_arg.resize(temp_size);
+	std::cout << "file_tmp_without_arg =" << file_tmp_without_arg << std::endl;
+	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
     	std::cout << "This don't exists" << std::endl;
 		return "error 404";
