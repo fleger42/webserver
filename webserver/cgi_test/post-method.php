@@ -1,8 +1,5 @@
 <?php
-
-
 if (isset($_POST['submit'])) {
-    var_dump($_POST);
     echo $_POST['submit'];
     echo $_POST['firstname'];
     echo $_POST['lastname'];

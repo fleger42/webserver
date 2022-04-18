@@ -15,7 +15,7 @@ const std::string _script_filename = "SCRIPT_FILENAME";
 const std::string _redirect_status= "REDIRECT_STATUS";
 const std::string _gateway_interface= "GATEWAY_INTERFACE";
 char** add_line_doubletab(char **dtab, const char * newline);
-char				**ft_split(char const *s, const char *delimiters);
+char** ft_split(char const *s, const char *delimiters);
 class Cgi
 {
 	public:
@@ -29,19 +29,22 @@ class Cgi
 		void free_cgi();
 		std::string get_target();
 		std::string get_cgi_launcher();
-		void execute_cgi(char **request, std::string uri);
-		void execute_cgi(std::string uri);
+		std::string execute_cgi(char **request, std::string uri);
+		std::string execute_cgi(std::string uri);
 		void setup(char **envp, std::string cgi_conf);
 		void reset_envp();
 	private:
 		void build_arg_and_envp(std::string uri);
 		void build_arg_and_envp(std::string uri, char **request);
+		int	 ft_pipe();
 		char **_envp;
 		char **_argv;
 		char **_envp_save;
-		void _execute_cgi();
+		std::string _execute_cgi_get();
+		std::string _execute_cgi_post();
 		std::string _cgi_path;
 		std::string _target;
 		std::string _cgi_launcher;
+		std::string _arg_string;
 };
 #endif

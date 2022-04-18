@@ -123,10 +123,10 @@ int Server::send_msg()
 		std::string tmp = this->actionGet();
 		if(tmp.empty())
 			return (0);
-		std::string send_buff = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: ";
-		send_buff += std::to_string(tmp.size());
+		std::string send_buff = "HTTP/1.1 200 OK\n" + tmp;
+		/*send_buff += std::to_string(tmp.size());
 		send_buff += "\n\n";
-		send_buff += tmp;
+		send_buff += tmp;*/
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -134,7 +134,17 @@ int Server::send_msg()
 		};
 	}
 	else if (ret == 2)
-		this->actionPost();
+	{
+		std::string tmp = this->actionPost();
+		if(tmp.empty())
+			return (0);
+		std::string send_buff = "HTTP/1.1 200 OK\n" + tmp;
+		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
+		{
+			std::cerr << "error: send()" <<std::endl;
+			return (1);
+		};
+	}
 	else
 		this->actionDelete();
 
@@ -219,7 +229,7 @@ std::string Server::actionGet()
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
-		cgi_exec[ret_check_cgi].execute_cgi(file_tmp);
+		return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
 	}
 	else
 	{
@@ -289,10 +299,10 @@ std::string Server::actionPost()
 	}
 	else if(ret_check_cgi != - 1)
 	{
+		return(cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp));
 		for(int i = 0; tmp[i]; i++)
 			free(tmp[i]);
 		free(tmp);
-		cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp);
 	}
 	else
 	{
