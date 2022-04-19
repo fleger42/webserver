@@ -1,4 +1,7 @@
 #include "../include/Conf.hpp"
+#include "../include/VirtualServer.hpp"
+#include "../include/Server.hpp"
+#include "../include/Cgi.hpp"
 
 Conf::Conf() : _list_virtual_server(), file_content()
 {
@@ -20,8 +23,8 @@ Conf::Conf(Conf const & copy)
 
 Conf::~Conf()
 {
-	delete _list_virtual_server;
 	//std::cout << "Class Conf destructor" << std::endl;
+	delete _list_virtual_server;
 }
 
 Conf & Conf::operator=(Conf const & copy)
@@ -84,7 +87,8 @@ std::vector<Server> Conf::create_all_server(char **envp)
 void Conf::parse_conf_file(std::string filename)
 {
 	std::cout << "Start parsing of file: " << filename << std::endl;
-	std::ifstream read_stream(filename);
+	std::ifstream read_stream;
+	read_stream.open(filename.c_str());
 	std::stringstream buffer;
 	std::string new_str;
 	std::string content;
@@ -98,6 +102,7 @@ void Conf::parse_conf_file(std::string filename)
 	this->file_content = content;
 	size_t found;
 	size_t server_nbr = count_appearance(content, "server");
+
 	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);
 	std::vector<Location> * temp;
 	for(size_t i = 0; i < server_nbr; i++)

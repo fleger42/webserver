@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <vector>
 #include <string.h>
+#include <stdlib.h>
 size_t				ft_strlcpy(char *dst, char const *src, size_t size);
 char				**ft_clear_splitted(char **tab);
 char				**ft_split(char const *s, const char *delimiters);

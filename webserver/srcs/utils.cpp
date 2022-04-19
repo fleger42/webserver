@@ -1,5 +1,15 @@
-#include "../include/header.hpp"
-
+#include <stdio.h>
+#include <unistd.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+void	free_double_tab(char **tmp)
+{
+	for(int i = 0; tmp[i]; i++)
+		free(tmp[i]);
+	free(tmp);
+}
 /*
 Ajoute une ligne à un char **
 */

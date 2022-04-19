@@ -9,6 +9,8 @@
 # define CYAN     "\033[0;36m"
 # define GREY     "\033[0;37m"
 # define NORMAL	"\033[00m"
+# define ERROR 1
+# define GOOD 0
 #include <iostream>
 #include <sys/socket.h>
 #include <string.h>
@@ -18,12 +20,13 @@
 #include <unistd.h>
 #include <fstream>
 #include <signal.h>
+#include <stdlib.h>
 #include "Conf.hpp"
 #include "VirtualServer.hpp"
 #include "Location.hpp"
 #include "Server.hpp"
 #include "Socket.hpp"
 #include "Cgi.hpp"
-#include <stdlib.h> 
 void	ft_signal_handler(int signal);
+int g_ctrl_c_called = 0;
 #endif

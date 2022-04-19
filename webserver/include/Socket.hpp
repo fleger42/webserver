@@ -2,8 +2,11 @@
 #define SOCKET_HPP
 #include <iostream>
 #include <vector>
-#include "header.hpp"
-
+#include <netinet/in.h>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
 
 class Socket
 {

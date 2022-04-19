@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <stdlib.h>
+#include <sstream>
+
 const std::string _content_length = "CONTENT_LENGTH";
 const std::string _content_type = "CONTENT_TYPE";
 const std::string _path_info= "PATH_INFO";
@@ -16,6 +19,7 @@ const std::string _redirect_status= "REDIRECT_STATUS";
 const std::string _gateway_interface= "GATEWAY_INTERFACE";
 char** add_line_doubletab(char **dtab, const char * newline);
 char** ft_split(char const *s, const char *delimiters);
+void	free_double_tab(char **tmp);
 class Cgi
 {
 	public:

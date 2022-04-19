@@ -14,7 +14,6 @@ Location::Location(Location const & copy)
 
 Location::~Location()
 {
-
 	//std::cout << "Class Location destructor" << std::endl;
 }
 
@@ -101,7 +100,7 @@ void Location::parse_path(std::string str)
 	while(_path[i] != ' ')
 		i++;
 	_path.resize(i);
-	if(_path.back() != '/')
+	if(_path[_path.size() - 1] != '/')
 		_path.push_back('/');
 }
 

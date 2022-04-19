@@ -3,13 +3,12 @@
 #include <iostream>
 #include <unistd.h>
 #include <map>
-#include "Location.hpp"
 #include <fstream>
 #include <sstream>
 #include <string.h>
-/*
-Classe qui contient les infos d'un bloc server du fichier de configuration
-*/
+#include <vector>
+
+class Location;
 int count_appearance(std::string file, std::string str);
 void cutblock(std::string & str);
 int walk_end_block(std::string const & str);
