@@ -3,13 +3,13 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
-#include "VirtualServer.hpp"
 #include <fstream>
 #include <sstream>
 #include <string.h>
-#include "Server.hpp"
+
 
 class Cgi;
+class VirtualServer;
 class Server;
 void cutblock(std::string & str);
 int count_appearance(std::string file, std::string str);

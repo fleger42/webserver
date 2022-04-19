@@ -1,6 +1,4 @@
 #include "../include/Socket.hpp"
-#include "errno.h"
-
 
 Socket::Socket()
 {}
@@ -11,7 +9,9 @@ Socket::Socket(std::string port, std::string ip) : port(port), ip(ip)
 }
 
 Socket::~Socket()
-{}
+{
+	//std::cout << "Class Socket destructor" << std::endl;
+}
 
 Socket::Socket(Socket const & other)
 {

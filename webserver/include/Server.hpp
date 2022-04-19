@@ -3,21 +3,24 @@
 #include <iostream>
 #include <istream>
 #include <vector>
-#include "header.hpp"
-#include <errno.h>
 #include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 #include "VirtualServer.hpp"
-#include "Cgi.hpp"
-
+extern int g_ctrl_c_called;
 class VirtualServer;
-std::vector<std::string> string_to_double_tab(std::string str);
-size_t				ft_strlcpy(char *dst, char const *src, size_t size);
-char				**ft_clear_splitted(char **tab);
-char				**ft_split(char const *s, const char *delimiters);
-int 				ft_strlen(char *str);
-int 				ft_strlen(const char *str);
-
 class Socket;
+class Location;
+class Cgi;
+std::vector<std::string> string_to_double_tab(std::string str);
+size_t					ft_strlcpy(char *dst, char const *src, size_t size);
+char					**ft_clear_splitted(char **tab);
+char					**ft_split(char const *s, const char *delimiters);
+int 					ft_strlen(char *str);
+int 					ft_strlen(const char *str);
+void					free_double_tab(char **tmp);
 class Server {
 
 		public:

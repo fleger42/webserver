@@ -16,6 +16,7 @@ const std::string _redirect_status= "REDIRECT_STATUS";
 const std::string _gateway_interface= "GATEWAY_INTERFACE";
 char** add_line_doubletab(char **dtab, const char * newline);
 char** ft_split(char const *s, const char *delimiters);
+void	free_double_tab(char **tmp);
 class Cgi
 {
 	public:

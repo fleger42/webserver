@@ -1,4 +1,5 @@
 #include "../include/VirtualServer.hpp"
+#include "../include/Location.hpp"
 
 VirtualServer::VirtualServer() : _root(), _server_name(), _ip(), _port(), _index_list(), _cgi_list(), _error_page(),_body_size(0), 
 								_autoindex(0), _get(0), _post(0), _delete(0), _location_list()
@@ -14,8 +15,8 @@ VirtualServer::VirtualServer(VirtualServer const & copy)
 
 VirtualServer::~VirtualServer()
 {
-	delete _location_list;
 	//std::cout << "Class VirtualServer destructor" << std::endl;
+	delete _location_list;
 }
 
 VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
@@ -34,7 +35,8 @@ VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 		this->_get = copy._get;
 		this->_post = copy._post;
 		this->_delete = copy._delete;
-		this->_location_list = copy._location_list;	
+		this->_location_list = copy._location_list;
+		this->_location_list = new std::vector<Location>(copy._location_list->begin(), copy._location_list->end());
 	}
 	return(*this);
 }

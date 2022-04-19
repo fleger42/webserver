@@ -14,7 +14,6 @@ Location::Location(Location const & copy)
 
 Location::~Location()
 {
-
 	//std::cout << "Class Location destructor" << std::endl;
 }
 

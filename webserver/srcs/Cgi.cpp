@@ -8,26 +8,29 @@ Cgi::Cgi() : _envp(NULL), _argv(NULL), _envp_save(NULL), _cgi_path(std::string()
 
 Cgi::Cgi(char **envp, std::string cgi_conf) : _envp(NULL), _argv(NULL), _envp_save(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
-	//std::cout << "Class Cgi default constructor" << std::endl;
-	for(int i = 0; envp[i]; i++)
-		this->_envp = add_line_doubletab(this->_envp, envp[i]);
+	//std::cout << "Class Cgi param constructor" << std::endl;
 	setup(envp, cgi_conf);
 }
 
-Cgi::Cgi(Cgi const & copy)
+Cgi::Cgi(Cgi const & copy) : _envp(NULL), _argv(NULL), _envp_save(NULL), _cgi_path(std::string()), _target(std::string()), _cgi_launcher(std::string())
 {
-	_envp = copy._envp;
-	_argv = copy._argv;
 	_cgi_launcher = copy._cgi_launcher;
 	_target = copy._target;
 	_cgi_path = copy._cgi_path;
 	_envp_save = copy._envp_save;
+	if(copy._envp)
+		for(int i = 0; copy._envp[i]; i++)
+			this->_envp = add_line_doubletab(this->_envp, copy._envp[i]);
+	if(copy._argv)
+		for(int i = 0; copy._argv[i]; i++)
+			this->_argv = add_line_doubletab(this->_argv, copy._argv[i]);
 	//std::cout << "Class Cgi copy constructor" << std::endl;
 }
 
 Cgi::~Cgi()
 {
 	//std::cout << "Class Cgi destructor" << std::endl;
+	free_cgi();
 }
 
 Cgi & Cgi::operator=(Cgi const & copy)
@@ -168,33 +171,6 @@ void Cgi::reset_envp()
 			this->_envp = add_line_doubletab(this->_envp, _envp_save[i]);
 }
 
-/*int		Cgi::ft_pipe()
-{
-	int fd[2];
-	int f_pid;
-
-	if (pipe(fd) == -1)
-		 std::cerr << "Error, pipe" << std::endl;
-	if ((f_pid = fork()) == -1)
-		 std::cerr << "Error, fork" << std::endl;
-	if (f_pid == 0)
-	{
-		close(fd[1]);
-		dup2(fd[0], 0);
-		envir->child = 1;
-		envir->pipeinfd = fd[0];
-		return (2);
-	}
-	else
-	{
-		close(fd[0]);
-		dup2(fd[1], 1);
-		envir->pipe_dad = 1;
-		envir->pipeoutfd = fd[1];
-		return (1);
-	}
-}*/
-
 std::string Cgi::_execute_cgi_post()
 {
 	int pid;
@@ -280,7 +256,7 @@ std::string Cgi::_execute_cgi_get()
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
 			std::cout << _envp[i] << std::endl << std::endl;*/
-	std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
+	//std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
 	if (pipe(fd) == -1)
 		std::cerr << "Error, pipe" << std::endl;
     if ((pid = fork()) == -1)
@@ -302,8 +278,8 @@ std::string Cgi::_execute_cgi_get()
 		read(fd[0], buffer_read, 10000);
 	}
 	reset_envp();
-	std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
-	std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
+	//std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
+	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
 	return (buffer_read);
 }
 
@@ -320,9 +296,7 @@ void Cgi::setup(char **envp, std::string cgi_conf)
 	while(_cgi_launcher[i] != ';')
 		i++;
 	_cgi_launcher.resize(i);
-	for(int i = 0; tmp[i]; i++)
-		free(tmp[i]);
-	free(tmp);
+	free_double_tab(tmp);
 }
 
 void Cgi::set_cgi_launcher(std::string value)

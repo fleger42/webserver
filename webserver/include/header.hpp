@@ -18,12 +18,13 @@
 #include <unistd.h>
 #include <fstream>
 #include <signal.h>
+#include <stdlib.h>
 #include "Conf.hpp"
 #include "VirtualServer.hpp"
 #include "Location.hpp"
 #include "Server.hpp"
 #include "Socket.hpp"
 #include "Cgi.hpp"
-#include <stdlib.h> 
 void	ft_signal_handler(int signal);
+int g_ctrl_c_called = 0;
 #endif

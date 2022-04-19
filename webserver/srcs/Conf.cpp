@@ -1,4 +1,7 @@
 #include "../include/Conf.hpp"
+#include "../include/VirtualServer.hpp"
+#include "../include/Server.hpp"
+#include "../include/Cgi.hpp"
 
 Conf::Conf() : _list_virtual_server(), file_content()
 {
@@ -20,8 +23,8 @@ Conf::Conf(Conf const & copy)
 
 Conf::~Conf()
 {
-	delete _list_virtual_server;
 	//std::cout << "Class Conf destructor" << std::endl;
+	delete _list_virtual_server;
 }
 
 Conf & Conf::operator=(Conf const & copy)

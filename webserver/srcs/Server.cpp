@@ -1,9 +1,7 @@
 #include "../include/Server.hpp"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
+#include "../include/Cgi.hpp"
+#include "../include/Location.hpp"
+#include "../include/Socket.hpp"
 
 Server::Server() : client(0)
 {}
@@ -23,7 +21,9 @@ Server::Server(VirtualServer const & virtual_serv) : client(0)
 }
 
 Server::~Server()
-{}
+{
+	//std::cout << "Class Server destructor" << std::endl;
+}
 
 Server &Server::operator=(Server const & other)
 {
@@ -107,11 +107,38 @@ int Server::receive_msg()
 {
 	char buff[10000];
 	int n;
-	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
-		return (1);
-	buff[n] = '\0';
-	//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
-	this->msg_client = buff;
+	fd_set read_set;
+	fd_set read_dump;
+	int status = 0;
+	struct timeval select_timeout;
+
+	select_timeout.tv_sec = 1;
+	select_timeout.tv_usec = 0;
+	FD_ZERO(&read_dump);
+	FD_SET(client, &read_dump);
+	while(status == 0 && g_ctrl_c_called == 0)
+	{
+			FD_ZERO(&read_set);
+			read_set = read_dump;
+			usleep(2000);
+			if((status = select(client + 1, &read_set, NULL, NULL, &select_timeout)) < 0)
+			{
+				if(g_ctrl_c_called == 1)
+				{
+						std::cerr << "Closing webserver..." << std::endl;
+						exit(0);
+				}
+				std::cerr << "Error: select()" << std::endl;
+				exit(1);
+			}
+	}
+
+		if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
+			return (1);
+		buff[n] = '\0';
+		//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
+		this->msg_client = buff;
+	
 	return (0);
 }
 
@@ -220,10 +247,10 @@ std::string Server::actionGet()
 	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
 		temp_size++;
 	file_tmp_without_arg.resize(temp_size);
-	std::cout << "file_tmp_without_arg =" << file_tmp_without_arg << std::endl;
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
     	std::cout << "This don't exists" << std::endl;
+		free_double_tab(tmp);
 		return "error 404";
 	}
 	else if( info.st_mode & S_IFDIR )  // S_ISDIR() doesn't exist on my windows 
@@ -231,25 +258,19 @@ std::string Server::actionGet()
 		o = 0;
   		std::cout << "This is a directory" << std::endl;
 	}
-	
 	else
     	std::cout << "This is not a directory" << std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
 	std::stringstream buff;
-	std::cout << "FILE_TMP =" << file_tmp << std::endl;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
 	{
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		free_double_tab(tmp);
 		return "error";
 	}
 	else if(ret_check_cgi != - 1)
 	{
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		free_double_tab(tmp);
 		return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
 	}
 	else
@@ -266,23 +287,17 @@ std::string Server::actionGet()
 				{
 					buff << input.rdbuf();
 					file_tmp = buff.str();
-					for(int i = 0; tmp[i]; i++)
-						free(tmp[i]);
-					free(tmp);
+					free_double_tab(tmp);
 					return (file_tmp);
 				}
 			}
 			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
-			for(int i = 0; tmp[i]; i++)
-				free(tmp[i]);
-			free(tmp);
+			free_double_tab(tmp);
 			return "";
 		}
 		buff << input.rdbuf();
 		file_tmp = buff.str();
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		free_double_tab(tmp);
 		return (file_tmp);
 	}
 	return "error";
@@ -300,33 +315,51 @@ std::string Server::actionPost()
 	file += tmp2;
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
-		std::cerr << "Not permited to POST" << std::endl;
+		std::cerr << "Not permited to GET" << std::endl;
+		free_double_tab(tmp);
 		return "";	
 	}
+	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);
+	int o = -1;
+	struct stat info;
+
+	std::string file_tmp_without_arg = file_tmp;
+	int temp_size = 0; 
+	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
+		temp_size++;
+	file_tmp_without_arg.resize(temp_size);
+	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
+	{
+    	std::cout << "This don't exists" << std::endl;
+		free_double_tab(tmp);
+		return "error 404";
+	}
+	else if( info.st_mode & S_IFDIR )  // S_ISDIR() doesn't exist on my windows 
+	{
+		o = 0;
+  		std::cout << "This is a directory" << std::endl;
+	}
+	
+	else
+    	std::cout << "This is not a directory" << std::endl;
 	std::ifstream input(file_tmp); // HARDCODE
-	struct stat path_stat;
-	stat(file_tmp.c_str(), &path_stat);
-	int o = S_ISREG(path_stat.st_mode);
 	std::stringstream buff;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
 	{
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		free_double_tab(tmp);
 		return "error";
 	}
 	else if(ret_check_cgi != - 1)
 	{
-		return(cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp));
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		std::string ret = cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp);
+		free_double_tab(tmp);
+		return (ret);
 	}
 	else
 	{
-		if (input.good() == 0 || o == 0)
+		if (o == 0)
 		{
 			while (file_tmp != "error")
 			{
@@ -338,23 +371,17 @@ std::string Server::actionPost()
 				{
 					buff << input.rdbuf();
 					file_tmp = buff.str();
-					for(int i = 0; tmp[i]; i++)
-						free(tmp[i]);
-					free(tmp);
+					free_double_tab(tmp);
 					return (file_tmp);
 				}
 			}
 			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
-			for(int i = 0; tmp[i]; i++)
-				free(tmp[i]);
-			free(tmp);
+			free_double_tab(tmp);
 			return "";
 		}
 		buff << input.rdbuf();
 		file_tmp = buff.str();
-		for(int i = 0; tmp[i]; i++)
-			free(tmp[i]);
-		free(tmp);
+		free_double_tab(tmp);
 		return (file_tmp);
 	}
 	return "error";
