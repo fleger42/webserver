@@ -102,7 +102,6 @@ void Conf::parse_conf_file(std::string filename)
 	size_t server_nbr = count_appearance(content, "server");
 
 	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);
-	std::cout << "BEFORE CRASH" << std::endl;
 	std::vector<Location> * temp;
 	for(size_t i = 0; i < server_nbr; i++)
 	{

@@ -94,6 +94,12 @@ int Server::server_accept()
 		std::cerr << "Error while accepting new client" << std::endl;
 		return (1);
 	}
+	if (fcntl(client, F_SETFL, O_NONBLOCK) < 0)
+	{
+		std::cerr << "Error:fcntl" << std::endl;
+		close(client);
+		return (1);
+	}
 	std::cout << "New client connect on server [" << get_server_name() << "]" << std::endl;
 	return (0);
 }

@@ -12,7 +12,13 @@ void	ft_signal_handler(int signal)
 	}
 }
 
-void routine(std::vector<Server> & all_server)
+void	ft_close_webserver(int code)
+{
+	std::cerr << "Closing webserver..." << std::endl;
+	exit(code);
+}
+
+void	routine(std::vector<Server> & all_server)
 {
 	fd_set select_set_read_dump;
 	fd_set select_set_read_ready;
@@ -44,11 +50,10 @@ void routine(std::vector<Server> & all_server)
 			{
 				if(g_ctrl_c_called == 1)
 				{
-					std::cerr << "Closing webserver..." << std::endl;
-					exit(0);
+					ft_close_webserver(GOOD);
 				}
 				std::cerr << "Error: select()" << std::endl;
-				exit(1);
+				ft_close_webserver(ERROR);
 			}
 		}
 		if(status > 0 && g_ctrl_c_called == 0)
@@ -61,11 +66,11 @@ void routine(std::vector<Server> & all_server)
 					if(FD_ISSET(it_socket->getServerFd(), &select_set_read_ready))
 					{
 						if(it_server->server_accept() != 0)
-							exit(1);
+							ft_close_webserver(ERROR);
 						if (it_server->receive_msg() != 0)
-							exit(1);
+							ft_close_webserver(ERROR);
 						if (it_server->send_msg() != 0)
-							exit(1);
+							ft_close_webserver(ERROR);
 						close(it_server->getClient());
 					}
 				}
@@ -85,8 +90,7 @@ int main(int ac, char **av, char **envp)
 	}
 	Conf conf(av[1]);
 	std::vector<Server> all_server = conf.create_all_server(envp);
-	conf.ft_print_content();
 	routine(all_server);
-	std::cerr << "Closing webserver..." << std::endl;
+	ft_close_webserver(GOOD);
 	return (0);
 } 
