@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string.h>
 #include "Server.hpp"
+#include "Error.hpp"
 
 class Cgi;
 class Server;

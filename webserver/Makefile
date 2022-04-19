@@ -6,7 +6,7 @@ CXXFLAGS = -Wall -Wextra -Werror -g -fsanitize=address #-std=c++98
 
 HEADER = -I include/
 
-SRCS = main.cpp Conf.cpp Location.cpp VirtualServer.cpp utils.cpp Server.cpp Socket.cpp Cgi.cpp
+SRCS = main.cpp Conf.cpp Location.cpp VirtualServer.cpp utils.cpp Server.cpp Socket.cpp Cgi.cpp Error.cpp
 
 SRC = $(addprefix srcs/, $(SRCS))
 

@@ -78,6 +78,11 @@ VirtualServer Server::get_info_serv()
 	return this->info_serv;
 }
 
+Error Server::get_error_class()
+{
+	return this->error_class;
+}
+
 std::string Server::get_server_name()
 {
 	return (info_serv.get_server_name());
@@ -123,17 +128,16 @@ int Server::send_msg()
 	else if (ret == 1)
 	{
 		std::string tmp = this->actionGet();
-		if(tmp.empty())
-			return (0);
-		std::string send_buff = "HTTP/1.1 200 OK\n" + tmp;
-		/*send_buff += std::to_string(tmp.size());
-		send_buff += "\n\n";
-		send_buff += tmp;*/
+		std::cout << "THE 404 PAGE =\n" << tmp << std::endl;
+		std::string send_buff;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " OK\n" + "Content-Type: text/html\n\n"+ tmp;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
+			this->error_class.SetErrorCode("200");
 			return (1);
 		};
+		this->error_class.SetErrorCode("200");
 	}
 	else if (ret == 2)
 	{
@@ -216,7 +220,7 @@ std::string Server::actionGet()
 	struct stat info;
 
 	std::string file_tmp_without_arg = file_tmp;
-	int temp_size = 0; 
+	int temp_size = 0;
 	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
 		temp_size++;
 	file_tmp_without_arg.resize(temp_size);
@@ -224,9 +228,9 @@ std::string Server::actionGet()
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
     	std::cout << "This don't exists" << std::endl;
-		return "error 404";
+		return this->error_class.error_404();
 	}
-	else if( info.st_mode & S_IFDIR )  // S_ISDIR() doesn't exist on my windows 
+	else if( info.st_mode & S_IFDIR )
 	{
 		o = 0;
   		std::cout << "This is a directory" << std::endl;
@@ -276,7 +280,7 @@ std::string Server::actionGet()
 			for(int i = 0; tmp[i]; i++)
 				free(tmp[i]);
 			free(tmp);
-			return "";
+			return this->error_class.error_404();
 		}
 		buff << input.rdbuf();
 		file_tmp = buff.str();
@@ -285,7 +289,7 @@ std::string Server::actionGet()
 		free(tmp);
 		return (file_tmp);
 	}
-	return "error";
+	return this->error_class.error_404();
 }
 
 std::string Server::actionPost()

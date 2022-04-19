@@ -7,9 +7,11 @@
 #include <errno.h>
 #include <fstream>
 #include "VirtualServer.hpp"
+#include "Error.hpp"
 #include "Cgi.hpp"
 
 class VirtualServer;
+class Error;
 std::vector<std::string> string_to_double_tab(std::string str);
 size_t				ft_strlcpy(char *dst, char const *src, size_t size);
 char				**ft_clear_splitted(char **tab);
@@ -49,6 +51,7 @@ class Server {
 			std::string get_server_name();
 			std::string get_location_path(std::string file, int index);
 			VirtualServer get_info_serv();
+			Error get_error_class();
 			Location get_request_location(std::string request);
 			std::string get_cgi_path();
 			std::vector<Cgi> get_cgi_exec();
@@ -59,6 +62,7 @@ class Server {
 			std::vector<Socket> all_socket;
 			VirtualServer info_serv;
 			std::vector<Cgi> cgi_exec;
+			Error error_class;
 
 };
 #endif
