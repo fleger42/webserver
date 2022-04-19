@@ -6,12 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
-<<<<<<< HEAD
-#include "Server.hpp"
-#include "Error.hpp"
-=======
 #include <stdlib.h>
->>>>>>> d65bc055a45b0008c2f06d1900ac6bf25ca2b774
 
 class Cgi;
 class VirtualServer;

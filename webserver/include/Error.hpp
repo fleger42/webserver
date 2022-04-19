@@ -18,7 +18,7 @@ class Error
 		~Error();
 
 		Error &operator=(Error const & other);
-		void SetErrorPage(std::map<int, std::string> const other);
+		void SetErrorPage(std::map<int, std::string> other);
 		void SetErrorCode(std::string code);
 		std::string GetErrorCode(void);
 		std::string error_404(void);

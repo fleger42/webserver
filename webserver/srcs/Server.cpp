@@ -78,7 +78,7 @@ VirtualServer Server::get_info_serv()
 	return this->info_serv;
 }
 
-Error Server::get_error_class()
+Error &Server::get_error_class()
 {
 	return this->error_class;
 }

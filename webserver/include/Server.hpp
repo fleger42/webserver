@@ -54,7 +54,7 @@ class Server {
 			std::string get_server_name();
 			std::string get_location_path(std::string file, int index);
 			VirtualServer get_info_serv();
-			Error get_error_class();
+			Error &get_error_class();
 			Location get_request_location(std::string request);
 			std::string get_cgi_path();
 			std::vector<Cgi> get_cgi_exec();

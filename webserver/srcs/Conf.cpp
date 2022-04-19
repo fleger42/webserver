@@ -65,7 +65,7 @@ std::vector<Server> Conf::create_all_server(char **envp)
 	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
 		list_server[i].set_virtual_server(*it);
-		//list_server[i].get_error_class().SetErrorPage(list_server[i].get_info_serv().get_error_page());
+		list_server[i].get_error_class().SetErrorPage(list_server[i].get_info_serv().get_error_page());
 		cgi_list.clear();
 		cgi_list.resize(it->get_cgi_list().size());
 		j = 0;
@@ -78,7 +78,6 @@ std::vector<Server> Conf::create_all_server(char **envp)
 			std::cerr << "Error with socket creation." << std::endl;
 			exit(1);
 		}
-		//list_server[i].get_error_class().SetErrorPage(list_server[i].get_info_serv().get_error_page());
 		i++;
 	}
 	return(list_server);
