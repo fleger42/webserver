@@ -2,26 +2,26 @@
 #include "../include/Location.hpp"
 
 VirtualServer::VirtualServer() : _root(), _server_name(), _ip(), _port(), _index_list(), _cgi_list(), _error_page(),_body_size(0), 
-								_autoindex(0), _get(0), _post(0), _delete(0), _location_list()
+								_autoindex(0), _get(0), _post(0), _delete(0), _location_list(NULL)
 {
-	//std::cout << "Class VirtualServer default constructor" << std::endl;
+	std::cout << "Class VirtualServer default constructor" << std::endl;
 }
 
 VirtualServer::VirtualServer(VirtualServer const & copy)
 {
 	*this = copy;
-	//std::cout << "Class VirtualServer copy constructor" << std::endl;
+	std::cout << "Class VirtualServer copy constructor" << std::endl;
 }
 
 VirtualServer::~VirtualServer()
 {
-	//std::cout << "Class VirtualServer destructor" << std::endl;
+	std::cout << "Class VirtualServer destructor" << std::endl;
 	delete _location_list;
 }
 
 VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 {
-	//std::cout << "Class VirtualServer operator=" << std::endl;
+	std::cout << "Class VirtualServer operator=" << std::endl;
 	if(this != &copy)
 	{
 		this->_root = copy._root;
@@ -35,8 +35,14 @@ VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 		this->_get = copy._get;
 		this->_post = copy._post;
 		this->_delete = copy._delete;
-		this->_location_list = copy._location_list;
-		this->_location_list = new std::vector<Location>(copy._location_list->begin(), copy._location_list->end());
+		std::cout << "TOTEM" << std::endl;
+		if(copy._location_list)
+			for(std::vector<Location>::iterator it = copy._location_list->begin(); it != copy._location_list->end(); it++)
+				std::cout << "HEY" << it->get_root() << std::endl;
+		if(copy._location_list)
+			this->_location_list = new std::vector<Location>(copy._location_list->begin(), copy._location_list->end());
+		else
+			this->_location_list = copy._location_list;
 	}
 	return(*this);
 }

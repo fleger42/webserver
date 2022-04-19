@@ -56,7 +56,7 @@ int Socket::create_socket()
 	memset((char*)&tmp, 0, sizeof(tmp));
 	tmp.sin_family = AF_INET;
 	tmp.sin_addr.s_addr = htonl(INADDR_ANY);
-	tmp.sin_port = htons(std::atoi(port.c_str()));
+	tmp.sin_port = htons(atoi(port.c_str()));
 
 	this->server_address = tmp;
 	int ret;

@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <stdlib.h>
+#include <sstream>
+
 const std::string _content_length = "CONTENT_LENGTH";
 const std::string _content_type = "CONTENT_TYPE";
 const std::string _path_info= "PATH_INFO";

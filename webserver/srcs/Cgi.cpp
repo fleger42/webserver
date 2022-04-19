@@ -79,9 +79,12 @@ void Cgi::build_arg_and_envp(std::string uri, char **request) //POST
 	count += 8;
 	char buf[500];
 	std::string current_path = getcwd(buf, 500);
-	if(_cgi_path.front() == '.')
+	std::stringstream ss;
+	ss << _arg_string.size();
+	std::string lenght = ss.str();
+	if(_cgi_path[0] == '.')
 		_cgi_path.erase(0,1);
-	_envp = add_line_doubletab(_envp, (_content_length + "=" + std::to_string(_arg_string.size())).c_str());
+	_envp = add_line_doubletab(_envp, (_content_length + "=" + lenght).c_str());
 	_envp = add_line_doubletab(_envp, (_content_type + "=application/x-www-form-urlencoded").c_str());
 	_envp = add_line_doubletab(_envp, (_path_info + "=" + current_path + _cgi_path).c_str());
 	_envp = add_line_doubletab(_envp, (_server_protocol + "=HTTP/1.1 ").c_str());
@@ -119,7 +122,7 @@ void Cgi::build_arg_and_envp(std::string uri) //GET
 	count += 8;
 	char buf[500];
 	std::string current_path = getcwd(buf, 500);
-	if(_cgi_path.front() == '.')
+	if(_cgi_path[0] == '.')
 		_cgi_path.erase(0,1);
 	_envp = add_line_doubletab(_envp, (_content_type + "=application/x-www-form-urlencoded").c_str());
 	_envp = add_line_doubletab(_envp, (_path_info + "=" + current_path + _cgi_path).c_str());

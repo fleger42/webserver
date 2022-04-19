@@ -85,6 +85,7 @@ int main(int ac, char **av, char **envp)
 	}
 	Conf conf(av[1]);
 	std::vector<Server> all_server = conf.create_all_server(envp);
+	conf.ft_print_content();
 	routine(all_server);
 	std::cerr << "Closing webserver..." << std::endl;
 	return (0);

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
-
+#include <stdlib.h>
 
 class Cgi;
 class VirtualServer;

@@ -260,7 +260,8 @@ std::string Server::actionGet()
 	}
 	else
     	std::cout << "This is not a directory" << std::endl;
-	std::ifstream input(file_tmp); // HARDCODE
+	std::ifstream input;
+	input.open(file_tmp.c_str());
 	std::stringstream buff;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
@@ -282,7 +283,7 @@ std::string Server::actionGet()
 				i++;
 				input.close();
 				file_tmp = this->get_location_path(file, i);
-				input.open(file_tmp);
+				input.open(file_tmp.c_str());
 				if (input.good() == 1)
 				{
 					buff << input.rdbuf();
@@ -343,7 +344,8 @@ std::string Server::actionPost()
 	
 	else
     	std::cout << "This is not a directory" << std::endl;
-	std::ifstream input(file_tmp); // HARDCODE
+	std::ifstream input;
+	input.open(file_tmp.c_str());
 	std::stringstream buff;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
@@ -366,7 +368,7 @@ std::string Server::actionPost()
 				i++;
 				input.close();
 				file_tmp = this->get_location_path(file, i);
-				input.open(file_tmp);
+				input.open(file_tmp.c_str());
 				if (input.good() == 1)
 				{
 					buff << input.rdbuf();
