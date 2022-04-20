@@ -13,6 +13,7 @@ Server::Server(Server const & other)
 	this->info_serv = other.info_serv;
 	this->all_socket = other.all_socket;
 	this->cgi_exec = other.cgi_exec;
+	this->error_class = other.error_class;
 }
 
 Server::Server(VirtualServer const & virtual_serv) : client(0)
@@ -32,6 +33,7 @@ Server &Server::operator=(Server const & other)
 	this->info_serv = other.info_serv;
 	this->all_socket = other.all_socket;
 	this->cgi_exec = other.cgi_exec;
+	this->error_class = other.error_class;
 	return (*this);
 }
 
@@ -156,25 +158,27 @@ int Server::receive_msg()
 int Server::send_msg()
 {
 	int ret = this->get_action();
+	std::string tmp;
 	if (ret < 0)
 		std::cerr << "action not permited" << std::endl;
 	else if (ret == 1)
 	{
-		std::string tmp = this->actionGet();
-		std::cout << "THE 404 PAGE =\n" << tmp << std::endl;
+		tmp = this->actionGet();
 		std::string send_buff;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " OK\n" + "Content-Type: text/html\n\n"+ tmp;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
+			this->error_class.SetErrorMsg("OK");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
+		this->error_class.SetErrorMsg("OK");
 	}
 	else if (ret == 2)
 	{
-		std::string tmp = this->actionPost();
+		tmp = this->actionPost();
 		if(tmp.empty())
 			return (0);
 		std::string send_buff = "HTTP/1.1 200 OK\n" + tmp;
@@ -185,7 +189,20 @@ int Server::send_msg()
 		};
 	}
 	else
-		this->actionDelete();
+	{
+		tmp = this->actionDelete();
+		std::string send_buff;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
+		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
+		{
+			std::cerr << "error: send()" <<std::endl;
+			this->error_class.SetErrorCode("200");
+			this->error_class.SetErrorMsg("OK");
+			return (1);
+		};
+		this->error_class.SetErrorCode("200");
+		this->error_class.SetErrorMsg("OK");
+	}
 
 	return (0);
 }
@@ -243,10 +260,7 @@ std::string Server::actionGet()
 	std::string file_tmp;
 	file += tmp2;
 	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
-	{
-		std::cerr << "Not permited to GET" << std::endl;
-		return "";	
-	}
+		return this->error_class.error_403();//Ou erreur 405 jsp	
 	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);
 	int o = -1;
@@ -259,17 +273,12 @@ std::string Server::actionGet()
 	file_tmp_without_arg.resize(temp_size);
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
-    	std::cout << "This don't exists" << std::endl;
 		free_double_tab(tmp);
 		return this->error_class.error_404();
 	}
 	else if( info.st_mode & S_IFDIR )
-	{
 		o = 0;
-  		std::cout << "This is a directory" << std::endl;
-	}
-	else
-    	std::cout << "This is not a directory" << std::endl;
+
 	std::ifstream input;
 	input.open(file_tmp.c_str());
 	std::stringstream buff;
@@ -277,7 +286,7 @@ std::string Server::actionGet()
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);
-		return "error";
+		return this->error_class.error_404();
 	}
 	else if(ret_check_cgi != - 1)
 	{
@@ -326,9 +335,8 @@ std::string Server::actionPost()
 	file += tmp2;
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
-		std::cerr << "Not permited to GET" << std::endl;
 		free_double_tab(tmp);
-		return "";	
+		return this->error_class.error_403();//ou 405 jsp	
 	}
 	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);
@@ -342,18 +350,12 @@ std::string Server::actionPost()
 	file_tmp_without_arg.resize(temp_size);
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
-    	std::cout << "This don't exists" << std::endl;
 		free_double_tab(tmp);
-		return "error 404";
+		return this->error_class.error_404();
 	}
-	else if( info.st_mode & S_IFDIR )  // S_ISDIR() doesn't exist on my windows 
-	{
+	else if( info.st_mode & S_IFDIR ) 
 		o = 0;
-  		std::cout << "This is a directory" << std::endl;
-	}
 	
-	else
-    	std::cout << "This is not a directory" << std::endl;
 	std::ifstream input;
 	input.open(file_tmp.c_str());
 	std::stringstream buff;
@@ -361,7 +363,7 @@ std::string Server::actionPost()
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);
-		return "error";
+		return this->error_class.error_404();
 	}
 	else if(ret_check_cgi != - 1)
 	{
@@ -389,14 +391,14 @@ std::string Server::actionPost()
 			}
 			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 			free_double_tab(tmp);
-			return "";
+			return this->error_class.error_404();
 		}
 		buff << input.rdbuf();
 		file_tmp = buff.str();
 		free_double_tab(tmp);
 		return (file_tmp);
 	}
-	return "error";
+	return this->error_class.error_404();
 }
 
 std::string Server::actionDelete()
@@ -415,18 +417,12 @@ std::string Server::actionDelete()
 	if (loca.get_path().empty() == 0)
 	{
 		if (loca.get_delete() == 0 && this->info_serv.get_delete() == 0)
-		{
-			std::cerr << "Not permited to DELETE" << std::endl;
-			return "";
-		}
+			return this->error_class.error_403();//ou 405
 	}
 	else
 	{
 		if (this->info_serv.get_delete() == 0)
-		{
-			std::cerr << "Not permited to DELETE" << std::endl;
-			return "";
-		}
+			return this->error_class.error_403();//ou 405
 	}
 	file_tmp = loca.get_root();
 	if (file_tmp.empty() == 1)
@@ -434,8 +430,10 @@ std::string Server::actionDelete()
 	file_tmp += file;
 	i = std::remove(file_tmp.c_str());
 	if (i == 0)
-		return "success";
-	return "error";
+	{
+		return this->error_class.error_204();
+	}
+	return this->error_class.error_404();
 }
 
 void Server::close_all_fd()
