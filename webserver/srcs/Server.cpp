@@ -161,9 +161,9 @@ int Server::send_msg()
 	else if (ret == 1)
 	{
 		std::string tmp = this->actionGet();
-		std::cout << "THE 404 PAGE =\n" << tmp << std::endl;
 		std::string send_buff;
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " OK\n" + "Content-Type: text/html\n\n"+ tmp;
+		//std::cout << "GET SENDBUFf [" << send_buff << "]"  << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -177,7 +177,9 @@ int Server::send_msg()
 		std::string tmp = this->actionPost();
 		if(tmp.empty())
 			return (0);
-		std::string send_buff = "HTTP/1.1 200 OK\n" + tmp;
+		std::string send_buff;
+		send_buff = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n"+ tmp;
+		//std::cout << "POST SENDBUFf [" << send_buff << "]"  << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -323,12 +325,13 @@ std::string Server::actionPost()
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
+	//std::cout << "msg_client [" << this->msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
-		std::cerr << "Not permited to GET" << std::endl;
+		std::cerr << "Not permited to POST" << std::endl;
 		free_double_tab(tmp);
-		return "";	
+		return "error";	
 	}
 	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);

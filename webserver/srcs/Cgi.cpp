@@ -180,6 +180,7 @@ std::string Cgi::_execute_cgi_post()
 	int fd[2];
 	char buffer_read[10000];
     int wait_pid;
+	memset(buffer_read, 0, 10000);
 	/*std::cout << "launcher = " << _cgi_launcher << std::endl;
 
 	std::cout << "_argv = " << std::endl;
@@ -224,6 +225,7 @@ std::string Cgi::_execute_cgi_post()
 		{
 			close(s_fd[1]);
 			dup2(s_fd[0], 0);
+			waitpid(s_pid, &wait_pid, 0);
 			if (execve(_cgi_launcher.c_str(), _argv, _envp) < 0)
 			{
 				std::cerr << "Error, execve" << std::endl;
@@ -236,10 +238,11 @@ std::string Cgi::_execute_cgi_post()
 		close(fd[1]);
 		waitpid(pid, &wait_pid, 0);
 		read(fd[0], buffer_read, 10000);
+		close(fd[0]);
 	}
 	reset_envp();
 	std::cout << std::endl << std::endl << "END CGI POST EXECUTION" << std::endl;
-	std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
+	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
 	return (buffer_read);
 }
 
@@ -279,7 +282,9 @@ std::string Cgi::_execute_cgi_get()
 		close(fd[1]);
 		waitpid(pid, &wait_pid, 0);
 		read(fd[0], buffer_read, 10000);
+		close(fd[0]);
 	}
+	_arg_string.clear();
 	reset_envp();
 	//std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
 	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
