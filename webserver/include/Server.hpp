@@ -61,7 +61,7 @@ class Server {
 		
 		private:
 			int client;
-			char *msg_client;
+			std::string msg_client;
 			std::vector<Socket> all_socket;
 			VirtualServer info_serv;
 			std::vector<Cgi> cgi_exec;

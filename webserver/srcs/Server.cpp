@@ -125,6 +125,7 @@ int Server::receive_msg()
 	int status = 0;
 	struct timeval select_timeout;
 
+	memset(buff, 0, 10000);
 	select_timeout.tv_sec = 1;
 	select_timeout.tv_usec = 0;
 	FD_ZERO(&read_dump);
@@ -145,12 +146,11 @@ int Server::receive_msg()
 				exit(1);
 			}
 	}
-
-		if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
-			return (1);
-		buff[n] = '\0';
-		//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
-		this->msg_client = buff;
+	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
+		return (1);
+	buff[n] = '\0';
+	//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
+	this->msg_client = buff;
 	
 	return (0);
 }
@@ -179,16 +179,18 @@ int Server::send_msg()
 	else if (ret == 2)
 	{
 		tmp = this->actionPost();
-		if(tmp.empty())
-			return (0);
 		std::string send_buff;
-		send_buff = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n"+ tmp;
-		//std::cout << "POST SENDBUFf [" << send_buff << "]"  << std::endl;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
+		std::cout << "SEND [" << send_buff << "]" << std::endl; 
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
+			this->error_class.SetErrorCode("200");
+			this->error_class.SetErrorMsg("OK");
 			return (1);
 		};
+		this->error_class.SetErrorCode("200");
+		this->error_class.SetErrorMsg("OK");
 	}
 	else
 	{
@@ -212,6 +214,8 @@ int Server::send_msg()
 int Server::get_action()
 {
 	std::string str = this->msg_client;
+	if(str.empty())
+		return (-1);
 	if (str.find("GET") != std::string::npos)
 		return (1);
 	if (str.find("POST") != std::string::npos)
@@ -256,7 +260,7 @@ std::string Server::actionGet()
 	char **tmp;
 	char *tmp2;
 	int i = -1;
-	tmp = ft_split(this->msg_client, " ");
+	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
@@ -330,11 +334,11 @@ std::string Server::actionPost()
 	char **tmp;
 	char *tmp2;
 	int i = -1;
-	tmp = ft_split(this->msg_client, " ");
+	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
-	//std::cout << "msg_client [" << this->msg_client << "]" << std::endl;
+	std::cout << "msg_client [" << this->msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
@@ -413,7 +417,7 @@ std::string Server::actionDelete()
 	std::string file_tmp;
 	Location loca;
 
-	tmp = ft_split(this->msg_client, " ");
+	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	file += tmp2;
 	loca = this->get_request_location(file); 

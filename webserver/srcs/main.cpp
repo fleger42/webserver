@@ -12,10 +12,10 @@ void	ft_signal_handler(int signal)
 	}
 }
 
-void	ft_close_webserver(int code)
+void	ft_close_webserver(std::string str)
 {
-	std::cerr << "Closing webserver..." << std::endl;
-	exit(code);
+	std::cerr << str << std::endl;
+	g_ctrl_c_called = 1;
 }
 
 void	routine(std::vector<Server> & all_server)
@@ -38,7 +38,6 @@ void	routine(std::vector<Server> & all_server)
 				max_fd = it_socket->getServerFd();
 		}
 	}
-	signal(signal_nbr, ft_signal_handler);
 	while (g_ctrl_c_called == 0)
 	{
 		while(status == 0 && g_ctrl_c_called == 0)
@@ -49,11 +48,7 @@ void	routine(std::vector<Server> & all_server)
 			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 			{
 				if(g_ctrl_c_called == 1)
-				{
-					ft_close_webserver(GOOD);
-				}
-				std::cerr << "Error: select()" << std::endl;
-				ft_close_webserver(ERROR);
+					return ft_close_webserver("Error: select()");
 			}
 		}
 		if(status > 0 && g_ctrl_c_called == 0)
@@ -66,11 +61,11 @@ void	routine(std::vector<Server> & all_server)
 					if(FD_ISSET(it_socket->getServerFd(), &select_set_read_ready))
 					{
 						if(it_server->server_accept() != 0)
-							ft_close_webserver(ERROR);
+							return ft_close_webserver("Error: server accept");
 						if (it_server->receive_msg() != 0)
-							ft_close_webserver(ERROR);
+							return ft_close_webserver("Error: server receive");
 						if (it_server->send_msg() != 0)
-							ft_close_webserver(ERROR);
+							return ft_close_webserver("Error: server send");
 						close(it_server->getClient());
 					}
 				}
@@ -88,9 +83,10 @@ int main(int ac, char **av, char **envp)
 		std::cerr << "usage: ./server [PORT]" << std::endl;
 		return (1);
 	}
+	signal(signal_nbr, ft_signal_handler);
 	Conf conf(av[1]);
 	std::vector<Server> all_server = conf.create_all_server(envp);
 	routine(all_server);
-	ft_close_webserver(GOOD);
+	
 	return (0);
 } 

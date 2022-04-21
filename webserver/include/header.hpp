@@ -9,8 +9,6 @@
 # define CYAN     "\033[0;36m"
 # define GREY     "\033[0;37m"
 # define NORMAL	"\033[00m"
-# define ERROR 1
-# define GOOD 0
 #include <iostream>
 #include <sys/socket.h>
 #include <string.h>
