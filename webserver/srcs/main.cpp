@@ -48,7 +48,7 @@ void	routine(std::vector<Server> & all_server)
 			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 			{
 				if(g_ctrl_c_called == 1)
-					return ft_close_webserver("Error: select()");
+					return ft_close_webserver("");
 			}
 		}
 		if(status > 0 && g_ctrl_c_called == 0)
@@ -61,11 +61,11 @@ void	routine(std::vector<Server> & all_server)
 					if(FD_ISSET(it_socket->getServerFd(), &select_set_read_ready))
 					{
 						if(it_server->server_accept() != 0)
-							return ft_close_webserver("Error: server accept");
+							return ft_close_webserver("");
 						if (it_server->receive_msg() != 0)
-							return ft_close_webserver("Error: server receive");
+							return ft_close_webserver("");
 						if (it_server->send_msg() != 0)
-							return ft_close_webserver("Error: server send");
+							return ft_close_webserver("");
 						close(it_server->getClient());
 					}
 				}
@@ -80,13 +80,14 @@ int main(int ac, char **av, char **envp)
 	g_ctrl_c_called = 0;
 	if(ac != 2)
 	{
-		std::cerr << "usage: ./server [PORT]" << std::endl;
+		std::cerr << "usage: ./server [file.conf]" << std::endl;
 		return (1);
 	}
 	signal(signal_nbr, ft_signal_handler);
 	Conf conf(av[1]);
+	//conf.ft_print_content();
 	std::vector<Server> all_server = conf.create_all_server(envp);
 	routine(all_server);
-	
+	std::cout << "Closing webserver sucessfully.." << std::endl;
 	return (0);
 } 

@@ -160,12 +160,26 @@ int Server::send_msg()
 	int ret = this->get_action();
 	std::string tmp;
 	if (ret < 0)
-		std::cerr << "action not permited" << std::endl;
+	{
+		std::string send_buff;
+		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\n\n";
+		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
+		{
+			std::cerr << "error: send()" <<std::endl;
+			this->error_class.SetErrorCode("200");
+			this->error_class.SetErrorMsg("OK");
+			return (1);
+		};
+		this->error_class.SetErrorCode("200");
+		this->error_class.SetErrorMsg("OK");
+	}
 	else if (ret == 1)
 	{
 		tmp = this->actionGet();
 		std::string send_buff;
+		std::cout << "RESPONSE SENT" << std::endl;
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
+		std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -255,19 +269,58 @@ int	Server::check_cgi(std::string uri)
 	return (-1);
 }
 
+std::string Server::autoindex(std::string uri, std::string real_path)
+{
+	std::string ret;
+	DIR *dir;
+	std::cout << "IN AUTO INDEX" << std::endl;
+	struct dirent *ent;
+	if ((dir = opendir(uri.c_str())) != NULL)
+	{
+		ret += "<html>";
+		ret += "<head><title>Index of";
+		ret += real_path + "</title></head>\n";
+		ret += "<body>";
+		ret += "<h1>Index of ";
+		ret += real_path + "</h1><hr><pre>";
+		while ((ent = readdir(dir)) != NULL)
+		{
+			if(strcmp(ent->d_name, ".") != 0)
+			{
+				ret += "<a href=";
+				ret += real_path;
+				if(real_path[real_path.size() - 1] != '/')
+					ret += '/';
+				ret += ent->d_name;
+				ret += ">";
+				ret += ent->d_name;
+				ret += " </a>\n";
+			}
+		}
+		ret += "</pre><hr></body>";
+		ret += "</html>";
+		closedir(dir);
+	} 
+	else 
+		return this->error_class.error_404();
+	return(ret);
+}
+
 std::string Server::actionGet()
 {
 	char **tmp;
 	char *tmp2;
+	std::ifstream input;
+	std::stringstream buff;
 	int i = -1;
 	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
+	std::cout << "[" << msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
 		return this->error_class.error_403();//Ou erreur 405 jsp	
-	std::cout << "FILE=" << file << std::endl;
 	file_tmp = this->get_location_path(file, i);
 	int o = -1;
 	struct stat info;
@@ -277,6 +330,7 @@ std::string Server::actionGet()
 	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
 		temp_size++;
 	file_tmp_without_arg.resize(temp_size);
+
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
 		free_double_tab(tmp);
@@ -284,10 +338,6 @@ std::string Server::actionGet()
 	}
 	else if( info.st_mode & S_IFDIR )
 		o = 0;
-
-	std::ifstream input;
-	input.open(file_tmp.c_str());
-	std::stringstream buff;
 	int ret_check_cgi = check_cgi(file_tmp);
 	if(ret_check_cgi == -2)
 	{
@@ -301,14 +351,23 @@ std::string Server::actionGet()
 	}
 	else
 	{
-		if (o == 0)
+		Location temp_location = get_request_location(file);
+		input.open(file_tmp.c_str());
+		if (o == 0 && temp_location.get_autoindex() == 1)
 		{
+			free_double_tab(tmp);
+			return (autoindex(file_tmp, file));
+		}
+		else if (o == 0)
+		{
+			
 			while (file_tmp != "error")
 			{
 				i++;
 				input.close();
 				file_tmp = this->get_location_path(file, i);
 				input.open(file_tmp.c_str());
+				std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 				if (input.good() == 1)
 				{
 					buff << input.rdbuf();
@@ -321,8 +380,10 @@ std::string Server::actionGet()
 			free_double_tab(tmp);
 			return this->error_class.error_404();
 		}
+		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 		buff << input.rdbuf();
 		file_tmp = buff.str();
+		std::cout << "file_tmp" << file_tmp << std::endl;
 		free_double_tab(tmp);
 		return (file_tmp);
 	}
@@ -479,9 +540,7 @@ Location Server::get_request_location(std::string request)
 	while (it != loca->end())
 	{
 		if (path_loca == it->get_path())
-		{
 			return (*it);
-		}
 		it++;
 		i++;
 	}

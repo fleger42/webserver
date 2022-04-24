@@ -251,6 +251,7 @@ std::string Cgi::_execute_cgi_get()
 	int pid;
 	int fd[2];
 	char buffer_read[10000];
+	memset(buffer_read, 0, 10000);
     int wait_pid;
 	/*std::cout << "launcher = " << _cgi_launcher << std::endl;
 
@@ -262,7 +263,7 @@ std::string Cgi::_execute_cgi_get()
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
 			std::cout << _envp[i] << std::endl << std::endl;*/
-	//std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
+	std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
 	if (pipe(fd) == -1)
 		std::cerr << "Error, pipe" << std::endl;
     if ((pid = fork()) == -1)
@@ -284,7 +285,6 @@ std::string Cgi::_execute_cgi_get()
 		read(fd[0], buffer_read, 10000);
 		close(fd[0]);
 	}
-	_arg_string.clear();
 	reset_envp();
 	//std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
 	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;

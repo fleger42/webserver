@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include "VirtualServer.hpp"
 #include "Error.hpp"
+
 extern int g_ctrl_c_called;
 class VirtualServer;
 class Error;
@@ -58,7 +59,7 @@ class Server {
 			Location get_request_location(std::string request);
 			std::string get_cgi_path();
 			std::vector<Cgi> get_cgi_exec();
-		
+			std::string autoindex(std::string uri, std::string real_path);
 		private:
 			int client;
 			std::string msg_client;

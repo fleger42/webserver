@@ -196,6 +196,7 @@ void VirtualServer::parse_conf_file(std::string str)
 	parse_double_tab(double_tab);
 	size_t location_nbr = count_appearance(str, "location");
 	_location_list = new std::vector<Location>(location_nbr);
+	str = &str[str.find("location")];
 	for(size_t i = 0; i < location_nbr; i++)
 	{
 		found = str.find("location");

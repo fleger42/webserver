@@ -1,0 +1,3 @@
+[submodule "webserver/webserver/webserv_tester"]
+	path = webserver/webserver/webserv_tester
+	url = https://github.com/acoudert/webserv_tester.git

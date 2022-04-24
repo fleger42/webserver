@@ -103,7 +103,6 @@ void Conf::parse_conf_file(std::string filename)
 	size_t server_nbr = count_appearance(content, "server");
 
 	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);
-	std::vector<Location> * temp;
 	for(size_t i = 0; i < server_nbr; i++)
 	{
 		found = content.find("server");
@@ -112,7 +111,6 @@ void Conf::parse_conf_file(std::string filename)
 		new_str = content;
 		cutblock(new_str);
 		(*_list_virtual_server)[i].parse_conf_file(new_str);
-		temp = (*_list_virtual_server)[i].get_location_list();
 		content = &content[walk_end_block(&content[found])];
 	}
 }
