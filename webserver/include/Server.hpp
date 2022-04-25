@@ -60,6 +60,7 @@ class Server {
 			std::string get_cgi_path();
 			std::vector<Cgi> get_cgi_exec();
 			std::string autoindex(std::string uri, std::string real_path);
+			int	verif_header();
 		private:
 			int client;
 			std::string msg_client;
