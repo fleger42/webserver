@@ -35,6 +35,7 @@ VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 		this->_get = copy._get;
 		this->_post = copy._post;
 		this->_delete = copy._delete;
+		this->_redirect_list = copy._redirect_list;
 		if(copy._location_list)
 			this->_location_list = new std::vector<Location>(copy._location_list->begin(), copy._location_list->end());
 		else

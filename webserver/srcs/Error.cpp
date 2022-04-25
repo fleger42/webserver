@@ -5,6 +5,7 @@ Error::Error()
 {
 	this->error_code = "200";
 	this->error_msg = "OK";
+	this->content_msg = "Content-Type: text/html\n\n";
 }
 
 Error::~Error()
@@ -15,6 +16,7 @@ Error::Error(Error const & other)
 	this->error_page = other.error_page;
 	this->error_code = other.error_code;
 	this->error_msg = other.error_msg;
+	this->content_msg = other.content_msg;
 }
 
 Error &Error::operator=(Error const & other)
@@ -24,6 +26,7 @@ Error &Error::operator=(Error const & other)
 		this->error_code = other.error_code;
 		this->error_page = other.error_page;
 		this->error_msg = other.error_msg;
+		this->content_msg = other.content_msg;
 	}
 	return (*this);
 }
@@ -43,6 +46,11 @@ void Error::SetErrorMsg(std::string msg)
 	this->error_msg = msg;
 }
 
+void Error::SetContentMsg(std::string msg)
+{
+	this->content_msg = msg;
+}
+
 std::string Error::GetErrorCode(void)
 {
 	return this->error_code;
@@ -51,6 +59,27 @@ std::string Error::GetErrorCode(void)
 std::string Error::GetErrorMsg(void)
 {
 	return this->error_msg;
+}
+
+std::string Error::GetContentMsg(void)
+{
+	return this->content_msg;
+}
+
+std::string Error::error_301(std::string path)
+{
+	this->error_code = "301";
+	this->error_msg = "Moved Permanently";
+	this->content_msg = "Location: " + path + "\n";
+	return "";
+}
+
+std::string Error::error_302(std::string path)
+{
+	this->error_code = "302";
+	this->error_msg = "Found";
+	this->content_msg = "Location: " + path + "\n";
+	return "";
 }
 
 std::string Error::error_403(void)

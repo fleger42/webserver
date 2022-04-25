@@ -31,6 +31,7 @@ Location & Location::operator=(Location const & copy)
 		this->_post = copy._post;
 		this->_root = copy._root;
 		this->_upload_dir = copy._upload_dir;
+		this->_redirect_list = copy._redirect_list;
 	}
 	return(*this);
 	//std::cout << "Class Location operator=" << std::endl;

@@ -166,10 +166,10 @@ int	Server::verif_header()
 	std::string first = double_tab[0];
 	std::string second = double_tab[1];
 	std::string third = double_tab[2];
-	free_double_tab(double_tab);
 	i = 0;
 	while(double_tab[i])
 		i++;
+	free_double_tab(double_tab);
 	if(i != 3)
 		return(1);
 	if(first.compare("GET") == 1 && first.find(" POST ") == 1 && first.find(" DELETE ") == 1)
@@ -194,58 +194,66 @@ int Server::send_msg()
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
+			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
+		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 	}
 	else if (ret == 1)
 	{
 		tmp = this->actionGet();
 		std::string send_buff;
 		std::cout << "RESPONSE SENT" << std::endl;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
-		std::cout << "send_buff [" << send_buff << "]" << std::endl;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
+		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
+			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
+		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 	}
 	else if (ret == 2)
 	{
 		tmp = this->actionPost();
 		std::string send_buff;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
-		std::cout << "SEND [" << send_buff << "]" << std::endl; 
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
+		//std::cout << "SEND [" << send_buff << "]" << std::endl; 
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
+			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
+		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 	}
 	else
 	{
 		tmp = this->actionDelete();
 		std::string send_buff;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + "Content-Type: text/html\n\n"+ tmp;
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
+			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
+		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
 	}
 
 	return (0);
@@ -343,10 +351,32 @@ std::string Server::actionGet()
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
-	std::cout << "[" << msg_client << "]" << std::endl;
+	//std::cout << "[" << msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
-		return this->error_class.error_403();//Ou erreur 405 jsp	
+		return this->error_class.error_403();//Ou erreur 405 jsp
+	std::cout << "Empty map = " << this->info_serv.get_redirect_list().empty() << std::endl;
+	if (this->info_serv.get_redirect_list().empty() == 0)
+	{
+		free_double_tab(tmp);
+		if (this->info_serv.get_redirect_list().begin()->first == 301)
+			return this->error_class.error_301(this->info_serv.get_redirect_list().begin()->second);
+		if (this->info_serv.get_redirect_list().begin()->first == 302)
+			return this->error_class.error_302(this->info_serv.get_redirect_list().begin()->second);
+		return this->error_class.error_404();
+	}
+	Location redirection = get_request_location(file);
+	std::cout << "location path = " << redirection.get_path() << std::endl;
+	std::cout << "Empty map = " << redirection.get_redirect_list().empty() << std::endl;
+	if (redirection.get_redirect_list().empty() == 0)
+	{
+		free_double_tab(tmp);
+		if (redirection.get_redirect_list().begin()->first == 301)
+			return this->error_class.error_301(redirection.get_redirect_list().begin()->second);
+		if (redirection.get_redirect_list().begin()->first == 302)
+			return this->error_class.error_302(redirection.get_redirect_list().begin()->second);
+		return this->error_class.error_404();
+	}
 	file_tmp = this->get_location_path(file, i);
 	int o = -1;
 	struct stat info;
@@ -393,7 +423,7 @@ std::string Server::actionGet()
 				input.close();
 				file_tmp = this->get_location_path(file, i);
 				input.open(file_tmp.c_str());
-				std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+				//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 				if (input.good() == 1)
 				{
 					buff << input.rdbuf();
@@ -402,14 +432,14 @@ std::string Server::actionGet()
 					return (file_tmp);
 				}
 			}
-			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+			//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 			free_double_tab(tmp);
 			return this->error_class.error_404();
 		}
-		std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+		//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 		buff << input.rdbuf();
 		file_tmp = buff.str();
-		std::cout << "file_tmp" << file_tmp << std::endl;
+		//std::cout << "file_tmp" << file_tmp << std::endl;
 		free_double_tab(tmp);
 		return (file_tmp);
 	}
