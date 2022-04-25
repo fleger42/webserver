@@ -36,7 +36,8 @@ class VirtualServer
 		void parse_error_page(std::string str);
 		void parse_index_list(std::string str);
 		void parse_cgi(std::string str);
-	
+		void parse_redirect_list(std::string str);
+
 		void set_cgi_list(std::vector<std::string> value);
 		void set_get(bool value);
 		void set_post(bool value);
@@ -50,7 +51,9 @@ class VirtualServer
 		void set_port(std::vector<std::string> value);
 		void set_error_page(std::map<int, std::string> value);
 		void set_index_list(std::vector<std::string> value);
+		void set_redirect_list(std::map<int, std::string> value);
 
+		std::map<int, std::string> get_redirect_list() const;
 		std::vector<std::string> get_cgi_list() const;
 		std::map<int, std::string> get_error_page() const;
 		bool get_get() const;
@@ -67,6 +70,7 @@ class VirtualServer
 		void ft_print_content(void);
 	private:
 		std::string _root;
+		std::map<int, std::string> _redirect_list;
 		std::string _server_name;
 		std::vector<std::string> _ip;
 		std::vector<std::string> _port;

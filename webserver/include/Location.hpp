@@ -5,6 +5,7 @@
 #include <vector>
 #include <string.h>
 #include <stdlib.h>
+#include <map>
 size_t				ft_strlcpy(char *dst, char const *src, size_t size);
 char				**ft_clear_splitted(char **tab);
 char				**ft_split(char const *s, const char *delimiters);
@@ -32,6 +33,7 @@ class Location
 		void parse_path(std::string str);
 		void parse_upload_dir(std::string str);
 		void parse_cgi_list(std::string str);
+		void parse_redirect_list(std::string str);
 
 		void set_cgi_list(std::vector<std::string> value);
 		void set_get(bool value);
@@ -43,7 +45,9 @@ class Location
 		void set_index_list(std::vector<std::string> value);
 		void set_upload_dir(std::string value);
 		void set_body_size(unsigned long value);
+		void set_redirect_list(std::map<int, std::string> value);
 
+		std::map<int, std::string> get_redirect_list() const;
 		std::vector<std::string> get_cgi_list() const;
 		bool get_get() const;
 		bool get_post() const;
@@ -62,6 +66,7 @@ class Location
 		std::string _root;
 		std::string _path;
 		std::vector<std::string> _index_list;
+		std::map<int, std::string> _redirect_list;
 		std::string _upload_dir;
 		std::vector<std::string> _cgi_list;
 		unsigned long _body_size;

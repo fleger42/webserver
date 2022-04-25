@@ -75,6 +75,19 @@ void VirtualServer::parse_ip(std::string str)
 	}
 }
 
+void VirtualServer::parse_redirect_list(std::string str)
+{
+	int length = str.find("return");
+	std::string temp = &str[length + strlen("return") + 1];
+	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
+		length++;
+	int i = 0; 
+	while(temp[i] != ';')
+		i++;
+	temp.resize(i);
+	_redirect_list.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));
+}
+
 void VirtualServer::parse_root(std::string str)
 {
 	int length = str.find("root");
@@ -166,6 +179,8 @@ void VirtualServer::parse_double_tab(std::vector<std::string> double_tab)
 			while((length = double_tab[i].find("}")) == std::string::npos)
 				i++;
 		}
+		else if((length = double_tab[i].find(" return ")) != std::string::npos || (length = double_tab[i].find("\treturn ")) != std::string::npos)
+			parse_redirect_list(double_tab[i]);
 		else if((length = double_tab[i].find(" cgi ")) != std::string::npos || (length = double_tab[i].find("\tcgi ")) != std::string::npos)
 			parse_cgi(double_tab[i]);
 		else if((length = double_tab[i].find(" listen ")) != std::string::npos || (length = double_tab[i].find("\tlisten ")) != std::string::npos)
@@ -233,9 +248,17 @@ void VirtualServer::ft_print_content(void)
 	std::cout << "_CGI_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _cgi_list.begin(); it != _cgi_list.end(); it++)
 		std::cout << *it << std::endl;
+	std::cout << "_REDIRECT_LIST = "<< std::endl;
+	for(std::map<int, std::string>::iterator it = _redirect_list.begin(); it != _redirect_list.end(); it++)
+		std::cout << it->first << " " << it->second << std::endl;
 	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
 	for(std::vector<Location>::iterator it = _location_list->begin(); it != _location_list->end(); it++)
 		it->ft_print_content();
+}
+
+void VirtualServer::set_redirect_list(std::map<int, std::string> value)
+{
+	_redirect_list = value;
 }
 
 void VirtualServer::set_index_list(std::vector<std::string> value)
@@ -301,6 +324,11 @@ void VirtualServer::set_error_page(std::map<int, std::string> value)
 void VirtualServer::set_cgi_list(std::vector<std::string> value)
 {
 	_cgi_list = value;
+}
+
+std::map<int, std::string> VirtualServer::get_redirect_list() const
+{
+	return(_redirect_list);
 }
 
 std::vector<std::string> VirtualServer::get_cgi_list() const

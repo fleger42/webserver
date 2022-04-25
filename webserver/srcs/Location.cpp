@@ -120,6 +120,20 @@ void Location::parse_cgi_list(std::string str)
 	_cgi_list.push_back(temp);
 }
 
+void Location::parse_redirect_list(std::string str)
+{
+	int length = str.find("return");
+	std::string temp = &str[length + strlen("return") + 1];
+	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
+		length++;
+	int i = 0; 
+	while(temp[i] != ';')
+		i++;
+	temp.resize(i);
+	_redirect_list.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));
+}
+
+
 void Location::parse_double_tab(std::vector<std::string> double_tab)
 {
 	for(size_t i = 0; i < double_tab.size(); i++)
@@ -128,6 +142,8 @@ void Location::parse_double_tab(std::vector<std::string> double_tab)
 			parse_path(double_tab[i]);
 		else if(double_tab[i].find(" cgi ") != std::string::npos || (double_tab[i].find("\tcgi ") != std::string::npos))
 			parse_cgi_list(double_tab[i]);
+		else if(double_tab[i].find(" return ") != std::string::npos || (double_tab[i].find("\treturn ") != std::string::npos))
+			parse_redirect_list(double_tab[i]);
 		else if(double_tab[i].find(" root ") != std::string::npos || (double_tab[i].find("\troot ") != std::string::npos))
 			parse_root(double_tab[i]);
 		else if(double_tab[i].find(" methods ") != std::string::npos || (double_tab[i].find("\tmethods ") != std::string::npos))
@@ -162,10 +178,18 @@ void Location::ft_print_content(void)
 	std::cout << "_INDEX_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 		std::cout << *it << std::endl;
+	std::cout << "_REDIRECT_LIST = "<< std::endl;
+	for(std::map<int, std::string>::iterator it = _redirect_list.begin(); it != _redirect_list.end(); it++)
+		std::cout << it->first << " " << it->second << std::endl;
 	std::cout << "_CGI_LIST = " << std::endl;
 	for(std::vector<std::string>::iterator it = _cgi_list.begin(); it != _cgi_list.end(); it++)
-		std::cout << *it << std::endl;	
+		std::cout << *it <<std::endl;	
 	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
+}
+
+void Location::set_redirect_list(std::map<int, std::string> value)
+{
+	_redirect_list = value;
 }
 
 void Location::set_get(bool value)
@@ -214,6 +238,11 @@ void Location::set_body_size(unsigned long value)
 std::vector<std::string> Location::get_cgi_list() const
 {
 	return(_cgi_list);
+}
+
+std::map<int, std::string> Location::get_redirect_list() const
+{
+	return(_redirect_list);
 }
 
 bool Location::get_get() const
