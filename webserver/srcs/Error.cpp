@@ -5,7 +5,8 @@ Error::Error()
 {
 	this->error_code = "200";
 	this->error_msg = "OK";
-	this->content_msg = "Content-Type: text/html\n\n";
+	this->content_msg = "Content-Type: text/html; charset=utf-8\n\n";
+	this->redir = 0;
 }
 
 Error::~Error()
@@ -17,6 +18,7 @@ Error::Error(Error const & other)
 	this->error_code = other.error_code;
 	this->error_msg = other.error_msg;
 	this->content_msg = other.content_msg;
+	this->redir = other.redir;
 }
 
 Error &Error::operator=(Error const & other)
@@ -27,6 +29,7 @@ Error &Error::operator=(Error const & other)
 		this->error_page = other.error_page;
 		this->error_msg = other.error_msg;
 		this->content_msg = other.content_msg;
+		this->redir = other.redir;
 	}
 	return (*this);
 }
@@ -51,6 +54,11 @@ void Error::SetContentMsg(std::string msg)
 	this->content_msg = msg;
 }
 
+void Error::SetRedir(int i)
+{
+	this->redir = i;
+}
+
 std::string Error::GetErrorCode(void)
 {
 	return this->error_code;
@@ -64,6 +72,11 @@ std::string Error::GetErrorMsg(void)
 std::string Error::GetContentMsg(void)
 {
 	return this->content_msg;
+}
+
+int Error::GetRedir(void)
+{
+	return this->redir;
 }
 
 std::string Error::error_301(std::string path)

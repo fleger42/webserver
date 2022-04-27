@@ -22,9 +22,11 @@ class Error
 		void SetErrorCode(std::string code);
 		void SetErrorMsg(std::string msg);
 		void SetContentMsg(std::string msg);
+		void SetRedir(int i);
 		std::string GetErrorCode(void);
 		std::string GetErrorMsg(void);
 		std::string GetContentMsg(void);
+		int GetRedir(void);
 		std::string error_301(std::string path);
 		std::string error_302(std::string path);
 		std::string error_403(void);
@@ -38,6 +40,7 @@ class Error
 		std::string error_code;
 		std::string error_msg;
 		std::string content_msg;
+		int	redir;
 
 
 };

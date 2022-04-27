@@ -149,7 +149,7 @@ int Server::receive_msg()
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
+	std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
 	this->msg_client = buff;
 	
 	return (0);
@@ -191,18 +191,18 @@ int Server::send_msg()
 	if (ret < 0  || verif_header() == 1)
 	{
 		std::string send_buff;
-		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\n\n";
+		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html; charset=utf-8\n\n";
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
-			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+			this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
-		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+		this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 	}
 	else if (ret == 1)
 	{
@@ -210,18 +210,18 @@ int Server::send_msg()
 		std::string send_buff;
 		std::cout << "RESPONSE SENT" << std::endl;
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
-		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
+		std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
-			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+			this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
-		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+		this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 	}
 	else if (ret == 2)
 	{
@@ -234,12 +234,12 @@ int Server::send_msg()
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
-			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+			this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
-		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+		this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 	}
 	else
 	{
@@ -251,12 +251,12 @@ int Server::send_msg()
 			std::cerr << "error: send()" <<std::endl;
 			this->error_class.SetErrorCode("200");
 			this->error_class.SetErrorMsg("OK");
-			this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+			this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 			return (1);
 		};
 		this->error_class.SetErrorCode("200");
 		this->error_class.SetErrorMsg("OK");
-		this->error_class.SetContentMsg("Content-Type: text/html\n\n");
+		this->error_class.SetContentMsg("Content-Type: text/html; charset=utf-8\n\n");
 	}
 
 	return (0);
@@ -350,6 +350,7 @@ std::string Server::actionGet()
 	std::ifstream input;
 	std::stringstream buff;
 	int i = -1;
+	//std::cout << "msg client from get = " << this->msg_client << std::endl;
 	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	std::string file;
@@ -358,29 +359,34 @@ std::string Server::actionGet()
 	file += tmp2;
 	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
 		return this->error_class.error_403();//Ou erreur 405 jsp
-	std::cout << "Empty map = " << this->info_serv.get_redirect_list().empty() << std::endl;
-	if (this->info_serv.get_redirect_list().empty() == 0)
-	{
-		free_double_tab(tmp);
-		if (this->info_serv.get_redirect_list().begin()->first == 301)
-			return this->error_class.error_301(this->info_serv.get_redirect_list().begin()->second);
-		if (this->info_serv.get_redirect_list().begin()->first == 302)
-			return this->error_class.error_302(this->info_serv.get_redirect_list().begin()->second);
-		return this->error_class.error_404();
-	}
 	Location redirection = get_request_location(file);
-	std::cout << "location path = " << redirection.get_path() << std::endl;
-	std::cout << "Empty map = " << redirection.get_redirect_list().empty() << std::endl;
-	if (redirection.get_redirect_list().empty() == 0)
-	{
-		free_double_tab(tmp);
-		if (redirection.get_redirect_list().begin()->first == 301)
-			return this->error_class.error_301(redirection.get_redirect_list().begin()->second);
-		if (redirection.get_redirect_list().begin()->first == 302)
-			return this->error_class.error_302(redirection.get_redirect_list().begin()->second);
-		return this->error_class.error_404();
-	}
 	file_tmp = this->get_location_path(file, i);
+
+	if (this->error_class.GetRedir() == 0)
+	{
+		if (this->info_serv.get_redirect_list().empty() == 0)
+		{
+			free_double_tab(tmp);
+			this->error_class.SetRedir(1);
+			if (this->info_serv.get_redirect_list().begin()->first == 301)
+				return this->error_class.error_301(this->info_serv.get_redirect_list().begin()->second);
+			if (this->info_serv.get_redirect_list().begin()->first == 302)
+				return this->error_class.error_302(this->info_serv.get_redirect_list().begin()->second);
+			return this->error_class.error_404();
+		}
+		if (redirection.get_redirect_list().empty() == 0)
+		{
+			free_double_tab(tmp);
+			this->error_class.SetRedir(1);
+			if (redirection.get_redirect_list().begin()->first == 301)
+				return this->error_class.error_301(redirection.get_redirect_list().begin()->second);
+			if (redirection.get_redirect_list().begin()->first == 302)
+				return this->error_class.error_302(redirection.get_redirect_list().begin()->second);
+			return this->error_class.error_404();
+		}
+	}
+	this->error_class.SetRedir(0);
+
 	int o = -1;
 	struct stat info;
 
@@ -689,6 +695,25 @@ std::vector<Cgi> Server::get_cgi_exec()
 	return (cgi_exec);
 }
 
+int Server::verif_root(std::string file, std::string root)
+{
+	unsigned long i = 0;
+	unsigned long j = 0;
+
+	while (file[i] == '.' || file[i] == '/')
+		i++;
+	while (root[j] == '.' || root[j] == '/')
+		j++;
+	while (file[i] == root[j] && file[i] && root[j])
+	{
+		i++;
+		j++;
+	}
+	if ((file.size() == i || file[i] == '/') && (root.size() == j || root[j] == '/'))
+		return 1;
+	return 0;
+}
+
 std::string Server::get_location_path(std::string file, int index)
 {
 	size_t i = 0;
@@ -719,20 +744,26 @@ std::string Server::get_location_path(std::string file, int index)
 	{
 		if (path_loca == it->get_path())
 		{
-			path_tmp = it->get_root();
-			if (!path_tmp.empty())
+			if (!it->get_root().empty())
 			{
-				ret = path_tmp;
+				if (verif_root(file, it->get_root()) == 0)
+					ret += it->get_root();
 				if (path_loca.size() - file.size() >= 0 && index != -1)
 				{
 					ret += path_loca;
 					ret = this->add_index(ret, index, it);
 					return ret;
 				}
+				if (verif_root(file, it->get_root()) == 1)
+				{
+					if (it->get_root()[0] == '.')
+						ret = '.';
+				}
 				ret += file;
 				return ret;
 			}
-			path_tmp = this->info_serv.get_root();
+			if (verif_root(file, this->info_serv.get_root()) == 0)
+				path_tmp += this->info_serv.get_root();
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
@@ -751,6 +782,11 @@ std::string Server::get_location_path(std::string file, int index)
 				ret = this->add_index(ret, index, it);
 				return ret;
 			}
+			if (verif_root(file, this->info_serv.get_root()) == 1)
+			{
+				if (this->info_serv.get_root()[0] == '.')
+					ret = '.';
+			}
 			ret += file;
 			return ret;
 		}
@@ -758,11 +794,14 @@ std::string Server::get_location_path(std::string file, int index)
 	}
 	if (index != -1)
 	{
-		ret = this->info_serv.get_root();
+		if (verif_root(file, this->info_serv.get_root()) == 0)
+			ret = this->info_serv.get_root();
+		ret += file;
 		ret = this->add_index(ret, index, it);
 		return ret;
 	}
-	ret = this->info_serv.get_root();
+	if (verif_root(file, this->info_serv.get_root()) == 0)
+		ret = this->info_serv.get_root();
 	ret += file;
 	return ret;
 }
