@@ -163,15 +163,18 @@ int	Server::verif_header()
 	std::string mut = msg_client;
 	mut.resize(i - 1);
 	char **double_tab =  ft_split(mut.c_str(), " ");
-	std::string first = double_tab[0];
-	std::string second = double_tab[1];
-	std::string third = double_tab[2];
 	i = 0;
 	while(double_tab[i])
 		i++;
-	free_double_tab(double_tab);
 	if(i != 3)
+	{
+		free_double_tab(double_tab);
 		return(1);
+	}
+	std::string first = double_tab[0];
+	std::string second = double_tab[1];
+	std::string third = double_tab[2];
+	free_double_tab(double_tab);
 	if(first.compare("GET") == 1 && first.find(" POST ") == 1 && first.find(" DELETE ") == 1)
 		return(1);
 	if(second[0] != '/')
@@ -185,7 +188,7 @@ int Server::send_msg()
 {
 	int ret = this->get_action();
 	std::string tmp;
-	if (ret < 0 || verif_header() == 1)
+	if (ret < 0  || verif_header() == 1)
 	{
 		std::string send_buff;
 		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\n\n";

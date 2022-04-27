@@ -84,10 +84,13 @@ int main(int ac, char **av, char **envp)
 		return (1);
 	}
 	signal(signal_nbr, ft_signal_handler);
-	Conf conf(av[1]);
-	//conf.ft_print_content();
-	std::vector<Server> all_server = conf.create_all_server(envp);
-	routine(all_server);
+	Conf conf;
+	if(conf.parse_conf_file(av[1]) == 0)
+	{
+		//conf.ft_print_content();
+		std::vector<Server> all_server = conf.create_all_server(envp);
+		routine(all_server);
+	}
 	std::cout << "Closing webserver sucessfully.." << std::endl;
 	return (0);
 } 

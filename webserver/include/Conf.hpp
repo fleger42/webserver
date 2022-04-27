@@ -28,7 +28,7 @@ class Conf
 		std::vector<VirtualServer> * get_list_virtual_server() const;
 		void set_virtual_server(std::vector<VirtualServer> * server_list);
 		void add_virtual_server(VirtualServer const & server);
-		void parse_conf_file(std::string filename);
+		int parse_conf_file(std::string filename);
 		std::string get_file_content() const;
 		std::vector<Server> create_all_server(char **envp);
 		void ft_print_content(void);

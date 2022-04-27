@@ -83,7 +83,7 @@ std::vector<Server> Conf::create_all_server(char **envp)
 	return(list_server);
 }
 
-void Conf::parse_conf_file(std::string filename)
+int Conf::parse_conf_file(std::string filename)
 {
 	std::cout << "Start parsing of file: " << filename << std::endl;
 	std::ifstream read_stream;
@@ -94,7 +94,7 @@ void Conf::parse_conf_file(std::string filename)
 	if(read_stream.good() == 0)
 	{
 		std::cerr << "Error, file is not valid." << std::endl;
-		return ;
+		return (1);
 	}
 	buffer << read_stream.rdbuf();
 	content = buffer.str();
@@ -113,6 +113,7 @@ void Conf::parse_conf_file(std::string filename)
 		(*_list_virtual_server)[i].parse_conf_file(new_str);
 		content = &content[walk_end_block(&content[found])];
 	}
+	return (0);
 }
 
 void Conf::ft_print_content(void)
