@@ -1,7 +1,8 @@
 #include "../include/Location.hpp"
+#include "../include/Cgi.hpp"
 
 Location::Location() : _get(0), _post(0), _delete(0), _autoindex(0), _root(),
-						_path(), _index_list(), _upload_dir(), _body_size(0)
+						_path(), _index_list(), _redirect_list(), _upload_dir(), _cgi_list(), _cgi_exec(), _body_size(0)
 {
 	//std::cout << "Class Location default constructor" << std::endl;
 }
@@ -32,6 +33,7 @@ Location & Location::operator=(Location const & copy)
 		this->_root = copy._root;
 		this->_upload_dir = copy._upload_dir;
 		this->_redirect_list = copy._redirect_list;
+		this->_cgi_exec = copy._cgi_exec;
 	}
 	return(*this);
 	//std::cout << "Class Location operator=" << std::endl;
@@ -188,6 +190,11 @@ void Location::ft_print_content(void)
 	std::cout << "_AUTOINDEX = " << _autoindex << std::endl << std::endl;
 }
 
+void Location::set_cgi_exec(std::vector<Cgi> value)
+{
+	_cgi_exec = value;
+}
+
 void Location::set_redirect_list(std::map<int, std::string> value)
 {
 	_redirect_list = value;
@@ -244,6 +251,11 @@ std::vector<std::string> Location::get_cgi_list() const
 std::map<int, std::string> Location::get_redirect_list() const
 {
 	return(_redirect_list);
+}
+
+std::vector<Cgi> Location::get_cgi_exec() const
+{
+	return(_cgi_exec);
 }
 
 bool Location::get_get() const

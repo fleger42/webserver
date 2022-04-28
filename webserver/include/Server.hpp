@@ -44,7 +44,7 @@ class Server {
 			void close_all_fd();
 			int verif_post_location(std::string file);
 			int verif_get_location(std::string file);
-			int	check_cgi(std::string uri);
+			int	check_cgi(std::string uri, std::vector<Cgi> cgi);
 			std::string add_index(std::string ret, size_t index, std::vector<Location>::iterator it);
 			
 			void set_virtual_server(VirtualServer const & value);

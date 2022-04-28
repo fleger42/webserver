@@ -158,9 +158,11 @@ int Server::receive_msg()
 int	Server::verif_header()
 {
 	int i = 0;
+	int is_host = 0;
 	while(msg_client[i] && msg_client[i] != '\n')
 		i++;
 	std::string mut = msg_client;
+	std::string tmp;
 	mut.resize(i - 1);
 	char **double_tab =  ft_split(mut.c_str(), " ");
 	i = 0;
@@ -181,6 +183,19 @@ int	Server::verif_header()
 		return(1);
 	if(third.find("HTTP/1.1") == std::string::npos && third.find("HTTP/1.0") == std::string::npos)
 		return(1);
+	double_tab = ft_split(this->msg_client.c_str(), "\n");
+	for(int i = 0; double_tab[i];i++)
+	{
+		tmp = double_tab[i];
+		if(tmp.find("Host:") != std::string::npos && is_host)
+		{
+			free_double_tab(double_tab);	
+			return (1);
+		}
+		if(tmp.find("Host:") != std::string::npos)
+			is_host = 1;
+	}
+	free_double_tab(double_tab);
 	return(0);
 }
 
@@ -281,7 +296,7 @@ int Server::get_action()
 	Return -1 if you dont need cgi.
 	If you need cgi return the index of it or -2 for error
 */
-int	Server::check_cgi(std::string uri) 
+int	Server::check_cgi(std::string uri, std::vector<Cgi> cgi) 
 {
 	std::string extension;
 	std::string final_conf_target;
@@ -292,7 +307,7 @@ int	Server::check_cgi(std::string uri)
 		it++;
 	for(; it != uri.end() && *it != '?'; it++)
 		extension.push_back(*it);
-	for(std::vector<Cgi>::iterator it = cgi_exec.begin(); it != cgi_exec.end(); it++)
+	for(std::vector<Cgi>::iterator it = cgi.begin(); it != cgi.end(); it++)
 	{
 		final_conf_target = &it->get_target()[1];
 		if(extension.compare(final_conf_target) == 0)
@@ -361,7 +376,6 @@ std::string Server::actionGet()
 		return this->error_class.error_403();//Ou erreur 405 jsp
 	Location redirection = get_request_location(file);
 	file_tmp = this->get_location_path(file, i);
-
 	if (this->error_class.GetRedir() == 0)
 	{
 		if (this->info_serv.get_redirect_list().empty() == 0)
@@ -386,7 +400,6 @@ std::string Server::actionGet()
 		}
 	}
 	this->error_class.SetRedir(0);
-
 	int o = -1;
 	struct stat info;
 
@@ -403,7 +416,12 @@ std::string Server::actionGet()
 	}
 	else if( info.st_mode & S_IFDIR )
 		o = 0;
-	int ret_check_cgi = check_cgi(file_tmp);
+	Location loc = get_request_location(file);
+	int ret_check_cgi;
+	if(loc.get_cgi_list().empty() == 0)
+		ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+	else
+		ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);
@@ -418,6 +436,11 @@ std::string Server::actionGet()
 	{
 		Location temp_location = get_request_location(file);
 		input.open(file_tmp.c_str());
+		if ( (input.rdstate() & std::ifstream::failbit ) != 0 )
+		{
+			free_double_tab(tmp);
+			return this->error_class.error_404();
+		}
 		if (o == 0 && temp_location.get_autoindex() == 1)
 		{
 			free_double_tab(tmp);
@@ -432,9 +455,24 @@ std::string Server::actionGet()
 				input.close();
 				file_tmp = this->get_location_path(file, i);
 				input.open(file_tmp.c_str());
-				//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 				if (input.good() == 1)
 				{
+					std::cout << "CHECK CGI WITH " << file_tmp << std::endl;
+					int ret_check_cgi;
+					if(loc.get_cgi_list().empty() == 0)
+						ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+					else
+						ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
+					if(ret_check_cgi == -2)
+					{
+						free_double_tab(tmp);
+						return this->error_class.error_404();
+					}
+					else if(ret_check_cgi != - 1)
+					{
+						free_double_tab(tmp);
+						return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
+					}
 					buff << input.rdbuf();
 					file_tmp = buff.str();
 					free_double_tab(tmp);
@@ -492,7 +530,12 @@ std::string Server::actionPost()
 	std::ifstream input;
 	input.open(file_tmp.c_str());
 	std::stringstream buff;
-	int ret_check_cgi = check_cgi(file_tmp);
+	Location loc = get_request_location(file);
+	int ret_check_cgi;
+	if(loc.get_cgi_list().empty() == 0)
+		ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+	else
+		ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);

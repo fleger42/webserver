@@ -13,6 +13,7 @@ std::vector<std::string> string_to_double_tab(std::string str);
 /*
 Classe qui contient les infos d'un bloc location du fichier de configuration
 */
+class Cgi;
 class Location
 {
 	public:
@@ -36,6 +37,7 @@ class Location
 		void parse_redirect_list(std::string str);
 
 		void set_cgi_list(std::vector<std::string> value);
+		void set_cgi_exec(std::vector<Cgi> value);
 		void set_get(bool value);
 		void set_post(bool value);
 		void set_delete(bool value);
@@ -49,6 +51,7 @@ class Location
 
 		std::map<int, std::string> get_redirect_list() const;
 		std::vector<std::string> get_cgi_list() const;
+		std::vector<Cgi> get_cgi_exec() const;
 		bool get_get() const;
 		bool get_post() const;
 		bool get_delete() const;
@@ -69,6 +72,7 @@ class Location
 		std::map<int, std::string> _redirect_list;
 		std::string _upload_dir;
 		std::vector<std::string> _cgi_list;
+		std::vector<Cgi> _cgi_exec;
 		unsigned long _body_size;
 };
 #endif

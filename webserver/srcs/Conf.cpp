@@ -2,6 +2,7 @@
 #include "../include/VirtualServer.hpp"
 #include "../include/Server.hpp"
 #include "../include/Cgi.hpp"
+#include "../include/Location.hpp"
 
 Conf::Conf() : _list_virtual_server(), file_content()
 {
@@ -64,6 +65,16 @@ std::vector<Server> Conf::create_all_server(char **envp)
 	std::vector<std::string> list;
 	for(std::vector<VirtualServer>::iterator it = _list_virtual_server->begin(); it != _list_virtual_server->end(); it++)
 	{
+		for(std::vector<Location>::iterator it_loc = it->get_location_list()->begin(); it_loc != it->get_location_list()->end(); it_loc++)
+		{
+			j = 0;
+			cgi_list.clear();
+			cgi_list.resize(it_loc->get_cgi_list().size());
+			list = it_loc->get_cgi_list();
+			for(std::vector<std::string>::iterator it2 = list.begin();  it2 != list.end(); it2++)
+				cgi_list[j++].setup(envp, *it2);
+			it_loc->set_cgi_exec(cgi_list);
+		}
 		list_server[i].set_virtual_server(*it);
 		list_server[i].get_error_class().SetErrorPage(list_server[i].get_info_serv().get_error_page());
 		cgi_list.clear();

@@ -11,6 +11,7 @@
 class Cgi;
 class VirtualServer;
 class Server;
+class Location;
 void cutblock(std::string & str);
 int count_appearance(std::string file, std::string str);
 int walk_end_block(std::string const & str);
