@@ -35,13 +35,15 @@ Cgi::~Cgi()
 
 Cgi & Cgi::operator=(Cgi const & copy)
 {
-	if(this == &copy)
-		*this = copy;
-	_cgi_launcher = copy._cgi_launcher;
-	_argv = copy._argv;
-	_envp = copy._envp;
-	_target = copy._target;
-	_cgi_path = copy._cgi_path;
+	//std::cout << "CGI OPERATOR=" << std::endl;
+	if(this != &copy)
+	{
+		_cgi_launcher = copy._cgi_launcher;
+		_argv = copy._argv;
+		_envp = copy._envp;
+		_target = copy._target;
+		_cgi_path = copy._cgi_path;
+	}
 	return(*this);
 }
 /*
@@ -105,17 +107,26 @@ CONTENT_TYPE
 void Cgi::build_arg_and_envp(std::string uri) //GET
 {
 	// BUILD ARG //
-	int length = uri.find_first_of('?');
-	_cgi_path = uri;
-	_cgi_path.resize(length);
-	std::string arg_string = &uri[length + 1];
-	_argv = (char**)malloc(sizeof(char**) * 3);
-	_argv[0] = strdup(_cgi_launcher.c_str());
-	_argv[1] = strdup(_cgi_path.c_str());
-	_argv[2] = NULL;
-
+	size_t length = uri.find_first_of('?');
+	std::string arg_string;
+	if(length != std::string::npos)
+	{
+		_cgi_path = uri;
+		_cgi_path.resize(length);
+		arg_string = &uri[length + 1];
+		_argv = (char**)malloc(sizeof(char**) * 3);
+		_argv[0] = strdup(_cgi_launcher.c_str());
+		_argv[1] = strdup(_cgi_path.c_str());
+		_argv[2] = NULL;
+	}
+	else
+	{
+		_argv = (char**)malloc(sizeof(char**) * 3);
+		_argv[0] = strdup(_cgi_launcher.c_str());
+		_argv[1] = strdup(uri.c_str());
+		_argv[2] = NULL;
+	}
 	// BUILD ENVP //
-
 	int count = 0;
 	while(_envp[count])
 		count++;
@@ -253,7 +264,7 @@ std::string Cgi::_execute_cgi_get()
 	char buffer_read[10000];
 	memset(buffer_read, 0, 10000);
     int wait_pid;
-	/*std::cout << "launcher = " << _cgi_launcher << std::endl;
+	std::cout << "launcher = " << _cgi_launcher << std::endl;
 
 	std::cout << "_argv = " << std::endl;
 	if(_argv)
@@ -262,7 +273,7 @@ std::string Cgi::_execute_cgi_get()
 	std::cout << std::endl << "_envp = " << std::endl;
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
-			std::cout << _envp[i] << std::endl << std::endl;*/
+			std::cout << _envp[i] << std::endl << std::endl;
 	std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
 	if (pipe(fd) == -1)
 		std::cerr << "Error, pipe" << std::endl;
@@ -304,6 +315,7 @@ void Cgi::setup(char **envp, std::string cgi_conf)
 	while(_cgi_launcher[i] != ';')
 		i++;
 	_cgi_launcher.resize(i);
+	std::cout << "IN SETUP :" << _cgi_launcher << std::endl;
 	free_double_tab(tmp);
 }
 

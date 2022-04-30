@@ -418,19 +418,28 @@ std::string Server::actionGet()
 		o = 0;
 	Location loc = get_request_location(file);
 	int ret_check_cgi;
-	if(loc.get_cgi_list().empty() == 0)
+	if(loc.get_cgi_exec().empty() == 0)
+	{
 		ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+		if(ret_check_cgi != -1 && ret_check_cgi != -2)
+		{
+			free_double_tab(tmp);
+			return (loc.get_cgi_exec()[ret_check_cgi].execute_cgi(file_tmp));
+		}
+	}
 	else
+	{
 		ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
+		if(ret_check_cgi != -1 && ret_check_cgi != -2)
+		{
+			free_double_tab(tmp);
+			return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
+		}
+	}
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);
 		return this->error_class.error_404();
-	}
-	else if(ret_check_cgi != - 1)
-	{
-		free_double_tab(tmp);
-		return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
 	}
 	else
 	{
@@ -457,21 +466,28 @@ std::string Server::actionGet()
 				input.open(file_tmp.c_str());
 				if (input.good() == 1)
 				{
-					std::cout << "CHECK CGI WITH " << file_tmp << std::endl;
-					int ret_check_cgi;
-					if(loc.get_cgi_list().empty() == 0)
+					if(loc.get_cgi_exec().empty() == 0)
+					{
 						ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+						if(ret_check_cgi != -1 && ret_check_cgi != -2)
+						{
+							free_double_tab(tmp);
+							return (loc.get_cgi_exec()[ret_check_cgi].execute_cgi(file_tmp));
+						}
+					}
 					else
+					{
 						ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
+						if(ret_check_cgi != -1 && ret_check_cgi != -2)
+						{
+							free_double_tab(tmp);
+							return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
+						}
+					}
 					if(ret_check_cgi == -2)
 					{
 						free_double_tab(tmp);
 						return this->error_class.error_404();
-					}
-					else if(ret_check_cgi != - 1)
-					{
-						free_double_tab(tmp);
-						return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
 					}
 					buff << input.rdbuf();
 					file_tmp = buff.str();

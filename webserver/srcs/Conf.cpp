@@ -72,7 +72,10 @@ std::vector<Server> Conf::create_all_server(char **envp)
 			cgi_list.resize(it_loc->get_cgi_list().size());
 			list = it_loc->get_cgi_list();
 			for(std::vector<std::string>::iterator it2 = list.begin();  it2 != list.end(); it2++)
-				cgi_list[j++].setup(envp, *it2);
+			{
+				cgi_list[j].setup(envp, *it2);
+				std::cout << "TEST CREATE ALL" << cgi_list[j++].get_cgi_launcher() << std::endl;
+			}
 			it_loc->set_cgi_exec(cgi_list);
 		}
 		list_server[i].set_virtual_server(*it);
