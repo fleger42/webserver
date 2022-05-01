@@ -225,7 +225,7 @@ int Server::send_msg()
 		std::string send_buff;
 		std::cout << "RESPONSE SENT" << std::endl;
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
-		std::cout << "send_buff [" << send_buff << "]" << std::endl;
+		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -489,6 +489,10 @@ std::string Server::actionGet()
 						free_double_tab(tmp);
 						return this->error_class.error_404();
 					}
+					Location bla;
+					bla = get_request_location(file);
+					if (bla.get_path().find("/dowload/") != std::string::npos)
+						this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 					buff << input.rdbuf();
 					file_tmp = buff.str();
 					free_double_tab(tmp);
@@ -499,7 +503,10 @@ std::string Server::actionGet()
 			free_double_tab(tmp);
 			return this->error_class.error_404();
 		}
-		//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+		Location bla;
+		bla = get_request_location(file);
+		if (bla.get_path().find("/dowload/") != std::string::npos)
+			this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 		buff << input.rdbuf();
 		file_tmp = buff.str();
 		//std::cout << "file_tmp" << file_tmp << std::endl;
@@ -822,7 +829,7 @@ std::string Server::get_location_path(std::string file, int index)
 				return ret;
 			}
 			if (verif_root(file, this->info_serv.get_root()) == 0)
-				path_tmp += this->info_serv.get_root();
+				path_tmp = this->info_serv.get_root();
 			if (!path_tmp.empty())
 			{
 				ret = path_tmp;
