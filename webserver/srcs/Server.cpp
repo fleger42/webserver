@@ -202,15 +202,17 @@ int	Server::verif_header()
 size_t Server::body_size(std::string header)
 {
 	int i = 0;
+	std::cout << "IN BODY_SIZE [" << header << "]" << std::endl;
 	while(header[i])
 	{
 		if(header[i] == '\n' && (header[i + 1] == '\r' && header[i + 2] == '\n'))
 		{
+			std::cout << "OUT BODY_SIZE [" << &header[i + 3] << "]" << std::endl;
 			return (ft_strlen(&header[i + 3]));
 		}
 		i++;
 	}
-	return (0);
+	return (header.size());
 }
 
 int Server::send_msg()
@@ -245,6 +247,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
+		std::cout << "SEND BUFF = [" << send_buff << "]" << std::endl;
 		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
@@ -453,7 +456,6 @@ std::string Server::actionGet()
 	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
 		temp_size++;
 	file_tmp_without_arg.resize(temp_size);
-
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
 		free_double_tab(tmp);
