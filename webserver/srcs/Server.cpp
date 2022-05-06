@@ -199,10 +199,25 @@ int	Server::verif_header()
 	return(0);
 }
 
+size_t Server::body_size(std::string header)
+{
+	int i = 0;
+	while(header[i])
+	{
+		if(header[i] == '\n' && (header[i + 1] == '\r' && header[i + 2] == '\n'))
+		{
+			return (ft_strlen(&header[i + 3]));
+		}
+		i++;
+	}
+	return (0);
+}
+
 int Server::send_msg()
 {
 	int ret = this->get_action();
 	std::string tmp;
+	char * stock;
 	if (ret < 0  || verif_header() == 1)
 	{
 		std::string send_buff;
@@ -224,7 +239,12 @@ int Server::send_msg()
 		tmp = this->actionGet();
 		std::string send_buff;
 		std::cout << "RESPONSE SENT" << std::endl;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
+		stock = ft_itoa(body_size(tmp));
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
+		free(stock);
+		if(tmp.find("Content-Type:") == std::string::npos)
+			send_buff += this->error_class.GetContentMsg();
+		send_buff += tmp;
 		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
@@ -242,8 +262,12 @@ int Server::send_msg()
 	{
 		tmp = this->actionPost();
 		std::string send_buff;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
-		//std::cout << "SEND [" << send_buff << "]" << std::endl; 
+		stock = ft_itoa(body_size(tmp));
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
+		free(stock);
+		if(tmp.find("Content-Type:") == std::string::npos)
+			send_buff += this->error_class.GetContentMsg();
+		send_buff += tmp;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -260,7 +284,9 @@ int Server::send_msg()
 	{
 		tmp = this->actionDelete();
 		std::string send_buff;
-		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\n" + this->error_class.GetContentMsg() + tmp;
+		stock = ft_itoa(body_size(tmp));
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + this->error_class.GetContentMsg() + tmp;
+		free(stock);
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -373,8 +399,27 @@ std::string Server::actionGet()
 	//std::cout << "[" << msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_get_location(file) != 0 && this->info_serv.get_get() == 0)
+	{
+		free_double_tab(tmp);
 		return this->error_class.error_403();//Ou erreur 405 jsp
+	}
 	Location redirection = get_request_location(file);
+	if(redirection.get_path().empty() == 1)
+	{
+		if(this->info_serv.get_body_size() < body_size(msg_client))
+		{
+			free_double_tab(tmp);
+			return this->error_class.error_431();
+		}
+	}
+	else
+	{
+		if(redirection.get_body_size() < body_size(msg_client))
+		{
+			free_double_tab(tmp);
+			return this->error_class.error_431();
+		}
+	}
 	file_tmp = this->get_location_path(file, i);
 	if (this->error_class.GetRedir() == 0)
 	{
@@ -520,60 +565,116 @@ std::string Server::actionPost()
 {
 	char **tmp;
 	char *tmp2;
+	std::ifstream input;
+	std::stringstream buff;
 	int i = -1;
+	//std::cout << "msg client from get = " << this->msg_client << std::endl;
 	tmp = ft_split(this->msg_client.c_str(), " ");
 	tmp2 = tmp[1];
 	std::string file;
 	std::string file_tmp;
-	std::cout << "msg_client [" << this->msg_client << "]" << std::endl;
+	//std::cout << "[" << msg_client << "]" << std::endl;
 	file += tmp2;
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
 		free_double_tab(tmp);
-		return this->error_class.error_403();//ou 405 jsp	
+		return this->error_class.error_403();//Ou erreur 405 jsp
 	}
-	std::cout << "FILE=" << file << std::endl;
+	Location redirection = get_request_location(file);
+	if(redirection.get_path().empty() == 1)
+	{
+		if(this->info_serv.get_body_size() < body_size(msg_client))
+			return this->error_class.error_431();
+	}
+	else
+	{
+		if(redirection.get_body_size() < body_size(msg_client))
+			return this->error_class.error_431();
+	}
 	file_tmp = this->get_location_path(file, i);
+	if (this->error_class.GetRedir() == 0)
+	{
+		if (this->info_serv.get_redirect_list().empty() == 0)
+		{
+			free_double_tab(tmp);
+			this->error_class.SetRedir(1);
+			if (this->info_serv.get_redirect_list().begin()->first == 301)
+				return this->error_class.error_301(this->info_serv.get_redirect_list().begin()->second);
+			if (this->info_serv.get_redirect_list().begin()->first == 302)
+				return this->error_class.error_302(this->info_serv.get_redirect_list().begin()->second);
+			return this->error_class.error_404();
+		}
+		if (redirection.get_redirect_list().empty() == 0)
+		{
+			free_double_tab(tmp);
+			this->error_class.SetRedir(1);
+			if (redirection.get_redirect_list().begin()->first == 301)
+				return this->error_class.error_301(redirection.get_redirect_list().begin()->second);
+			if (redirection.get_redirect_list().begin()->first == 302)
+				return this->error_class.error_302(redirection.get_redirect_list().begin()->second);
+			return this->error_class.error_404();
+		}
+	}
+	this->error_class.SetRedir(0);
 	int o = -1;
 	struct stat info;
 
 	std::string file_tmp_without_arg = file_tmp;
-	int temp_size = 0; 
+	int temp_size = 0;
 	while(file_tmp_without_arg[temp_size] && file_tmp_without_arg[temp_size] != '?')
 		temp_size++;
 	file_tmp_without_arg.resize(temp_size);
+
 	if( stat(file_tmp_without_arg.c_str(), &info ) != 0)
 	{
 		free_double_tab(tmp);
 		return this->error_class.error_404();
 	}
-	else if( info.st_mode & S_IFDIR ) 
+	else if( info.st_mode & S_IFDIR )
 		o = 0;
-	
-	std::ifstream input;
-	input.open(file_tmp.c_str());
-	std::stringstream buff;
 	Location loc = get_request_location(file);
 	int ret_check_cgi;
-	if(loc.get_cgi_list().empty() == 0)
+	if(loc.get_cgi_exec().empty() == 0)
+	{
 		ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+		if(ret_check_cgi != -1 && ret_check_cgi != -2)
+		{
+			std::string str_holder = loc.get_cgi_exec()[ret_check_cgi].execute_cgi(tmp, file_tmp);
+			free_double_tab(tmp);
+			return (str_holder);
+		}
+	}
 	else
+	{
 		ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
+		if(ret_check_cgi != -1 && ret_check_cgi != -2)
+		{
+			free_double_tab(tmp);
+			return (cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp));
+		}
+	}
 	if(ret_check_cgi == -2)
 	{
 		free_double_tab(tmp);
 		return this->error_class.error_404();
 	}
-	else if(ret_check_cgi != - 1)
-	{
-		std::string ret = cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp);
-		free_double_tab(tmp);
-		return (ret);
-	}
 	else
 	{
-		if (o == 0)
+		Location temp_location = get_request_location(file);
+		input.open(file_tmp.c_str());
+		if ( (input.rdstate() & std::ifstream::failbit ) != 0 )
 		{
+			free_double_tab(tmp);
+			return this->error_class.error_404();
+		}
+		if (o == 0 && temp_location.get_autoindex() == 1)
+		{
+			free_double_tab(tmp);
+			return (autoindex(file_tmp, file));
+		}
+		else if (o == 0)
+		{
+			
 			while (file_tmp != "error")
 			{
 				i++;
@@ -582,18 +683,50 @@ std::string Server::actionPost()
 				input.open(file_tmp.c_str());
 				if (input.good() == 1)
 				{
+					if(loc.get_cgi_exec().empty() == 0)
+					{
+						ret_check_cgi = check_cgi(file_tmp, loc.get_cgi_exec());
+						if(ret_check_cgi != -1 && ret_check_cgi != -2)
+						{
+							free_double_tab(tmp);
+							return (loc.get_cgi_exec()[ret_check_cgi].execute_cgi(file_tmp));
+						}
+					}
+					else
+					{
+						ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
+						if(ret_check_cgi != -1 && ret_check_cgi != -2)
+						{
+							free_double_tab(tmp);
+							return (cgi_exec[ret_check_cgi].execute_cgi(file_tmp));
+						}
+					}
+					if(ret_check_cgi == -2)
+					{
+						free_double_tab(tmp);
+						return this->error_class.error_404();
+					}
+					Location bla;
+					bla = get_request_location(file);
+					if (bla.get_path().find("/dowload/") != std::string::npos)
+						this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 					buff << input.rdbuf();
 					file_tmp = buff.str();
 					free_double_tab(tmp);
 					return (file_tmp);
 				}
 			}
-			std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
+			//std::cerr << "Fail to open file ["  << file_tmp << "]" << std::endl;
 			free_double_tab(tmp);
 			return this->error_class.error_404();
 		}
+		Location bla;
+		bla = get_request_location(file);
+		if (bla.get_path().find("/dowload/") != std::string::npos)
+			this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 		buff << input.rdbuf();
 		file_tmp = buff.str();
+		//std::cout << "file_tmp" << file_tmp << std::endl;
 		free_double_tab(tmp);
 		return (file_tmp);
 	}

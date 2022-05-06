@@ -176,3 +176,28 @@ std::string Error::error_204(void)
 	this->error_msg = "No Content";
 	return "";
 }
+
+std::string Error::error_431(void)
+{
+	std::map<int, std::string>::iterator it = this->error_page.find(405);
+	std::ifstream input;
+	std::stringstream buff;
+	std::string ret;
+
+	this->error_code = "431";
+	this->error_msg = "Request Header Fields Too Large";
+	if (it != this->error_page.end())
+	{
+		input.open(it->second.c_str());
+		buff << input.rdbuf();
+		ret = buff.str();
+		input.close();
+		return ret;
+	}
+	ret = "<html>\n\t<head>\n\t\t<title>431 Request Header Fields Too Large</title>\n\t</head>\n\t<body bgcolor=";
+	ret += '"';
+	ret += "white";
+	ret += '"';
+	ret += ">\n\t\t<center>\n\t\t\t<hl>431 Request Header Fields Too Large</hl>\n\t\t</center>\n\t\t<hr>\n\t\t<center>webserveur fleger/pacorrei</center>\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t\t<!-- a padding to disable MSIE and Chrome friendly error page -->\n\t</body>\n</html>";
+	return ret;
+}

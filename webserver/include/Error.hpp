@@ -33,7 +33,7 @@ class Error
 		std::string error_404(void);
 		std::string error_405(void);
 		std::string error_204(void);
-	
+		std::string error_431(void);
 	private:
 
 		std::map<int, std::string> error_page;

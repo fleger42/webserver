@@ -8,9 +8,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <string>
+#include <stdlib.h>
 #include "VirtualServer.hpp"
 #include "Error.hpp"
-
 extern int g_ctrl_c_called;
 class VirtualServer;
 class Error;
@@ -18,6 +20,8 @@ class Socket;
 class Location;
 class Cgi;
 std::vector<std::string> string_to_double_tab(std::string str);
+int		ft_nbr_c(int n);
+char	*ft_itoa(int n);
 size_t					ft_strlcpy(char *dst, char const *src, size_t size);
 char					**ft_clear_splitted(char **tab);
 char					**ft_split(char const *s, const char *delimiters);
@@ -41,6 +45,7 @@ class Server {
 			std::string actionPost();
 			std::string actionDelete();
 			int get_action();
+			size_t body_size(std::string header);
 			void close_all_fd();
 			int verif_post_location(std::string file);
 			int verif_get_location(std::string file);
