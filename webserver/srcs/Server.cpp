@@ -586,12 +586,18 @@ std::string Server::actionPost()
 	if(redirection.get_path().empty() == 1)
 	{
 		if(this->info_serv.get_body_size() < body_size(msg_client))
+		{
+			free_double_tab(tmp);
 			return this->error_class.error_431();
+		}
 	}
 	else
 	{
 		if(redirection.get_body_size() < body_size(msg_client))
+		{
+			free_double_tab(tmp);
 			return this->error_class.error_431();
+		}
 	}
 	file_tmp = this->get_location_path(file, i);
 	if (this->error_class.GetRedir() == 0)
