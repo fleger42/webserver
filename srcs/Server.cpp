@@ -202,12 +202,10 @@ int	Server::verif_header()
 size_t Server::body_size(std::string header)
 {
 	int i = 0;
-	std::cout << "IN BODY_SIZE [" << header << "]" << std::endl;
 	while(header[i])
 	{
 		if(header[i] == '\n' && (header[i + 1] == '\r' && header[i + 2] == '\n'))
 		{
-			std::cout << "OUT BODY_SIZE [" << &header[i + 3] << "]" << std::endl;
 			return (ft_strlen(&header[i + 3]));
 		}
 		i++;
@@ -240,7 +238,6 @@ int Server::send_msg()
 	{
 		tmp = this->actionGet();
 		std::string send_buff;
-		std::cout << "RESPONSE SENT" << std::endl;
 		stock = ft_itoa(body_size(tmp));
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
 		free(stock);
@@ -248,7 +245,6 @@ int Server::send_msg()
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
 		std::cout << "SEND BUFF = [" << send_buff << "]" << std::endl;
-		//std::cout << "send_buff [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -271,6 +267,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
+		std::cout << "SEND BUFF = [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -417,7 +414,7 @@ std::string Server::actionGet()
 	}
 	else
 	{
-		if(redirection.get_body_size() < body_size(msg_client))
+		if(redirection.get_body_size() < body_size(msg_client) && redirection.get_body_size() != 0)
 		{
 			free_double_tab(tmp);
 			return this->error_class.error_431();
@@ -580,11 +577,12 @@ std::string Server::actionPost()
 	if (this->verif_post_location(file) != 0 && this->info_serv.get_post() == 0)
 	{
 		free_double_tab(tmp);
-		return this->error_class.error_403();//Ou erreur 405 jsp
+		return this->error_class.error_405();//Ou erreur 405 jsp
 	}
 	Location redirection = get_request_location(file);
 	if(redirection.get_path().empty() == 1)
 	{
+		std::cout << "FIRST " << this->info_serv.get_body_size() << " SECOND " << body_size(msg_client) << std::endl;
 		if(this->info_serv.get_body_size() < body_size(msg_client))
 		{
 			free_double_tab(tmp);
@@ -593,7 +591,8 @@ std::string Server::actionPost()
 	}
 	else
 	{
-		if(redirection.get_body_size() < body_size(msg_client))
+		std::cout << "in ELSE FIRST " << this->info_serv.get_body_size() << " SECOND " << body_size(msg_client) << std::endl;
+		if(redirection.get_body_size() < body_size(msg_client) && redirection.get_body_size() != 0)
 		{
 			free_double_tab(tmp);
 			return this->error_class.error_431();
