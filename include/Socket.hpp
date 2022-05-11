@@ -23,6 +23,7 @@ class Socket
 		int listen_socket(int max_queue);
 		int getServerFd();
 		sockaddr_in getServerAddress();
+		void close_fd();
 	private:
 		sockaddr_in server_address;
 		int server_fd;

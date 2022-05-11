@@ -31,6 +31,11 @@ void Socket::set_ip(std::string ip)
 	this->ip = ip;
 }
 
+void Socket::close_fd()
+{
+	close(this->server_fd);
+}
+
 Socket &Socket::operator=(Socket const & other)
 {
 	this->server_address = other.server_address;

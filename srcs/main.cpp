@@ -18,15 +18,32 @@ void	ft_close_webserver(std::string str)
 	g_ctrl_c_called = 1;
 }
 
+int		loop_cycle(fd_set & select_set_read_dump, fd_set & select_set_read_ready, int max_fd)
+{
+	int status = 0;
+	std::cout << "IN LOOP_CYCLE" << std::endl;
+	struct timeval select_timeout;
+	select_timeout.tv_sec = 1;
+	select_timeout.tv_usec = 0;
+	while(status == 0 && g_ctrl_c_called == 0)
+	{
+		FD_ZERO(&select_set_read_ready);
+		select_set_read_ready = select_set_read_dump;
+		usleep(2000);
+		if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
+		{
+			if(g_ctrl_c_called == 1)
+				return (-1);
+		}
+	}
+	return (1);
+}
+
 void	routine(std::vector<Server> & all_server)
 {
 	fd_set select_set_read_dump;
 	fd_set select_set_read_ready;
-	struct timeval select_timeout;
-	select_timeout.tv_sec = 1;
-	select_timeout.tv_usec = 0;
 	FD_ZERO(&select_set_read_dump);
-	int status = 0;
 	int max_fd = 0;
 	for(std::vector<Server>::iterator it_server = all_server.begin(); it_server != all_server.end(); it_server++)
 	{
@@ -40,18 +57,9 @@ void	routine(std::vector<Server> & all_server)
 	}
 	while (g_ctrl_c_called == 0)
 	{
-		while(status == 0 && g_ctrl_c_called == 0)
-		{
-			FD_ZERO(&select_set_read_ready);
-			select_set_read_ready = select_set_read_dump;
-			usleep(2000);
-			if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
-			{
-				if(g_ctrl_c_called == 1)
-					return ft_close_webserver("");
-			}
-		}
-		if(status > 0 && g_ctrl_c_called == 0)
+		if(loop_cycle(select_set_read_dump, select_set_read_ready, max_fd) < 0)
+			return ft_close_webserver("");
+		if(g_ctrl_c_called == 0)
 		{
 			for(std::vector<Server>::iterator it_server = all_server.begin(); it_server != all_server.end(); it_server++)
 			{
@@ -71,7 +79,16 @@ void	routine(std::vector<Server> & all_server)
 				}
 			}
 		}
-		status = 0;
+	}
+}
+
+void	close_all_socket(std::vector<Server> & all_server)
+{
+	for(std::vector<Server>::iterator it_server = all_server.begin(); it_server != all_server.end(); it_server++)
+	{
+		std::vector<Socket> temp =  it_server->get_all_socket();
+		for(std::vector<Socket>::iterator it_socket = temp.begin(); it_socket != temp.end(); it_socket++)
+			it_socket->close_fd();
 	}
 }
 
@@ -90,6 +107,7 @@ int main(int ac, char **av, char **envp)
 		//conf.ft_print_content();
 		std::vector<Server> all_server = conf.create_all_server(envp);
 		routine(all_server);
+		close_all_socket(all_server);
 	}
 	std::cout << "Closing webserver sucessfully.." << std::endl;
 	return (0);

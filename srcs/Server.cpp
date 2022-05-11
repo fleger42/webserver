@@ -63,7 +63,7 @@ int Server::create_socket()
 			return (1);
 		if (temp[i].make_bind() != 0)
 			return (1);
-		if (temp[i].listen_socket(30) < 0)
+		if (temp[i].listen_socket(255) < 0)
 			return (1);
 	}
 	all_socket = temp;
