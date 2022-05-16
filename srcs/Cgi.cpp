@@ -147,14 +147,14 @@ void Cgi::build_arg_and_envp(std::string uri) //GET
 
 std::string Cgi::execute_cgi(std::string uri) //GET
 {
-	std::cout << "Execute cgi for GET: " << uri << std::endl;
+	//std::cout << "Execute cgi for GET: " << uri << std::endl;
 	build_arg_and_envp(uri);
 	return(_execute_cgi_get());
 }
 
 std::string Cgi::execute_cgi(char **request, std::string uri) //POST
 {
-	std::cout << "Execute cgi for POST: " << uri << std::endl;
+	//std::cout << "Execute cgi for POST: " << uri << std::endl;
 	build_arg_and_envp(uri, request);
 	return(_execute_cgi_post());
 }
@@ -202,7 +202,7 @@ std::string Cgi::_execute_cgi_post()
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
 			std::cout << _envp[i] << std::endl << std::endl;*/
-	std::cout << "START CGI POST EXECUTION" << std::endl << std::endl;
+	//std::cout << "START CGI POST EXECUTION" << std::endl << std::endl;
 	if (pipe(fd) == -1)
 		std::cerr << "Error, pipe" << std::endl;
     if ((pid = fork()) == -1)
@@ -253,7 +253,7 @@ std::string Cgi::_execute_cgi_post()
 	}
 	reset_envp();
 	buffer_read[9999] = '\0';
-	std::cout << std::endl << std::endl << "END CGI POST EXECUTION" << std::endl;
+	//std::cout << std::endl << std::endl << "END CGI POST EXECUTION" << std::endl;
 	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
 	return (buffer_read);
 }
@@ -307,7 +307,7 @@ std::string Cgi::_execute_cgi_get()
 void Cgi::setup(char **envp, std::string cgi_conf)
 {
 	_envp_save = envp;
-	std::cout << "IN CGI CLASS : PARSE " << cgi_conf << std::endl;
+	//std::cout << "IN CGI CLASS : PARSE " << cgi_conf << std::endl;
 	for(int i = 0; envp[i]; i++)
 		this->_envp = add_line_doubletab(this->_envp, envp[i]);
 	char **tmp = ft_split(cgi_conf.c_str(), " ");
@@ -317,7 +317,6 @@ void Cgi::setup(char **envp, std::string cgi_conf)
 	while(_cgi_launcher[i] != ';')
 		i++;
 	_cgi_launcher.resize(i);
-	std::cout << "IN SETUP :" << _cgi_launcher << std::endl;
 	free_double_tab(tmp);
 }
 

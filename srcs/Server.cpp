@@ -107,7 +107,7 @@ int Server::server_accept()
 		close(client);
 		return (1);
 	}
-	std::cout << "New client connect on server [" << get_server_name() << "]" << std::endl;
+	//std::cout << "New client connect on server [" << get_server_name() << "]" << std::endl;
 	return (0);
 }
 
@@ -222,6 +222,7 @@ int Server::send_msg()
 	{
 		std::string send_buff;
 		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html; charset=utf-8\n\n";
+		std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -244,7 +245,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
-		std::cout << "SEND BUFF = [" << send_buff << "]" << std::endl;
+		std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -267,7 +268,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
-		std::cout << "SEND BUFF = [" << send_buff << "]" << std::endl;
+		std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -287,6 +288,7 @@ int Server::send_msg()
 		stock = ft_itoa(body_size(tmp));
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + this->error_class.GetContentMsg() + tmp;
 		free(stock);
+		std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -351,7 +353,6 @@ std::string Server::autoindex(std::string uri, std::string real_path)
 {
 	std::string ret;
 	DIR *dir;
-	std::cout << "IN AUTO INDEX" << std::endl;
 	struct dirent *ent;
 	if ((dir = opendir(uri.c_str())) != NULL)
 	{
@@ -535,7 +536,7 @@ std::string Server::actionGet()
 					}
 					Location bla;
 					bla = get_request_location(file);
-					if (bla.get_path().find("/dowload/") != std::string::npos)
+					if (bla.get_path().find("/download/") != std::string::npos)
 						this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 					buff << input.rdbuf();
 					file_tmp = buff.str();
@@ -549,7 +550,7 @@ std::string Server::actionGet()
 		}
 		Location bla;
 		bla = get_request_location(file);
-		if (bla.get_path().find("/dowload/") != std::string::npos)
+		if (bla.get_path().find("/download/") != std::string::npos)
 			this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 		buff << input.rdbuf();
 		file_tmp = buff.str();
@@ -582,7 +583,6 @@ std::string Server::actionPost()
 	Location redirection = get_request_location(file);
 	if(redirection.get_path().empty() == 1)
 	{
-		std::cout << "FIRST " << this->info_serv.get_body_size() << " SECOND " << body_size(msg_client) << std::endl;
 		if(this->info_serv.get_body_size() < body_size(msg_client))
 		{
 			free_double_tab(tmp);
@@ -591,7 +591,6 @@ std::string Server::actionPost()
 	}
 	else
 	{
-		std::cout << "in ELSE FIRST " << this->info_serv.get_body_size() << " SECOND " << body_size(msg_client) << std::endl;
 		if(redirection.get_body_size() < body_size(msg_client) && redirection.get_body_size() != 0)
 		{
 			free_double_tab(tmp);
@@ -715,7 +714,7 @@ std::string Server::actionPost()
 					}
 					Location bla;
 					bla = get_request_location(file);
-					if (bla.get_path().find("/dowload/") != std::string::npos)
+					if (bla.get_path().find("/download/") != std::string::npos)
 						this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 					buff << input.rdbuf();
 					file_tmp = buff.str();
@@ -729,7 +728,7 @@ std::string Server::actionPost()
 		}
 		Location bla;
 		bla = get_request_location(file);
-		if (bla.get_path().find("/dowload/") != std::string::npos)
+		if (bla.get_path().find("/download/") != std::string::npos)
 			this->error_class.SetContentMsg("Content-Disposition: attachment\nContent-Type: text/html; charset=utf-8\n\n");
 		buff << input.rdbuf();
 		file_tmp = buff.str();

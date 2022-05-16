@@ -150,8 +150,9 @@ void VirtualServer::parse_error_page(std::string str)
 void VirtualServer::parse_index_list(std::string str)
 {
 	int i = str.find("index");
-	std::string s = &str[i + strlen("index")];
-	
+	std::string s;
+	if(str.size() <= i + strlen("index"))
+		s = &str[i + strlen("index")];
 	char **ret = ft_split(s.c_str(), " ");
 	i = 0;
 	while(ret[i])

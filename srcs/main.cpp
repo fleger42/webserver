@@ -21,7 +21,6 @@ void	ft_close_webserver(std::string str)
 int		loop_cycle(fd_set & select_set_read_dump, fd_set & select_set_read_ready, int max_fd)
 {
 	int status = 0;
-	std::cout << "IN LOOP_CYCLE" << std::endl;
 	struct timeval select_timeout;
 	select_timeout.tv_sec = 1;
 	select_timeout.tv_usec = 0;
@@ -95,6 +94,7 @@ void	close_all_socket(std::vector<Server> & all_server)
 int main(int ac, char **av, char **envp)
 {
 	g_ctrl_c_called = 0;
+	std::vector<Server> all_server;
 	if(ac != 2)
 	{
 		std::cerr << "usage: ./server [file.conf]" << std::endl;
@@ -105,7 +105,14 @@ int main(int ac, char **av, char **envp)
 	if(conf.parse_conf_file(av[1]) == 0)
 	{
 		//conf.ft_print_content();
-		std::vector<Server> all_server = conf.create_all_server(envp);
+		try
+		{
+			all_server = conf.create_all_server(envp);
+		}
+		catch(const std::exception& e)
+		{
+			g_ctrl_c_called = 1;
+		}		
 		routine(all_server);
 		close_all_socket(all_server);
 	}
