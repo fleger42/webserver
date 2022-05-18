@@ -140,16 +140,16 @@ int Server::receive_msg()
 				if(g_ctrl_c_called == 1)
 				{
 						std::cerr << "Closing webserver..." << std::endl;
-						exit(0);
+						return (1);
 				}
 				std::cerr << "Error: select()" << std::endl;
-				exit(1);
+				return (1);
 			}
 	}
 	if((n = recv(this->client, buff, sizeof(buff) - 1, 0)) < 0 || n == 0)
 		return (1);
 	buff[n] = '\0';
-	std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
+	//std::cout << "[Messaged received:\n" << buff << "]" << std::endl;
 	this->msg_client = buff;
 	
 	return (0);
@@ -245,7 +245,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
-		std::cout << "SEND [" << send_buff << "]" << std::endl;
+		//std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -268,7 +268,7 @@ int Server::send_msg()
 		if(tmp.find("Content-Type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
-		std::cout << "SEND [" << send_buff << "]" << std::endl;
+	//	std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -288,7 +288,7 @@ int Server::send_msg()
 		stock = ft_itoa(body_size(tmp));
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + this->error_class.GetContentMsg() + tmp;
 		free(stock);
-		std::cout << "SEND [" << send_buff << "]" << std::endl;
+		//std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -755,12 +755,18 @@ std::string Server::actionDelete()
 	if (loca.get_path().empty() == 0)
 	{
 		if (loca.get_delete() == 0 && this->info_serv.get_delete() == 0)
+		{
+			free_double_tab(tmp);
 			return this->error_class.error_403();//ou 405
+		}
 	}
 	else
 	{
 		if (this->info_serv.get_delete() == 0)
+		{
+			free_double_tab(tmp);
 			return this->error_class.error_403();//ou 405
+		}
 	}
 	file_tmp = loca.get_root();
 	if (file_tmp.empty() == 1)
@@ -769,8 +775,10 @@ std::string Server::actionDelete()
 	i = std::remove(file_tmp.c_str());
 	if (i == 0)
 	{
+		free_double_tab(tmp);
 		return this->error_class.error_204();
 	}
+	free_double_tab(tmp);
 	return this->error_class.error_404();
 }
 
@@ -997,8 +1005,9 @@ std::string Server::get_location_path(std::string file, int index)
 		}
 		it++;
 	}
-	if (index != -1)
+	if (index != -1 && it != loca->end())
 	{
+		std::cout << "TEST" << std::endl;
 		if (verif_root(file, this->info_serv.get_root()) == 0)
 			ret = this->info_serv.get_root();
 		ret += file;

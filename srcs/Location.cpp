@@ -75,7 +75,9 @@ void Location::parse_bodysize(std::string str)
 void Location::parse_index_list(std::string str)
 {
 	int i = str.find("index");
-	std::string s = &str[i + strlen("index")];
+	std::string s;
+	if (i + strlen("index") < str.size())
+		s = &str[i + strlen("index")];
 	
 	char **ret = ft_split(s.c_str(), " ");
 	i = 0;
@@ -89,7 +91,7 @@ void Location::parse_index_list(std::string str)
 	for(std::vector<std::string>::iterator it = _index_list.begin(); it != _index_list.end(); it++)
 	{
 		i = 0; 
-		while((*it)[i] != ';')
+		while((*it)[i] && (*it)[i] != ';')
 			i++;
 		it->resize(i);
 	}

@@ -28,7 +28,7 @@ int		loop_cycle(fd_set & select_set_read_dump, fd_set & select_set_read_ready, i
 	{
 		FD_ZERO(&select_set_read_ready);
 		select_set_read_ready = select_set_read_dump;
-		usleep(2000);
+		usleep(20);
 		if((status = select(max_fd + 1, &select_set_read_ready, NULL, NULL, &select_timeout)) < 0)
 		{
 			if(g_ctrl_c_called == 1)
