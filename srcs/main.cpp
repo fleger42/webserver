@@ -116,6 +116,6 @@ int main(int ac, char **av, char **envp)
 		routine(all_server);
 		close_all_socket(all_server);
 	}
-	std::cout << "Closing webserver sucessfully.." << std::endl;
+	std::cout << "Closing webserver.." << std::endl;
 	return (0);
 } 

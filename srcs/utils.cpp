@@ -95,7 +95,7 @@ int count_appearance(std::string file, std::string str)
 		{
 			return (count);
 		}
-		file = &file[walk_end_block(&file[found])];
+		file = &file[walk_end_block(&file[found + 1])];
 		count++;
 	}
 	return (count);

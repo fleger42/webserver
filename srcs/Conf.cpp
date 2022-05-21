@@ -94,6 +94,24 @@ std::vector<Server> Conf::create_all_server(char **envp)
 	return(list_server);
 }
 
+int Conf::verif_quote_nbr()
+{
+	int i = 0;
+	int closed_quote = 0;
+	int open_quote = 0;
+	while(file_content[i])
+	{
+		if(file_content[i] == '{')
+			open_quote++;
+		else if(file_content[i] == '}')
+			closed_quote++;
+		i++;
+	}
+	if(open_quote - closed_quote != 0)
+		std::cerr << "Error with quote" << std::endl;
+	return (open_quote - closed_quote);
+}
+
 int Conf::parse_conf_file(std::string filename)
 {
 	std::cout << "Start parsing of file: " << filename << std::endl;
@@ -110,6 +128,8 @@ int Conf::parse_conf_file(std::string filename)
 	buffer << read_stream.rdbuf();
 	content = buffer.str();
 	this->file_content = content;
+	if(verif_quote_nbr() != 0)
+		return (1);
 	size_t found;
 	size_t server_nbr = count_appearance(content, "server");
 	_list_virtual_server = new std::vector<VirtualServer>(server_nbr);

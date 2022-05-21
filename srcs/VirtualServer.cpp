@@ -46,6 +46,7 @@ VirtualServer & VirtualServer::operator=(VirtualServer const & copy)
 
 void VirtualServer::parse_methods(std::string str)
 {
+	//std::cout << "parse_methods" << std::endl;
 	if(str.find("POST") != std::string::npos)
 			_post = 1;
 	if(str.find("GET") != std::string::npos)
@@ -56,6 +57,7 @@ void VirtualServer::parse_methods(std::string str)
 
 void VirtualServer::parse_ip(std::string str)
 {
+	//std::cout << "parse_ip" << std::endl;
 	int i = 0;
 	int length = 0;
 	while(str[i] && !(str[i] >= '0' && str[i] <= '9'))
@@ -78,12 +80,15 @@ void VirtualServer::parse_ip(std::string str)
 
 void VirtualServer::parse_redirect_list(std::string str)
 {
+	//std::cout << "parse_redirect_list" << std::endl;
+	std::string temp;
 	int length = str.find("return");
-	std::string temp = &str[length + strlen("return") + 1];
+	if(str.size() >= length + strlen("return") + 1)
+		temp = &str[length + strlen("return") + 1];
 	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
 		length++;
 	int i = 0; 
-	while(temp[i] != ';')
+	while(temp[i] && temp[i] != ';')
 		i++;
 	temp.resize(i);
 	_redirect_list.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));
@@ -91,56 +96,72 @@ void VirtualServer::parse_redirect_list(std::string str)
 
 void VirtualServer::parse_root(std::string str)
 {
+	//std::cout << "parse_root" << std::endl;
 	int length = str.find("root");
-	_root = &str[length + strlen("root") + 1];
+	if(str.size() >= length + strlen("root") + 1)
+		_root = &str[length + strlen("root") + 1];
 	int i = 0; 
-	while(_root[i] != ';')
+	while(_root[i] && _root[i] != ';')
 		i++;
 	_root.resize(i);
 }
 
 void VirtualServer::parse_server_name(std::string str)
 {
+	//std::cout << "parse_server_name" << std::endl;
 	int length = str.find("server_name");
-	_server_name = &str[length + strlen("server_name") + 1];
+	if(str.size() >= length + strlen("server_name") + 1)
+		_server_name = &str[length + strlen("server_name") + 1];
 	int i = 0; 
-	while(_server_name[i] != ';')
+	while(_server_name[i] && _server_name[i] != ';')
 		i++;
 	_server_name.resize(i);
 }
 
 void VirtualServer::parse_autoindex(std::string str)
 {
+	//std::cout << "parse_autoindex" << std::endl;
 	if(str.find("on") != std::string::npos)
 		_autoindex = 1;
 }
 
 void VirtualServer::parse_bodysize(std::string str)
 {
+	//std::cout << "parse_bodysize" << std::endl;
+	std::string temp;
 	int length = str.find("client_max_body_size");
-	std::string temp = &str[length + strlen("client_max_body_size") + 1];
+	if(str.size() >= length + strlen("client_max_body_size") + 1)
+		temp = &str[length + strlen("client_max_body_size") + 1];
 	_body_size = atoi(temp.c_str());
 }
 
 void VirtualServer::parse_cgi(std::string str)
 {
+	//std::cout << "parse_cgi" << std::endl;
+	std::string temp;
 	int length = str.find("cgi");
-	std::string temp = &str[length + strlen("cgi") + 1];
+	if(str.size() >= length + strlen("cgi") + 1)
+		temp = &str[length + strlen("cgi") + 1];
 	_cgi_list.push_back(temp);
 	int i = 0; 
-	while(temp[i] != ';')
+	while(temp[i] && temp[i] != ';')
 		i++;
 	temp.resize(i);
 }
 
 void VirtualServer::parse_error_page(std::string str)
 {
+	//std::cout << "parse_error_page" << std::endl;
+	std::string temp;
 	int length = str.find("error_page");
-	std::string temp = &str[length + strlen("error_page") + 1];
+	if(str.size() >= length + strlen("error_page") + 1)
+	{
+		temp = &str[length + strlen("error_page") + 1];
+	}
 	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
 		length++;
 	int i = 0; 
-	while(temp[i] != ';')
+	while(temp[i] && temp[i] != ';')
 		i++;
 	temp.resize(i);
 	_error_page.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));
@@ -149,9 +170,10 @@ void VirtualServer::parse_error_page(std::string str)
 
 void VirtualServer::parse_index_list(std::string str)
 {
+	//std::cout << "parse_index_list" << std::endl;
 	int i = str.find("index");
 	std::string s;
-	if(str.size() <= i + strlen("index"))
+	if(str.size() >= i + strlen("index"))
 		s = &str[i + strlen("index")];
 	char **ret = ft_split(s.c_str(), " ");
 	i = 0;

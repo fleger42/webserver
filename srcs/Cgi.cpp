@@ -311,10 +311,13 @@ void Cgi::setup(char **envp, std::string cgi_conf)
 	for(int i = 0; envp[i]; i++)
 		this->_envp = add_line_doubletab(this->_envp, envp[i]);
 	char **tmp = ft_split(cgi_conf.c_str(), " ");
-	_target = tmp[0];
-	_cgi_launcher = tmp[1];
+	if(tmp && *tmp)
+	{
+		_target = tmp[0];
+		_cgi_launcher = tmp[1];
+	}
 	int i = 0; 
-	while(_cgi_launcher[i] != ';')
+	while(_cgi_launcher[i] && _cgi_launcher[i] != ';')
 		i++;
 	_cgi_launcher.resize(i);
 	free_double_tab(tmp);

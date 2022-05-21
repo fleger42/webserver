@@ -41,6 +41,7 @@ Location & Location::operator=(Location const & copy)
 
 void Location::parse_methods(std::string str)
 {
+	//std::cout << "Location parse_methods" << std::endl;
 	if(str.find("POST") != std::string::npos)
 			_post = 1;
 	if(str.find("GET") != std::string::npos)
@@ -51,34 +52,40 @@ void Location::parse_methods(std::string str)
 
 void Location::parse_root(std::string str)
 {
+	//std::cout << "Location parse_root" << std::endl;
 	int length = str.find("root");
-	_root = &str[length + strlen("root") + 1];
+	if (str.size() >= length + strlen("root") + 1)
+		_root = &str[length + strlen("root") + 1];
 	int i = 0; 
-	while(_root[i] != ';')
+	while(_root[i] && _root[i] != ';')
 		i++;
 	_root.resize(i);
 }
 
 void Location::parse_autoindex(std::string str)
 {
+	//std::cout << "Location parse_autoindex" << std::endl;
 	if(str.find("on") != std::string::npos)
 		_autoindex = 1;
 }
 
 void Location::parse_bodysize(std::string str)
 {
+	//std::cout << "Location parse_bodysize" << std::endl;
+	std::string temp;
 	int length = str.find("client_max_body_size");
-	std::string temp = &str[length + strlen("client_max_body_size") + 1];
+	if (str.size() >= length + strlen("client_max_body_size") + 1)
+		temp = &str[length + strlen("client_max_body_size") + 1];
 	_body_size = atoi(temp.c_str());
 }
 
 void Location::parse_index_list(std::string str)
 {
+	//std::cout << "Location parse_index_list" << std::endl;
 	int i = str.find("index");
 	std::string s;
-	if (i + strlen("index") < str.size())
+	if (str.size() >= i + strlen("index") <= str.size())
 		s = &str[i + strlen("index")];
-	
 	char **ret = ft_split(s.c_str(), " ");
 	i = 0;
 	while(ret[i])
@@ -99,10 +106,12 @@ void Location::parse_index_list(std::string str)
 
 void Location::parse_path(std::string str)
 {
+	//std::cout << "Location parse_path" << std::endl;
 	int length = str.find("location");
-	_path = &str[length + strlen("location") + 1];
-		int i = 0; 
-	while(_path[i] != ' ')
+	if(str.size() >= length + strlen("location") + 1)
+		_path = &str[length + strlen("location") + 1];
+	int i = 0; 
+	while(_path[i] && _path[i] != ' ')
 		i++;
 	_path.resize(i);
 	if(_path[_path.size() - 1] != '/')
@@ -111,28 +120,36 @@ void Location::parse_path(std::string str)
 
 void Location::parse_upload_dir(std::string str)
 {
+	//std::cout << "Location parse_upload_dir" << std::endl;
 	int length = str.find("upload_dir");
-	_upload_dir = &str[length + strlen("upload_dir") + 1];
+	if(str.size() >= length + strlen("upload_dir") + 1)
+		_upload_dir = &str[length + strlen("upload_dir") + 1];
 	int i = 0; 
-	while(_upload_dir[i] != ';')
+	while(_upload_dir[i] && _upload_dir[i] != ';')
 		i++;
 	_upload_dir.resize(i);
 }
 void Location::parse_cgi_list(std::string str)
 {
+	//std::cout << "Location parse_cgi_list" << std::endl;
+	std::string temp;
 	int length = str.find("cgi");
-	std::string temp = &str[length + strlen("cgi") + 1];
+	if(str.size() >= length + strlen("cgi") + 1)
+		temp = &str[length + strlen("cgi") + 1];
 	_cgi_list.push_back(temp);
 }
 
 void Location::parse_redirect_list(std::string str)
 {
+	//std::cout << "Location parse_redirect_list" << std::endl;
+	std::string temp;
 	int length = str.find("return");
-	std::string temp = &str[length + strlen("return") + 1];
+	if(str.size() >= length + strlen("return") + 1)
+		temp = &str[length + strlen("return") + 1];
 	while(temp[length] && (temp[length] >= '0' && temp[length] <= '9'))
 		length++;
 	int i = 0; 
-	while(temp[i] != ';')
+	while(temp[i] && temp[i] != ';')
 		i++;
 	temp.resize(i);
 	_redirect_list.insert(std::pair<int, std::string>(atoi(temp.c_str()), &temp[length + 1]));

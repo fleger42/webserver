@@ -31,6 +31,7 @@ class Conf
 		void add_virtual_server(VirtualServer const & server);
 		int parse_conf_file(std::string filename);
 		std::string get_file_content() const;
+		int verif_quote_nbr();
 		std::vector<Server> create_all_server(char **envp);
 		void ft_print_content(void);
 	private:
