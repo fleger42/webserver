@@ -222,7 +222,7 @@ int Server::send_msg()
 	{
 		std::string send_buff;
 		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html; charset=utf-8\n\n";
-		std::cout << "SEND [" << send_buff << "]" << std::endl;
+		//std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -242,7 +242,7 @@ int Server::send_msg()
 		stock = ft_itoa(body_size(tmp));
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
 		free(stock);
-		if(tmp.find("Content-Type:") == std::string::npos)
+		if(tmp.find("Content-Type:") == std::string::npos && tmp.find("Content-type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
 		//std::cout << "SEND [" << send_buff << "]" << std::endl;
@@ -265,10 +265,10 @@ int Server::send_msg()
 		stock = ft_itoa(body_size(tmp));
 		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
 		free(stock);
-		if(tmp.find("Content-Type:") == std::string::npos)
+		if(tmp.find("Content-Type:") == std::string::npos && tmp.find("Content-type:") == std::string::npos)
 			send_buff += this->error_class.GetContentMsg();
 		send_buff += tmp;
-	//	std::cout << "SEND [" << send_buff << "]" << std::endl;
+		//std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
 			std::cerr << "error: send()" <<std::endl;
@@ -654,8 +654,9 @@ std::string Server::actionPost()
 		ret_check_cgi = check_cgi(file_tmp, this->cgi_exec);
 		if(ret_check_cgi != -1 && ret_check_cgi != -2)
 		{
+			std::string str_holder = cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp);
 			free_double_tab(tmp);
-			return (cgi_exec[ret_check_cgi].execute_cgi(tmp, file_tmp));
+			return (str_holder);
 		}
 	}
 	if(ret_check_cgi == -2)

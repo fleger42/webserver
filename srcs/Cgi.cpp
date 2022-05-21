@@ -275,7 +275,7 @@ std::string Cgi::_execute_cgi_get()
 	if(_envp)
 		for(int i = 0; _envp[i]; i++)
 			std::cout << _envp[i] << std::endl << std::endl;*/
-	std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
+	//std::cout << "START CGI GET EXECUTION" << std::endl << std::endl;
 	if (pipe(fd) == -1)
 		std::cerr << "Error, pipe" << std::endl;
     if ((pid = fork()) == -1)
@@ -299,7 +299,7 @@ std::string Cgi::_execute_cgi_get()
 	}
 	reset_envp();
 	buffer_read[9999] = '\0';
-	std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
+	//std::cout << std::endl << std::endl << "END CGI GET EXECUTION" << std::endl;
 	//std::cout << "buffer_read [" << buffer_read << "]" << std::endl;
 	return (buffer_read);
 }
