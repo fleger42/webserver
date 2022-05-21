@@ -502,7 +502,6 @@ std::string Server::actionGet()
 		}
 		else if (o == 0)
 		{
-			
 			while (file_tmp != "error")
 			{
 				i++;
@@ -959,12 +958,14 @@ std::string Server::get_location_path(std::string file, int index)
 		{
 			if (!it->get_root().empty())
 			{
+
 				if (verif_root(file, it->get_root()) == 0)
 					ret += it->get_root();
 				if (path_loca.size() - file.size() >= 0 && index != -1)
 				{
 					ret += path_loca;
 					ret = this->add_index(ret, index, it);
+	
 					return ret;
 				}
 				if (verif_root(file, it->get_root()) == 1)
@@ -1007,7 +1008,6 @@ std::string Server::get_location_path(std::string file, int index)
 	}
 	if (index != -1 && it != loca->end())
 	{
-		std::cout << "TEST" << std::endl;
 		if (verif_root(file, this->info_serv.get_root()) == 0)
 			ret = this->info_serv.get_root();
 		ret += file;
@@ -1017,12 +1017,16 @@ std::string Server::get_location_path(std::string file, int index)
 	if (verif_root(file, this->info_serv.get_root()) == 0)
 		ret = this->info_serv.get_root();
 	ret += file;
+	if (index != -1)
+		ret = this->add_index(ret, index, loca->end());
 	return ret;
 }
 
 std::string Server::add_index(std::string ret, size_t index, std::vector<Location>::iterator it)
 {
-	if (it->get_index_list().empty() == 0)
+	std::vector<Location> *loca = this->info_serv.get_location_list();
+
+	if (it != loca->end() &&  it->get_index_list().empty() == 0)
 	{
 		if (index >= it->get_index_list().size())
 			index -= it->get_index_list().size();
