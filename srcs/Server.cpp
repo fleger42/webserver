@@ -221,7 +221,13 @@ int Server::send_msg()
 	if (ret < 0  || verif_header() == 1)
 	{
 		std::string send_buff;
-		send_buff = "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html; charset=utf-8\n\n";
+		tmp = this->error_class.error_405();
+		stock = ft_itoa(body_size(tmp));
+		send_buff = "HTTP/1.1 " + this->error_class.GetErrorCode() + " " + this->error_class.GetErrorMsg() + "\nContent-Length: " + stock + "\n";
+		free(stock);
+		if(tmp.find("Content-Type:") == std::string::npos && tmp.find("Content-type:") == std::string::npos)
+			send_buff += this->error_class.GetContentMsg();
+		send_buff += tmp;
 		//std::cout << "SEND [" << send_buff << "]" << std::endl;
 		if(send(this->client, send_buff.c_str(), ft_strlen(send_buff.c_str()), 0) < 0)
 		{
